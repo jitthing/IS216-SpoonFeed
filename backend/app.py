@@ -7,6 +7,7 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/myapp"
 mongo = PyMongo(app)
 CORS(app)
 
+# placeholder api routes for our DB
 @app.route('/api/items', methods=['GET'])
 def get_items():
     items = mongo.db.items.find()
