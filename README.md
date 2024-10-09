@@ -38,6 +38,15 @@ npm start
 
 5. In the backend directory, run backend in development environment
 
+For Javascript:
+
+```
+npm i
+npm run devStart
+```
+
+For Python:
+
 ```
 python app.py
 ```

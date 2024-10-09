@@ -1,6 +1,10 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuth, UserButton } from 'vue-clerk'
 import HelloWorld from './components/HelloWorld.vue'
+
+const { userId, isSignedIn } = useAuth()
+console.log(userId)
 </script>
 
 <template>
@@ -13,6 +17,11 @@ import HelloWorld from './components/HelloWorld.vue'
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
+        <div v-if="!isSignedIn">
+          <RouterLink to="/sign-in">Sign In</RouterLink>
+          <RouterLink to="/sign-up">Sign Up</RouterLink>
+        </div>
+        <RouterLink to="/"><UserButton /></RouterLink>
       </nav>
     </div>
   </header>
