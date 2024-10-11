@@ -3,5 +3,18 @@ import { SignIn } from 'vue-clerk'
 </script>
 
 <template>
-  <SignIn path="/sign-in" after-sign-in-url="/" sign-up-url="/sign-up" />
+  <div class="content-wrapper">
+    <SignIn path="/sign-in" after-sign-in-url="/" sign-up-url="/sign-up" />
+  </div>
 </template>
+
+<style scoped>
+.content-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  height: 100vh;
+  width: 100vh;
+}
+</style>
