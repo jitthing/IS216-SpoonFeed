@@ -14,7 +14,7 @@ import { SignUp } from 'vue-clerk'
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  height: 100vh;
+  height: 90vh;
   width: 100vh;
 }
 </style>

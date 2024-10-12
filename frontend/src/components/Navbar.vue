@@ -1,5 +1,5 @@
 <script setup>
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { useAuth, UserButton } from 'vue-clerk'
 
 const { userId, isSignedIn } = useAuth()
@@ -8,7 +8,7 @@ console.log(userId)
 
 <template>
   <div class="navbar">
-    <img src="..." alt="" />
+    <img class="image" src="../../public/spoonfeed.jpeg" alt="" height="80" width="80" />
     <!-- BS basic nav: start -->
     <ul class="nav justify-content-center">
       <li class="nav-item">
@@ -35,12 +35,11 @@ console.log(userId)
 </template>
 
 <style scoped>
-navbar {
-  display: inline-block;
-  height: 10vh;
-}
 .profile {
   padding-top: 10px;
   padding-right: 20px;
+}
+.image {
+  margin-left: 10px;
 }
 </style>
