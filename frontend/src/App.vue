@@ -1,8 +1,7 @@
 <script setup>
-import { RouterView } from 'vue-router'
-import { useAuth, UserButton } from 'vue-clerk'
-import Navbar from './components/Navbar.vue'
-import Menu from './components/Menu.vue'
+import { useAuth } from 'vue-clerk'
+import SignedOut from './views/SignedOut/SignedOut.vue'
+import SignedIn from './views/SignedIn/SignedIn.vue'
 
 const { isSignedIn } = useAuth()
 </script>
@@ -11,26 +10,12 @@ const { isSignedIn } = useAuth()
   <header>
     <div class="wrapper" v-if="!isSignedIn">
       <!-- Create component of signed in view and signed out view, instead of rendering individual components like this -->
-      <Navbar />
-      <RouterView />
+      <SignedOut />
     </div>
     <div v-else>
-      <h1>You are signed in!</h1>
-      <img class="image" src="../public/spoonfeed.jpeg" alt="" height="100" width="100" />
-      <Menu />
-      <div class="profile"><UserButton /></div>
+      <SignedIn />
     </div>
   </header>
 </template>
 
-<style scoped>
-.profile {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-.image {
-  margin-left: 10px;
-  margin-bottom: 10px;
-}
-</style>
+<style scoped></style>

@@ -1,19 +1,21 @@
-<script setup></script>
+<script setup>
+import { RouterLink } from 'vue-router'
+</script>
 
 <template>
   <div class="menu">
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+        <RouterLink class="nav-link" to="/dashboard">Dashboard</RouterLink>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Find Online Recipe</a>
+        <RouterLink class="nav-link" to="/">Online Recipe</RouterLink>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Following</a>
+        <RouterLink class="nav-link" to="/">Following</RouterLink>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Profile</a>
+        <RouterLink class="nav-link" to="/">Profile</RouterLink>
       </li>
     </ul>
   </div>
