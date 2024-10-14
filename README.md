@@ -33,7 +33,7 @@ pip install -r requirements.txt
 4. In the frontend directory, start frontend in development environment
 
 ```
-npm start
+npm run dev
 ```
 
 5. In the backend directory, run backend in development environment
