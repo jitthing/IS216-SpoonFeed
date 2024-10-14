@@ -1,5 +1,5 @@
 <script setup>
-import Dashboard from '../SignedIn/Dashboard.vue'
+import Homepage from '../SignedIn/Homepage.vue'
 import { useAuth } from 'vue-clerk'
 
 const { isSignedIn } = useAuth()
@@ -9,7 +9,7 @@ const { isSignedIn } = useAuth()
   <div v-if="!isSignedIn" class="home">
     <h1>This is a home page</h1>
   </div>
-  <Dashboard v-else />
+  <Homepage v-else />
 </template>
 
 <style>

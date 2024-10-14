@@ -8,13 +8,9 @@ const { isSignedIn } = useAuth()
 
 <template>
   <header>
-    <div class="wrapper" v-if="!isSignedIn">
-      <!-- Create component of signed in view and signed out view, instead of rendering individual components like this -->
-      <SignedOut />
-    </div>
-    <div v-else>
-      <SignedIn />
-    </div>
+    <!-- Create component of signed in view and signed out view, instead of rendering individual components like this -->
+    <SignedOut v-if="!isSignedIn" />
+    <SignedIn v-else />
   </header>
 </template>
 

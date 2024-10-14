@@ -10,7 +10,7 @@ import { RouterView } from 'vue-router'
       <img class="image" src="/src/assets/spoonfeed.jpeg" alt="" height="100" width="100" />
       <Menu />
     </div>
-    <RouterView class="main col-10" />
+    <RouterView class="col-10" />
   </div>
   <div class="profile"><UserButton /></div>
 </template>
@@ -23,11 +23,5 @@ import { RouterView } from 'vue-router'
 }
 .image {
   margin: 10px;
-}
-.main {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  justify-content: center;
 }
 </style>
