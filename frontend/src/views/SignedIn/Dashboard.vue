@@ -8,7 +8,10 @@
 
 <style scoped>
 .dashboard {
+  background-color: lightgrey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100vh;
-  width: 80vh;
 }
 </style>

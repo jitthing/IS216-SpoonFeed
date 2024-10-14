@@ -2,8 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { useAuth, UserButton } from 'vue-clerk'
 
-const { userId, isSignedIn } = useAuth()
-console.log(userId)
+const { isSignedIn } = useAuth()
 </script>
 
 <template>
