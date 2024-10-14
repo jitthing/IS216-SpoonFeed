@@ -7,7 +7,7 @@ const { isSignedIn } = useAuth()
 
 <template>
   <div class="navbar">
-    <img class="image" src="../../public/spoonfeed.jpeg" alt="" height="80" width="80" />
+    <img class="image" src="/src/assets/spoonfeed.jpeg" alt="" height="80" width="80" />
     <!-- BS basic nav: start -->
     <ul class="nav justify-content-center">
       <li class="nav-item">

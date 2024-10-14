@@ -6,13 +6,13 @@ import { RouterLink } from 'vue-router'
   <div class="menu">
     <ul class="nav flex-column">
       <li class="nav-item">
-        <RouterLink class="nav-link" to="/dashboard">Dashboard</RouterLink>
+        <RouterLink class="nav-link" to="/dashboard">For you</RouterLink>
       </li>
       <li class="nav-item">
-        <RouterLink class="nav-link" to="/">Online Recipe</RouterLink>
+        <RouterLink class="nav-link" to="/">Online Recipes</RouterLink>
       </li>
       <li class="nav-item">
-        <RouterLink class="nav-link" to="/">Following</RouterLink>
+        <RouterLink class="nav-link" to="/">Community Recipes</RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink class="nav-link" to="/">Profile</RouterLink>

@@ -4,7 +4,7 @@ import { SignUp } from 'vue-clerk'
 
 <template>
   <div class="content-wrapper">
-    <SignUp path="/sign-up" after-sign-up-url="/dashboard" sign-in-url="/sign-in" />
+    <SignUp path="/sign-up" after-sign-up-url="/" sign-in-url="/sign-in" />
   </div>
 </template>
 

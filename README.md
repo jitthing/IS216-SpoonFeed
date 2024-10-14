@@ -1,5 +1,7 @@
 ## Getting Started
 
+Before starting, ensure you have installed node.js on your local machine.
+
 1. Clone the repository in your favourite IDE and enter the repository's directory
 
 ```

@@ -2,15 +2,12 @@
 import Menu from '@/components/Menu.vue'
 import { UserButton, useAuth } from 'vue-clerk'
 import { RouterView } from 'vue-router'
-
-const { userId } = useAuth()
-console.log(userId)
 </script>
 
 <template>
   <div class="container-fluid row">
     <div class="col-2">
-      <img class="image" src="/public/spoonfeed.jpeg" alt="" height="100" width="100" />
+      <img class="image" src="/src/assets/spoonfeed.jpeg" alt="" height="100" width="100" />
       <Menu />
     </div>
     <RouterView class="main col-10" />
