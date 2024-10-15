@@ -15,7 +15,7 @@ import { RouterLink } from 'vue-router'
         <RouterLink class="nav-link" to="/">Community Recipes</RouterLink>
       </li>
       <li class="nav-item">
-        <RouterLink class="nav-link" to="/">Profile</RouterLink>
+        <RouterLink class="nav-link" to="/profile">Profile</RouterLink>
       </li>
     </ul>
   </div>
@@ -23,9 +23,8 @@ import { RouterLink } from 'vue-router'
 
 <style>
 .menu {
-  justify-content: start;
-  width: 20vh;
-  height: 50vh;
+  width: 80%;
+  height: 50%;
   margin-left: 10px;
   padding-bottom: 20px;
   border: 1px solid grey;

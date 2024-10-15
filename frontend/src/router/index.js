@@ -37,7 +37,8 @@ const router = createRouter({
       name: 'dashboard',
       component: Dashboard
     },
-    { path: '/online-recipes', name: 'onlinerecipe', component: OnlineRecipe }
+    { path: '/online-recipes', name: 'onlinerecipe', component: OnlineRecipe },
+    { path: '/profile', name: 'profile', component: () => AboutView }
   ]
 })
 

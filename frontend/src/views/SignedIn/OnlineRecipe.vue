@@ -1,6 +1,7 @@
 <script>
 import axios from 'axios'
 import RecipeCard from '../../components/Card.vue'
+import Sidebar from '../../components/Sidebar.vue'
 
 const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
 
@@ -8,14 +9,17 @@ export default {
   data() {
     return {
       search: '',
-      recipes: []
+      recipes: [],
+      selectedRecipe: {},
+      openRecipe: false
     }
   },
   created() {
     this.fetchData()
   },
   components: {
-    RecipeCard
+    RecipeCard,
+    Sidebar
   },
   methods: {
     async fetchData() {
@@ -31,6 +35,18 @@ export default {
           this.recipes = response.data.results
           console.log(this.recipes)
         })
+    },
+    setRecipe(recipe) {
+      try {
+        this.selectedRecipe = recipe
+        this.openRecipe = true
+        // console.log(this.selectedRecipe)
+      } catch {
+        console.log('there is an error in onlinerecipe')
+      }
+    },
+    closeSide() {
+      this.openRecipe = false
     }
   }
 }
@@ -51,17 +67,28 @@ export default {
         @keydown.enter="fetchData"
       />
     </div>
-    <div class="second justify-content-end">
-      <button type="button" class="btn btn-primary mx-2">Filter</button>
-      <button type="button" class="btn btn-primary">Sort</button>
-    </div>
     <div class="container-fluid row">
-      <RecipeCard
-        class="recipecard col-3"
-        v-for="recipe in recipes"
-        :key="recipe.id"
-        :title="recipe.title"
-        :image="recipe.image"
+      <div class="col-10">
+        <div class="second justify-content-end">
+          <button type="button" class="btn btn-primary mx-2">Filter</button>
+          <button type="button" class="btn btn-primary">Sort</button>
+        </div>
+        <div class="container-fluid row">
+          <RecipeCard
+            class="recipecard col-3"
+            v-for="recipe in recipes"
+            :key="recipe.id"
+            :title="recipe.title"
+            :image="recipe.image"
+            @open-recipe="setRecipe(recipe)"
+          />
+        </div>
+      </div>
+      <Sidebar
+        class="col-2"
+        v-if="openRecipe"
+        :recipe-details="selectedRecipe"
+        @close-side="closeSide"
       />
     </div>
   </div>
