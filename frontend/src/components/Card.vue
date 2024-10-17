@@ -10,7 +10,7 @@ export default {
 
 <template>
   <!-- BS card: Start -->
-  <div class="card" style="width: 18rem">
+  <div class="card">
     <img :src="image" class="recipe-image card-img-top" alt="..." />
     <div class="card-body">
       <h5 class="card-title">{{ title }}</h5>

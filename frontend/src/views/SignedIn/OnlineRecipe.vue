@@ -11,30 +11,67 @@ export default {
       search: '',
       recipes: [],
       selectedRecipe: {},
-      openRecipe: false
+      openRecipe: false,
+      currentNumberItems: 15,
+      isLoaded: false
     }
   },
   created() {
-    this.fetchData()
+    this.randomData()
   },
   components: {
     RecipeCard,
     Sidebar
   },
+  computed: {
+    dynamicColumnClass() {
+      return this.openRecipe ? 'col-9' : 'col-12'
+    },
+    displayedItems() {
+      return this.recipes.slice(0, this.currentNumberItems)
+    },
+    canLoadMore() {
+      return this.recipes.length > this.currentNumberItems
+    },
+    dynamicLoading() {
+      return !this.isLoaded ? 'd-flex justify-content-center align-items-center' : 'none'
+    }
+  },
   methods: {
     async fetchData() {
+      this.isLoaded = false
       axios
         .get('https://api.spoonacular.com/recipes/complexSearch', {
           params: {
             query: this.search,
-            apiKey: spoonacularApiKey
+            apiKey: spoonacularApiKey,
+            number: 15
           }
         })
         .then((response) => {
           // console.log(response.data.results)
           this.recipes = response.data.results
-          console.log(this.recipes)
+          this.isLoaded = true
+          // console.log(this.recipes)
         })
+    },
+    async randomData() {
+      try {
+        axios
+          .get('https://api.spoonacular.com/recipes/random', {
+            params: {
+              apiKey: spoonacularApiKey,
+              number: 50
+            }
+          })
+          .then((response) => {
+            this.recipes = response.data.recipes
+            this.isLoaded = true
+            // console.log(this.recipes)
+          })
+      } catch (error) {
+        console.log(error)
+      }
     },
     setRecipe(recipe) {
       try {
@@ -47,6 +84,9 @@ export default {
     },
     closeSide() {
       this.openRecipe = false
+    },
+    fetchMore() {
+      this.currentNumberItems += 6
     }
   }
 }
@@ -67,25 +107,31 @@ export default {
         @keydown.enter="fetchData"
       />
     </div>
-    <div class="container-fluid row">
-      <div class="col-10">
-        <div class="second justify-content-end">
-          <button type="button" class="btn btn-primary mx-2">Filter</button>
-          <button type="button" class="btn btn-primary">Sort</button>
+    <div class="container-fluid row bottom">
+      <div :class="dynamicColumnClass" class="try">
+        <div class="second justify-content-end" :class="dynamicLoading">
+          <button type="button" class="btn mx-2">Filter</button>
+          <button type="button" class="btn">Sort</button>
         </div>
-        <div class="container-fluid row">
+        <div class="container-fluid row results" v-if="isLoaded">
           <RecipeCard
             class="recipecard col-3"
-            v-for="recipe in recipes"
+            v-for="recipe in displayedItems"
             :key="recipe.id"
             :title="recipe.title"
             :image="recipe.image"
             @open-recipe="setRecipe(recipe)"
           />
+          <div>
+            <button type="button" class="btn load" @click="fetchMore" v-if="canLoadMore">
+              Load More
+            </button>
+          </div>
         </div>
+        <h2 v-else>Loading...</h2>
       </div>
       <Sidebar
-        class="col-2"
+        class="col-3"
         v-if="openRecipe"
         :recipe-details="selectedRecipe"
         @close-side="closeSide"
@@ -95,12 +141,14 @@ export default {
 </template>
 
 <style scoped>
+.try {
+  height: 100%;
+}
 .content-wrapper {
   background-color: white;
   height: 100vh;
-  padding-inline: 10px;
+  /* padding-inline: 10px; */
   border: 1px solid black;
-  overflow: scroll;
 }
 .searchbar {
   border-radius: 10px;
@@ -112,13 +160,32 @@ export default {
   background-color: lightgrey;
   width: 100%;
   align-items: center;
+  height: 5vh;
+  padding-left: 10px;
+}
+.bottom {
+  height: 90vh;
 }
 .second {
   display: flex;
   margin-top: 10px;
+  height: 5vh;
   justify-content: end;
 }
 .recipecard {
   margin: 10px 10px;
+}
+.results {
+  overflow: auto;
+  height: 90%;
+}
+.load {
+  width: 10%;
+  display: block;
+  margin: 0 auto;
+}
+button {
+  background-color: #523e2c;
+  color: white;
 }
 </style>

@@ -14,4 +14,8 @@ const { isSignedIn } = useAuth()
   </header>
 </template>
 
-<style scoped></style>
+<style>
+button {
+  background-color: #523e2c;
+}
+</style>

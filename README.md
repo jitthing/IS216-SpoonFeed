@@ -1,4 +1,4 @@
-## Getting Started
+## Welcome to SpoonFeed!
 
 Before starting, ensure you have installed node.js on your local machine.
 
@@ -34,6 +34,13 @@ pip install -r requirements.txt
 
 4. In the frontend directory, start frontend in development environment
 
+Ensure you have the following variables in your .env file located in the frontend directory
+
+```
+VITE_CLERK_PUBLISHABLE_KEY=***
+VITE_APP_SPOONACULAR_KEY=***
+```
+
 ```
 npm run dev
 ```
@@ -53,8 +60,8 @@ For Python:
 python app.py
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+6. Open [http://localhost:5173](http://localhost:5173) or the url provided by your terminal to view it in your browser.
    The page will reload when you make changes.
    You may also see any lint errors in the console.
 
-7. Set up an account with (project_name)
+7. Happy cooking!

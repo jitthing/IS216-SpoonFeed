@@ -1,7 +1,30 @@
-<script setup>
+<script>
 import Menu from '@/components/Menu.vue'
 import { UserButton } from 'vue-clerk'
 import { RouterView } from 'vue-router'
+import CreateRecipe from '@/components/CreateRecipe.vue'
+
+export default {
+  components: {
+    Menu,
+    UserButton,
+    RouterView,
+    CreateRecipe
+  },
+  data() {
+    return {
+      modalOpen: false
+    }
+  },
+  methods: {
+    openModal() {
+      this.modalOpen = true
+    },
+    closeModal() {
+      this.modalOpen = false
+    }
+  }
+}
 </script>
 
 <template>
@@ -9,12 +32,16 @@ import { RouterView } from 'vue-router'
     <div class="p-0 col-2">
       <div class="container-fluid p-0">
         <img class="image col-5" src="/src/assets/spoonfeed.jpeg" alt="" height="80" width="80" />
-        <button type="button" class="create-recipe col-5 btn">Create Recipe</button>
+        <button type="button" class="create-recipe col-5 btn" @click="openModal">
+          Create Recipe
+        </button>
       </div>
       <Menu class="col-12" />
     </div>
-    <RouterView class="col-10" />
+    <RouterView class="col-10 p-0" />
+    <CreateRecipe class="col-10" v-if="modalOpen" @close-modal="closeModal" />
   </div>
+
   <div class="profile"><UserButton /></div>
 </template>
 
