@@ -1,29 +1,29 @@
-<script>
+<script setup>
 import Menu from '@/components/Menu.vue'
-import { UserButton } from 'vue-clerk'
+import { UserButton, useUser } from 'vue-clerk'
 import { RouterView } from 'vue-router'
 import CreateRecipe from '@/components/CreateRecipe.vue'
+import { watchEffect, ref } from 'vue'
 
-export default {
-  components: {
-    Menu,
-    UserButton,
-    RouterView,
-    CreateRecipe
-  },
-  data() {
-    return {
-      modalOpen: false
-    }
-  },
-  methods: {
-    openModal() {
-      this.modalOpen = true
-    },
-    closeModal() {
-      this.modalOpen = false
-    }
+const modalOpen = ref(false)
+// const user = ref(null)
+
+const { user, isLoaded } = useUser()
+
+watchEffect(() => {
+  if (isLoaded) {
+    console.log('User is signed in:', user.value.firstName)
+    console.log('User ID:', user.value.id)
+  } else {
+    console.log('User is not signed in.')
   }
+})
+
+function openModal() {
+  modalOpen.value = true
+}
+function closeModal() {
+  modalOpen.value = false
 }
 </script>
 
