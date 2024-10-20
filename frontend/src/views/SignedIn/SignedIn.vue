@@ -6,9 +6,9 @@ import CreateRecipe from '@/components/CreateRecipe.vue'
 import { watchEffect, ref } from 'vue'
 
 const modalOpen = ref(false)
-// const user = ref(null)
 
 const { user, isLoaded } = useUser()
+const userId = user.value.id
 
 watchEffect(() => {
   if (isLoaded) {
@@ -39,7 +39,7 @@ function closeModal() {
       <Menu class="col-12" />
     </div>
     <RouterView class="col-10 p-0" />
-    <CreateRecipe class="col-10" v-if="modalOpen" @close-modal="closeModal" />
+    <CreateRecipe class="col-10" v-if="modalOpen" @close-modal="closeModal" :userId="userId" />
   </div>
 
   <div class="profile"><UserButton /></div>
