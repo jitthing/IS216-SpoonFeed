@@ -1,5 +1,102 @@
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
+import { toast } from 'vue3-toastify'
+
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
+
+// Props
+const props = defineProps({
+  userId: String
+})
+
+// Emit close modal event
+const emit = defineEmits(['closeModal'])
+
+// Reactive variables (similar to data in Options API)
+const recipeName = ref('')
+const currIngredient = ref('')
+const allIngredients = ref([])
+const recipeImage = ref(null)
+const currInstruction = ref('')
+const allInstructions = ref([])
+
+// Functions
+const submitRecipe = async () => {
+  const formData = new FormData()
+  const recipeData = {
+    recipeAuthor: props.userId,
+    recipeName: recipeName.value,
+    recipeIngredients: allIngredients.value,
+    recipeInstructions: allInstructions.value
+  }
+
+  formData.append('recipeData', JSON.stringify(recipeData))
+  if (recipeImage.value) {
+    formData.append('recipeImage', recipeImage.value)
+  }
+
+  const toastId = toast.loading('Uploading recipe...')
+
+  try {
+    const response = await axios.post(`${BACKEND_URL}/upload-recipe`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    emit('closeModal') // Emit event to close modal
+    toast.update(toastId, {
+      render: 'Recipe submitted successfully!',
+      type: 'success',
+      isLoading: false,
+      autoClose: 3000 // Auto-close after 3 seconds
+    })
+  } catch (error) {
+    toast.update(toastId, {
+      render: `Error: ${error.message}`,
+      type: 'error',
+      isLoading: false,
+      autoClose: 3000 // Auto-close after 3 seconds
+    })
+  }
+}
+
+const addIngredient = () => {
+  if (currIngredient.value.trim() !== '') {
+    allIngredients.value.push(currIngredient.value.trim())
+    currIngredient.value = ''
+  } else {
+    alert('Please enter a valid ingredient')
+  }
+}
+
+const removeIngredient = (index) => {
+  allIngredients.value.splice(index, 1)
+}
+
+const addInstruction = () => {
+  if (currInstruction.value.trim() !== '') {
+    allInstructions.value.push(currInstruction.value.trim())
+    currInstruction.value = ''
+  } else {
+    alert('Please enter a valid instruction')
+  }
+}
+
+const removeInstruction = (index) => {
+  allInstructions.value.splice(index, 1)
+}
+
+const onFileChange = (e) => {
+  const file = e.target.files[0]
+  recipeImage.value = file
+  console.log(recipeImage.value)
+}
+</script>
+<!-- 
 <script>
 import axios from 'axios'
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 export default {
   props: {
@@ -30,14 +127,14 @@ export default {
         formData.append('recipeImage', this.recipeImage)
       }
       axios
-        .post('http://localhost:8000/upload-recipe', formData, {
+        .post(BACKEND_URL + '/upload-recipe', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         })
         .then((response) => {
-          console.log(response.data)
           this.$emit('closeModal')
+          alert('works!')
         })
         .catch((error) => {
           console.error(error)
@@ -73,7 +170,7 @@ export default {
     }
   }
 }
-</script>
+</script> -->
 
 <template>
   <div class="modal-container">
