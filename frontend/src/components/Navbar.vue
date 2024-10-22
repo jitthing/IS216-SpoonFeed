@@ -41,4 +41,10 @@ const { isSignedIn } = useAuth()
 .image {
   margin-left: 10px;
 }
+.nav-link{
+  color: black;
+}
+.navbar{
+  size: 100%;
+}
 </style>
