@@ -3,6 +3,8 @@ import RecipeCard from '../../components/Card.vue'
 import Sidebar from '../../components/Sidebar.vue'
 import axios from 'axios'
 
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
+
 export default {
   data() {
     return {
@@ -57,7 +59,7 @@ export default {
     },
     async fetchDBData() {
       try {
-        axios.get('http://localhost:8000/api/get-recipes').then((response) => {
+        axios.get(BACKEND_URL + '/get-recipes').then((response) => {
           this.recipes = response.data.recipes
           console.log(this.recipes)
         })
