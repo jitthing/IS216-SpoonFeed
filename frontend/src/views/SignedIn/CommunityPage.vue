@@ -1,6 +1,7 @@
 <script>
 import RecipeCard from '../../components/Card.vue'
 import Sidebar from '../../components/Sidebar.vue'
+import axios from 'axios'
 
 export default {
   data() {
@@ -13,15 +14,15 @@ export default {
           title: 'Spaghetti Bolognese',
           image: './spaghetti.jpeg',
           ingredients: '...',
-          instructions: '...',
+          instructions: '...'
         },
         {
           id: 2,
           title: 'Chicken Curry',
           image: './chicken_curry.jpeg',
           ingredients: '...',
-          instructions: '...',
-        },
+          instructions: '...'
+        }
       ],
       selectedRecipe: {},
       openRecipe: false,
@@ -29,37 +30,42 @@ export default {
       isLoaded: true
     }
   },
-  created() {
-    this.loadLocalData()
-  },
   components: {
     RecipeCard,
     Sidebar
   },
+  created() {
+    this.fetchDBData()
+  },
   computed: {
     dynamicColumnClass() {
       return this.openRecipe ? 'col-9' : 'col-12'
-    },
-    displayedItems() {
-      return this.recipes.slice(0, this.currentNumberItems)
     },
     canLoadMore() {
       return this.recipes.length > this.currentNumberItems
     }
   },
   methods: {
-    loadLocalData() {
-      this.recipes = this.localRecipes
-    },
     fetchData() {
       if (this.search) {
-        this.recipes = this.localRecipes.filter(recipe =>
+        this.recipes = this.localRecipes.filter((recipe) =>
           recipe.title.toLowerCase().includes(this.search.toLowerCase())
         )
       } else {
         this.recipes = this.localRecipes
       }
     },
+    async fetchDBData() {
+      try {
+        axios.get('http://localhost:8000/api/get-recipes').then((response) => {
+          this.recipes = response.data.recipes
+          console.log(this.recipes)
+        })
+      } catch {
+        ;(error) => console.log(error)
+      }
+    },
+    async searchRecipe() {},
     setRecipe(recipe) {
       this.selectedRecipe = recipe
       this.openRecipe = true
@@ -95,12 +101,11 @@ export default {
         </div>
         <div class="container-fluid row results">
           <RecipeCard
+            v-for="recipe in recipes"
             class="recipecard col-3"
-            v-for="recipe in displayedItems"
-            :key="recipe.id"
-            :title="recipe.title"
-            :image="recipe.image"
-            @open-recipe="setRecipe(recipe)"
+            :key="recipe"
+            :title="recipe.name"
+            :image="recipe.imageUrl"
           />
           <div>
             <button type="button" class="btn load" @click="fetchMore" v-if="canLoadMore">

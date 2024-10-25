@@ -57,7 +57,6 @@ async function uploadRecipe(req, res) {
   const file = req.file;
   const { recipeName, recipeAuthor, recipeIngredients, recipeInstructions } =
     recipeData;
-  var publicUrl = "";
 
   if (!recipeName || !recipeIngredients || !recipeInstructions || !file) {
     return res.status(400).json({ message: "Missing required fields" });

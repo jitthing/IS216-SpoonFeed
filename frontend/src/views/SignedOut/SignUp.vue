@@ -5,7 +5,7 @@ import { SignUp } from 'vue-clerk'
 <template>
   <div class="outerbox">
     <div class="content-wrapper">
-      <SignUp path="/sign-up" after-sign-up-url="/" sign-in-url="/sign-in" />
+      <SignUp path="/sign-up" sign-in-url="/sign-in" />
     </div>
   </div>
 </template>
@@ -19,9 +19,9 @@ import { SignUp } from 'vue-clerk'
   height: 90vh;
   width: 100vh;
 }
-.outerbox{
+.outerbox {
   position: relative;
-  background-image: url("/src/assets/background.png");
+  background-image: url('/src/assets/background.png');
   background-repeat: no-repeat;
   background-size: 100%;
 }

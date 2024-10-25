@@ -21,11 +21,12 @@ export default {
       return !this.isLoaded ? 'd-flex justify-content-center align-items-center' : 'none'
     }
   },
-  mounted() {
-    try {
-      this.fetchData()
-    } catch {
-      console.log('error in fetching recipeDetails id')
+  watch: {
+    recipeDetails: {
+      immediate: true,
+      handler() {
+        this.fetchData()
+      }
     }
   },
   methods: {

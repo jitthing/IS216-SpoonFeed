@@ -34,6 +34,11 @@ const router = createRouter({
       component: SignUp
     },
     {
+      path: '/sign-up/verify-email-address',
+      name: 'signup-verify',
+      component: SignUp
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard

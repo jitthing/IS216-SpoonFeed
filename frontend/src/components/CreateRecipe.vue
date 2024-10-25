@@ -20,6 +20,7 @@ const allIngredients = ref([])
 const recipeImage = ref(null)
 const currInstruction = ref('')
 const allInstructions = ref([])
+const macros = ref('')
 
 // Functions
 const submitRecipe = async () => {
@@ -53,11 +54,19 @@ const submitRecipe = async () => {
     })
   } catch (error) {
     toast.update(toastId, {
-      render: `Error: ${error.message}`,
+      render: `Error: ${error.response.data.message}`,
       type: 'error',
       isLoading: false,
       autoClose: 3000 // Auto-close after 3 seconds
     })
+  }
+}
+
+const calculateMacros = () => {
+  // Calculate macros
+  if (allIngredients.value.length === 0) {
+    const toast = toast.error('Please add ingredients to calculate macros')
+  } else {
   }
 }
 
@@ -93,84 +102,6 @@ const onFileChange = (e) => {
   console.log(recipeImage.value)
 }
 </script>
-<!-- 
-<script>
-import axios from 'axios'
-const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
-
-export default {
-  props: {
-    userId: String
-  },
-  data() {
-    return {
-      recipeName: '',
-      currIngredient: '',
-      allIngredients: [],
-      recipeImage: null,
-      currInstruction: '',
-      allInstructions: []
-    }
-  },
-  emits: ['closeModal'],
-  methods: {
-    async submitRecipe() {
-      const formData = new FormData()
-      const recipeData = {
-        recipeAuthor: this.userId,
-        recipeName: this.recipeName,
-        recipeIngredients: this.allIngredients,
-        recipeInstructions: this.allInstructions
-      }
-      formData.append('recipeData', JSON.stringify(recipeData))
-      if (this.recipeImage) {
-        formData.append('recipeImage', this.recipeImage)
-      }
-      axios
-        .post(BACKEND_URL + '/upload-recipe', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-        .then((response) => {
-          this.$emit('closeModal')
-          alert('works!')
-        })
-        .catch((error) => {
-          console.error(error)
-        })
-    },
-    addIngredient() {
-      if (this.currIngredient.trim() !== '') {
-        this.allIngredients.push(this.currIngredient.trim())
-        this.currIngredient = ''
-      } else {
-        alert('Please enter a valid ingredient')
-      }
-    },
-    removeIngredient(index) {
-      this.allIngredients.splice(index, 1)
-    },
-    addInstruction() {
-      if (this.currInstruction.trim() !== '') {
-        this.allInstructions.push(this.currInstruction.trim())
-        this.currInstruction = ''
-      } else {
-        alert('Please enter a valid instruction')
-      }
-    },
-    removeInstruction(index) {
-      this.allInstructions.splice(index, 1)
-    },
-    onFileChange(e) {
-      console.log('filed changed')
-      const file = e.target.files[0]
-      this.recipeImage = file
-      console.log(this.recipeImage)
-    }
-  }
-}
-</script> -->
 
 <template>
   <div class="modal-container">
