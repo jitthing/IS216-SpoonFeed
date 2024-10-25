@@ -14,13 +14,13 @@ const {
 router = express.Router();
 
 // User routes
-router.post("/check-user", checkUser);
+router.post("/api/check-user", checkUser);
 
-// Recipe routes
-router.get("/get-recipes", getRecipes);
-router.get("/get-recipes-by-name", getRecipesByName);
-router.get("/get-recipes-by-user", getRecipesByUser);
-router.post("/upload-recipe", upload.single("recipeImage"), uploadRecipe);
+//Recipe routes
+router.get("/api/get-recipes", getRecipes);
+router.get("/api/get-recipes-by-name", getRecipesByName);
+router.get("/api/get-recipes-by-user", getRecipesByUser);
+router.post("/api/upload-recipe", upload.single("recipeImage"), uploadRecipe);
 
 // configure api endpoints for each function (controller)
 
