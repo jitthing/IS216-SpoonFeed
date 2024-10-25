@@ -82,7 +82,12 @@ async function uploadRecipe(req, res) {
     });
     blobStream.on("finish", async () => {
       // Get public URL of the file
-      publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
+      // Make the file public
+      // await fileUpload.makePublic();
+      // publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
+      const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
+        bucket.name
+      }/o/${encodeURIComponent(fileUpload.name)}?alt=media`;
 
       const db = firebase.db;
 

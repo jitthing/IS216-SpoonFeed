@@ -115,7 +115,7 @@ export default {
         </div>
         <div class="container-fluid row results" v-if="isLoaded">
           <RecipeCard
-            class="recipecard col-3"
+            class="recipecard col-xl-3 col-lg-4 col-md-10 col-sm-10"
             v-for="recipe in displayedItems"
             :key="recipe.id"
             :title="recipe.title"
