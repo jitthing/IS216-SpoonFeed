@@ -6,6 +6,7 @@ import SignUp from '../views/SignedOut/SignUp.vue'
 import Dashboard from '../views/SignedIn/Homepage.vue'
 import OnlineRecipe from '../views/SignedIn/OnlineRecipe.vue'
 import CommunityPage from '../views/SignedIn/CommunityPage.vue'
+import Profile from '../views/SignedIn/Profile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,8 +45,9 @@ const router = createRouter({
       component: Dashboard
     },
     { path: '/online-recipes', name: 'onlinerecipe', component: OnlineRecipe },
-    { path: '/profile', name: 'profile', component: () => AboutView },
+    { path: '/profile', name: 'profile', component: Profile },
     { path: '/community-recipe', name: 'communityreceipe', component: CommunityPage }
+
   ]
 })
 

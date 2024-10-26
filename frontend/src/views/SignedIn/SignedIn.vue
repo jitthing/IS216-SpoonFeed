@@ -55,7 +55,10 @@ function closeModal() {
     />
   </div>
 
-  <div class="profile"><UserButton /></div>
+  <div class="profile">
+      <router-link to="/profile" class="profile-link">My Profile</router-link>
+    <UserButton />
+  </div>
 </template>
 
 <style scoped>
@@ -74,5 +77,10 @@ function closeModal() {
   height: 50%;
   text-align: center;
   font-size: calc(1vw);
+}
+.profile-link {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #523e2c;
 }
 </style>
