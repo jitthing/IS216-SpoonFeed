@@ -2,6 +2,7 @@
 import RecipeCard from '../../components/Card.vue'
 import Sidebar from '../../components/Sidebar.vue'
 import axios from 'axios'
+import RecipePost from '../../components/RecipePost.vue'
 
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
@@ -10,31 +11,16 @@ export default {
     return {
       search: '',
       recipes: [],
-      localRecipes: [
-        {
-          id: 1,
-          title: 'Spaghetti Bolognese',
-          image: './spaghetti.jpeg',
-          ingredients: '...',
-          instructions: '...'
-        },
-        {
-          id: 2,
-          title: 'Chicken Curry',
-          image: './chicken_curry.jpeg',
-          ingredients: '...',
-          instructions: '...'
-        }
-      ],
       selectedRecipe: {},
       openRecipe: false,
       currentNumberItems: 15,
-      isLoaded: true
+      isLoaded: false
     }
   },
   components: {
     RecipeCard,
-    Sidebar
+    Sidebar,
+    RecipePost
   },
   created() {
     this.fetchDBData()
@@ -48,31 +34,24 @@ export default {
     }
   },
   methods: {
-    fetchData() {
-      if (this.search) {
-        this.recipes = this.localRecipes.filter((recipe) =>
-          recipe.title.toLowerCase().includes(this.search.toLowerCase())
-        )
-      } else {
-        this.recipes = this.localRecipes
-      }
-    },
     async fetchDBData() {
       try {
         axios.get(BACKEND_URL + '/get-recipes').then((response) => {
           this.recipes = response.data.recipes
-          console.log(this.recipes)
+          this.isLoaded = true
         })
       } catch {
         ;(error) => console.log(error)
       }
     },
-    async searchRecipe() {},
+    async searchRecipe() {
+      this.isLoaded = false
+    },
     setRecipe(recipe) {
       this.selectedRecipe = recipe
       this.openRecipe = true
     },
-    closeSide() {
+    closeModal() {
       this.openRecipe = false
     },
     fetchMore() {
@@ -101,13 +80,14 @@ export default {
           <button type="button" class="btn mx-2">Filter</button>
           <button type="button" class="btn">Sort</button>
         </div>
-        <div class="container-fluid row results">
+        <div class="container-fluid row results" v-if="isLoaded">
           <RecipeCard
             v-for="recipe in recipes"
             class="recipecard col-3"
             :key="recipe"
             :title="recipe.name"
             :image="recipe.imageUrl"
+            @open-recipe="setRecipe(recipe)"
           />
           <div>
             <button type="button" class="btn load" @click="fetchMore" v-if="canLoadMore">
@@ -115,14 +95,10 @@ export default {
             </button>
           </div>
         </div>
+        <h2 v-else>Loading...</h2>
       </div>
-      <Sidebar
-        class="col-3"
-        v-if="openRecipe"
-        :recipe-details="selectedRecipe"
-        @close-side="closeSide"
-      />
     </div>
+    <RecipePost v-if="openRecipe" :recipe-details="selectedRecipe" @close-modal="closeModal" />
   </div>
 </template>
 

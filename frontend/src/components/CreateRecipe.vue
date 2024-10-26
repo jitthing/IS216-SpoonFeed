@@ -7,7 +7,8 @@ const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 // Props
 const props = defineProps({
-  userId: String
+  userId: String,
+  userName: String
 })
 
 // Emit close modal event
@@ -26,7 +27,8 @@ const macros = ref('')
 const submitRecipe = async () => {
   const formData = new FormData()
   const recipeData = {
-    recipeAuthor: props.userId,
+    recipeAuthorId: props.userId,
+    recipeAuthor: props.userName,
     recipeName: recipeName.value,
     recipeIngredients: allIngredients.value,
     recipeInstructions: allInstructions.value

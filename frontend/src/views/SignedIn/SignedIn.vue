@@ -9,6 +9,7 @@ const modalOpen = ref(false)
 
 const { user, isLoaded } = useUser()
 const userId = user.value.id
+const userName = user.value.firstName
 
 watchEffect(() => {
   if (isLoaded) {
@@ -45,7 +46,13 @@ function closeModal() {
       <Menu class="col-12" />
     </div>
     <RouterView class="col-10 p-0" />
-    <CreateRecipe class="col-10" v-if="modalOpen" @close-modal="closeModal" :userId="userId" />
+    <CreateRecipe
+      class="col-10"
+      v-if="modalOpen"
+      @close-modal="closeModal"
+      :userId="userId"
+      :userName="userName"
+    />
   </div>
 
   <div class="profile"><UserButton /></div>

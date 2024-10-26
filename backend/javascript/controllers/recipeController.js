@@ -55,8 +55,13 @@ async function getRecipesByUser(req, res) {
 async function uploadRecipe(req, res) {
   const recipeData = JSON.parse(req.body.recipeData);
   const file = req.file;
-  const { recipeName, recipeAuthor, recipeIngredients, recipeInstructions } =
-    recipeData;
+  const {
+    recipeName,
+    recipeAuthorId,
+    recipeAuthor,
+    recipeIngredients,
+    recipeInstructions,
+  } = recipeData;
 
   if (!recipeName || !recipeIngredients || !recipeInstructions || !file) {
     return res.status(400).json({ message: "Missing required fields" });
@@ -81,9 +86,6 @@ async function uploadRecipe(req, res) {
     });
     blobStream.on("finish", async () => {
       // Get public URL of the file
-      // Make the file public
-      // await fileUpload.makePublic();
-      // publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
       const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
         bucket.name
       }/o/${encodeURIComponent(fileUpload.name)}?alt=media`;
@@ -94,9 +96,11 @@ async function uploadRecipe(req, res) {
       await recipeRef.set({
         name: recipeName,
         author: recipeAuthor,
+        authorId: recipeAuthorId,
         ingredients: recipeIngredients,
         instructions: recipeInstructions,
         imageUrl: publicUrl,
+        numSaves: 0,
       });
 
       res
