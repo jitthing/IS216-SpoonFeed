@@ -6,9 +6,9 @@ import CreateRecipe from '@/components/CreateRecipe.vue'
 import { watchEffect, ref } from 'vue'
 
 const modalOpen = ref(false)
-// const user = ref(null)
 
 const { user, isLoaded } = useUser()
+const userId = user.value.id
 
 watchEffect(() => {
   if (isLoaded) {
@@ -31,15 +31,21 @@ function closeModal() {
   <div class="container-fluid row">
     <div class="p-0 col-2">
       <div class="container-fluid p-0">
-        <img class="image col-5" src="/src/assets/spoonfeed.jpeg" alt="" height="80" width="80" />
-        <button type="button" class="create-recipe col-5 btn" @click="openModal">
+        <img
+          class="image col-xl-5 col-lg-12"
+          src="/src/assets/spoonfeed.jpeg"
+          alt=""
+          height="80"
+          width="80"
+        />
+        <button type="button" class="create-recipe col-xl-5 col-lg-12 btn" @click="openModal">
           Create Recipe
         </button>
       </div>
       <Menu class="col-12" />
     </div>
     <RouterView class="col-10 p-0" />
-    <CreateRecipe class="col-10" v-if="modalOpen" @close-modal="closeModal" />
+    <CreateRecipe class="col-10" v-if="modalOpen" @close-modal="closeModal" :userId="userId" />
   </div>
 
   <div class="profile">

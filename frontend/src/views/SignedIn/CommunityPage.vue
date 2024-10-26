@@ -1,86 +1,76 @@
 <script>
-import axios from 'axios'
 import RecipeCard from '../../components/Card.vue'
 import Sidebar from '../../components/Sidebar.vue'
+import axios from 'axios'
 
-const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 export default {
   data() {
     return {
       search: '',
       recipes: [],
+      localRecipes: [
+        {
+          id: 1,
+          title: 'Spaghetti Bolognese',
+          image: './spaghetti.jpeg',
+          ingredients: '...',
+          instructions: '...'
+        },
+        {
+          id: 2,
+          title: 'Chicken Curry',
+          image: './chicken_curry.jpeg',
+          ingredients: '...',
+          instructions: '...'
+        }
+      ],
       selectedRecipe: {},
       openRecipe: false,
       currentNumberItems: 15,
-      isLoaded: false
+      isLoaded: true
     }
-  },
-  created() {
-    this.randomData()
   },
   components: {
     RecipeCard,
     Sidebar
   },
+  created() {
+    this.fetchDBData()
+  },
   computed: {
     dynamicColumnClass() {
       return this.openRecipe ? 'col-9' : 'col-12'
     },
-    displayedItems() {
-      return this.recipes.slice(0, this.currentNumberItems)
-    },
     canLoadMore() {
       return this.recipes.length > this.currentNumberItems
-    },
-    dynamicLoading() {
-      return !this.isLoaded ? 'd-flex justify-content-center align-items-center' : 'none'
     }
   },
   methods: {
-    async fetchData() {
-      this.isLoaded = false
-      axios
-        .get('https://api.spoonacular.com/recipes/complexSearch', {
-          params: {
-            query: this.search,
-            apiKey: spoonacularApiKey,
-            number: 15
-          }
-        })
-        .then((response) => {
-          // console.log(response.data.results)
-          this.recipes = response.data.results
-          this.isLoaded = true
-          // console.log(this.recipes)
-        })
-    },
-    async randomData() {
-      try {
-        axios
-          .get('https://api.spoonacular.com/recipes/random', {
-            params: {
-              apiKey: spoonacularApiKey,
-              number: 50
-            }
-          })
-          .then((response) => {
-            this.recipes = response.data.recipes
-            this.isLoaded = true
-            // console.log(this.recipes)
-          })
-      } catch (error) {
-        console.log(error)
+    fetchData() {
+      if (this.search) {
+        this.recipes = this.localRecipes.filter((recipe) =>
+          recipe.title.toLowerCase().includes(this.search.toLowerCase())
+        )
+      } else {
+        this.recipes = this.localRecipes
       }
     },
-    setRecipe(recipe) {
+    async fetchDBData() {
       try {
-        this.selectedRecipe = recipe
-        this.openRecipe = true
-        // console.log(this.selectedRecipe)
+        axios.get(BACKEND_URL + '/get-recipes').then((response) => {
+          this.recipes = response.data.recipes
+          console.log(this.recipes)
+        })
       } catch {
-        console.log('there is an error in onlinerecipe')
+        ;(error) => console.log(error)
       }
+    },
+    async searchRecipe() {},
+    setRecipe(recipe) {
+      this.selectedRecipe = recipe
+      this.openRecipe = true
     },
     closeSide() {
       this.openRecipe = false
@@ -94,8 +84,6 @@ export default {
 
 <template>
   <div class="content-wrapper">
-    <!-- ideas for the main page: show what the user has saved and maybe somehow recommend some online recipes for them based on an algo or something idk -->
-    <!-- but might be better to just focus on the frontend itself -->
     <div class="top">
       <input
         type="text"
@@ -109,18 +97,17 @@ export default {
     </div>
     <div class="container-fluid row bottom">
       <div :class="dynamicColumnClass" class="try">
-        <div class="second justify-content-end" :class="dynamicLoading">
+        <div class="second justify-content-end">
           <button type="button" class="btn mx-2">Filter</button>
           <button type="button" class="btn">Sort</button>
         </div>
-        <div class="container-fluid row results" v-if="isLoaded">
+        <div class="container-fluid row results">
           <RecipeCard
-            class="recipecard col-xl-3 col-lg-4 col-md-10 col-sm-10"
-            v-for="recipe in displayedItems"
-            :key="recipe.id"
-            :title="recipe.title"
-            :image="recipe.image"
-            @open-recipe="setRecipe(recipe)"
+            v-for="recipe in recipes"
+            class="recipecard col-3"
+            :key="recipe"
+            :title="recipe.name"
+            :image="recipe.imageUrl"
           />
           <div>
             <button type="button" class="btn load" @click="fetchMore" v-if="canLoadMore">
@@ -128,7 +115,6 @@ export default {
             </button>
           </div>
         </div>
-        <h2 v-else>Loading...</h2>
       </div>
       <Sidebar
         class="col-3"

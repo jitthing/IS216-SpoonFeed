@@ -23,6 +23,9 @@ export default {
 </template>
 
 <style scoped>
+.card-title {
+  font-size: calc(3vh);
+}
 .recipe-image {
   border-radius: 10px;
   margin-top: 5px;

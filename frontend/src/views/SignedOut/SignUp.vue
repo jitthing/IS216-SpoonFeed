@@ -3,8 +3,10 @@ import { SignUp } from 'vue-clerk'
 </script>
 
 <template>
-  <div class="content-wrapper">
-    <SignUp path="/sign-up" after-sign-up-url="/" sign-in-url="/sign-in" />
+  <div class="outerbox">
+    <div class="content-wrapper">
+      <SignUp path="/sign-up" sign-in-url="/sign-in" />
+    </div>
   </div>
 </template>
 
@@ -16,5 +18,11 @@ import { SignUp } from 'vue-clerk'
   margin: 0 auto;
   height: 90vh;
   width: 100vh;
+}
+.outerbox {
+  position: relative;
+  background-image: url('/src/assets/background.png');
+  background-repeat: no-repeat;
+  background-size: 100%;
 }
 </style>

@@ -6,11 +6,12 @@ import SignedIn from './views/SignedIn/SignedIn.vue'
 import { watchEffect } from 'vue'
 
 const { user, isSignedIn } = useUser()
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 async function checkUser(user) {
   try {
     axios
-      .post('http://localhost:8000/check-user', {
+      .post(BACKEND_URL + '/check-user', {
         userId: user.value.id,
         firstName: user.value.firstName
       })
@@ -41,4 +42,5 @@ watchEffect(() => {
 button {
   background-color: #523e2c;
 }
+
 </style>

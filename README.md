@@ -29,7 +29,8 @@ cd backend
 ```
 
 ```
-pip install -r requirements.txt
+npm i
+npm run devStart
 ```
 
 4. In the frontend directory, start frontend in development environment

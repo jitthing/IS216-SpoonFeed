@@ -13,9 +13,6 @@ const { isSignedIn } = useAuth()
       <li class="nav-item">
         <RouterLink class="nav-link active" to="/">Home</RouterLink>
       </li>
-      <li class="nav-item">
-        <RouterLink class="nav-link" to="/about">About</RouterLink>
-      </li>
     </ul>
     <ul class="nav justify-content-end" v-if="!isSignedIn">
       <li class="nav-item">
@@ -40,5 +37,11 @@ const { isSignedIn } = useAuth()
 }
 .image {
   margin-left: 10px;
+}
+.nav-link {
+  color: black;
+}
+.navbar {
+  size: 100%;
 }
 </style>

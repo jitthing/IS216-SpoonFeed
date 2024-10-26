@@ -16,9 +16,11 @@ const firebaseConfig = {
 
 admin.initializeApp({
   credential: admin.credential.cert(firebaseConfig),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
   databaseURL: process.env.FIREBASE_DB_URL,
 });
 
 const db = admin.database();
+const bucket = admin.storage().bucket();
 
-module.exports = { db };
+module.exports = { db, bucket };
