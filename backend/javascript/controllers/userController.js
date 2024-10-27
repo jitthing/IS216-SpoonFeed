@@ -20,4 +20,31 @@ async function checkUser(req, res) {
   }
 }
 
-module.exports = { checkUser };
+async function updateSaved(req, res) {
+  const { userId, recipeId, saved } = req.body;
+  try {
+    const userRef = firebase.db.ref(`users/${userId}`);
+    const snapshot = await userRef.once("value");
+    const userData = snapshot.val();
+
+    if (userData) {
+      const savedRecipes = userData.saved || [];
+      if (saved) {
+        savedRecipes.push(recipeId);
+      } else {
+        const index = savedRecipes.indexOf(recipeId);
+        if (index > -1) {
+          savedRecipes.splice(index, 1);
+        }
+      }
+      await userRef.update({ saved: savedRecipes });
+      return res.status(200).json({ message: "Saved updated" });
+    } else {
+      return res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Internal servor error", error });
+  }
+}
+
+module.exports = { checkUser, updateSaved };

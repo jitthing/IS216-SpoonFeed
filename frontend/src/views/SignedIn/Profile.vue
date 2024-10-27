@@ -3,15 +3,15 @@ import { ref, onMounted, watchEffect } from 'vue'
 import { useUser } from 'vue-clerk'
 import RecipeCard from '@/components/Card.vue'
 import CreateRecipe from '@/components/CreateRecipe.vue'
-import CreateBoard from '@/components/CreateBoard.vue'  // Ensure you import CreateBoard.vue
+import CreateBoard from '@/components/CreateBoard.vue' // Ensure you import CreateBoard.vue
 
 // Modal state
 const modalOpen = ref(false)
-const showCreateBoardModal = ref(false)  // For Create Board modal
-const selectedBoard = ref(null)  // To track which board is selected
+const showCreateBoardModal = ref(false) // For Create Board modal
+const selectedBoard = ref(null) // To track which board is selected
 const createdRecipes = ref([])
-const savedBoards = ref([])  // Store created boards
-const unorganizedImages = ref([])  // Store unorganized saved images
+const savedBoards = ref([]) // Store created boards
+const unorganizedImages = ref([]) // Store unorganized saved images
 
 const { user, isLoaded } = useUser()
 const activeTab = ref('created')
@@ -59,20 +59,20 @@ const setActiveTab = (tab) => {
 // Add a new board to savedBoards
 const addBoard = (boardName) => {
   const newBoard = {
-    id: Date.now(),  // Temporary ID, could be replaced with server-generated ID
+    id: Date.now(), // Temporary ID, could be replaced with server-generated ID
     name: boardName,
-    recipes: []  // Store pinned recipes in each board
+    recipes: [] // Store pinned recipes in each board
   }
 
   savedBoards.value.push(newBoard)
-  closeCreateBoardModal()  // Close the modal after creation
+  closeCreateBoardModal() // Close the modal after creation
 }
 
 // Pin a recipe to a specific board
 const pinRecipeToBoard = (board, recipe) => {
-  const boardToPinTo = savedBoards.value.find(b => b.id === board.id)
+  const boardToPinTo = savedBoards.value.find((b) => b.id === board.id)
   if (boardToPinTo && !boardToPinTo.recipes.includes(recipe)) {
-    boardToPinTo.recipes.push(recipe)  // Add the recipe to the board
+    boardToPinTo.recipes.push(recipe) // Add the recipe to the board
   }
 }
 
@@ -80,30 +80,22 @@ const pinRecipeToBoard = (board, recipe) => {
 const viewBoard = (board) => {
   selectedBoard.value = board
 }
-
 </script>
 
 <template>
   <div class="profile-container" v-if="isLoaded">
-
     <div class="profile-content">
       <div class="profile-header">
-        <img :src="user.profileImageUrl" alt="Profile Picture" class="profile-picture">
+        <img :src="user.profileImageUrl" alt="Profile Picture" class="profile-picture" />
         <h1>{{ user.firstName }} {{ user.lastName }}</h1>
         <p>@{{ user.username }}</p>
       </div>
 
       <div class="tab-container">
-        <button 
-          @click="setActiveTab('created')" 
-          :class="{ active: activeTab === 'created' }"
-        >
+        <button @click="setActiveTab('created')" :class="{ active: activeTab === 'created' }">
           Created
         </button>
-        <button 
-          @click="setActiveTab('saved')" 
-          :class="{ active: activeTab === 'saved' }"
-        >
+        <button @click="setActiveTab('saved')" :class="{ active: activeTab === 'saved' }">
           Saved
         </button>
       </div>
@@ -117,7 +109,9 @@ const viewBoard = (board) => {
         <div v-else class="recipes-grid">
           <RecipeCard v-for="recipe in createdRecipes" :key="recipe.id" :recipe="recipe" />
         </div>
-        <button @click="openModal" class="create-recipe-btn" v-if="createdRecipes.length > 0">Create Recipe</button>
+        <button @click="openModal" class="create-recipe-btn" v-if="createdRecipes.length > 0">
+          Create Recipe
+        </button>
       </div>
 
       <!-- Saved Tab -->
@@ -128,7 +122,12 @@ const viewBoard = (board) => {
         </div>
         <div v-else class="boards-grid">
           <!-- Loop through savedBoards to display each board -->
-          <div v-for="board in savedBoards" :key="board.id" class="board-item" @click="viewBoard(board)">
+          <div
+            v-for="board in savedBoards"
+            :key="board.id"
+            class="board-item"
+            @click="viewBoard(board)"
+          >
             {{ board.name }}
           </div>
         </div>
@@ -152,21 +151,22 @@ const viewBoard = (board) => {
           </div>
         </div>
         <div v-else class="empty-state">
-          <hr class="divider" /> 
+          <hr class="divider" />
           <p>No unorganized images found.</p>
         </div>
-        </div>
       </div>
-
-      <!-- Create Board Modal -->
-      <CreateBoard v-if="showCreateBoardModal" @closeModal="closeCreateBoardModal" @create-board="addBoard" />
-
-      <!-- Create Recipe Modal -->
-      <CreateRecipe 
-        v-if="modalOpen"  
-        @close-modal="closeModal" 
-      />
     </div>
+
+    <!-- Create Board Modal -->
+    <CreateBoard
+      v-if="showCreateBoardModal"
+      @closeModal="closeCreateBoardModal"
+      @create-board="addBoard"
+    />
+
+    <!-- Create Recipe Modal -->
+    <CreateRecipe v-if="modalOpen" @close-modal="closeModal" />
+  </div>
 </template>
 
 <style scoped>
@@ -213,7 +213,8 @@ const viewBoard = (board) => {
   color: white;
 }
 
-.recipes-grid, .boards-grid {
+.recipes-grid,
+.boards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
@@ -224,7 +225,8 @@ const viewBoard = (board) => {
   margin-top: 50px;
 }
 
-.create-recipe-btn, .create-board-btn {
+.create-recipe-btn,
+.create-board-btn {
   background-color: #523e2c;
   color: white;
   border: none;
@@ -234,7 +236,8 @@ const viewBoard = (board) => {
   margin-top: 20px;
 }
 
-.create-recipe-btn:hover, .create-board-btn:hover {
+.create-recipe-btn:hover,
+.create-board-btn:hover {
   background-color: #3e2e21;
 }
 </style>

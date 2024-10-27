@@ -1,6 +1,14 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watchEffect } from 'vue'
 import { toast } from 'vue3-toastify'
+import { useUser } from 'vue-clerk'
+import axios from 'axios'
+
+const props = defineProps({
+  userId: String,
+  userName: String,
+  recipeDetails: Object
+})
 
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
@@ -8,21 +16,79 @@ const isSaved = ref(false)
 const comments = ref([])
 const newComment = ref('')
 
-const props = defineProps({
-  userId: String,
-  recipeDetails: null
+onMounted(() => {
+  checkSaved()
+})
+
+watchEffect(() => {
+  if (props.recipeDetails) {
+    comments.value = props.recipeDetails.comments
+  }
 })
 
 const toggleSave = () => {
   isSaved.value = !isSaved.value
+  updateSaved()
 }
 
 const addComment = () => {
   comments.value.push({
-    id: comments.value.length + 1,
+    name: props.userName ? props.userName : props.userId,
     text: newComment.value
   })
   newComment.value = ''
+  updateRecipe()
+}
+
+const checkSaved = async () => {
+  //   console.log(props.userId)
+  try {
+    axios
+      .post(BACKEND_URL + '/check-user', {
+        userId: props.userId
+      })
+      .then((response) => {
+        console.log(response.data)
+        const savedRecipes = response.data.userData.saved
+        if (savedRecipes.includes(props.recipeDetails.id)) {
+          isSaved.value = true
+        }
+      })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const updateRecipe = async () => {
+  try {
+    axios
+      .post(BACKEND_URL + '/update-recipe', {
+        recipeId: props.recipeDetails.id,
+        comments: comments.value
+      })
+      .then((response) => {
+        console.log(response.data)
+      })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const updateSaved = async () => {
+  //   console.log(props.user.value.id)
+  try {
+    axios
+      .post(BACKEND_URL + '/update-saved', {
+        userId: props.userId,
+        recipeId: props.recipeDetails.id,
+        saved: isSaved.value
+      })
+      .then((response) => {
+        console.log(response.data)
+      })
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 const emit = defineEmits(['closeModal'])
@@ -53,7 +119,7 @@ const emit = defineEmits(['closeModal'])
       </div>
       <div class="comments-section">
         <h3>Comments</h3>
-        <ul>
+        <ul class="comments">
           <li v-for="comment in comments" :key="comment.id">{{ comment.text }}</li>
         </ul>
         <input v-model="newComment" placeholder="Add a comment..." />
@@ -90,6 +156,8 @@ button {
   background-color: #523e2c;
   color: white;
 }
-img {
+.comments {
+  list-style-type: none;
+  padding: 0;
 }
 </style>

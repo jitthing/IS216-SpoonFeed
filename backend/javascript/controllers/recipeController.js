@@ -94,6 +94,7 @@ async function uploadRecipe(req, res) {
 
       const recipeRef = db.ref("recipes").push();
       await recipeRef.set({
+        id: recipeRef.key,
         name: recipeName,
         author: recipeAuthor,
         authorId: recipeAuthorId,
@@ -101,6 +102,7 @@ async function uploadRecipe(req, res) {
         instructions: recipeInstructions,
         imageUrl: publicUrl,
         numSaves: 0,
+        comments: [],
       });
 
       res
@@ -114,9 +116,22 @@ async function uploadRecipe(req, res) {
   }
 }
 
+async function updateRecipe(req, res) {
+  const { comments, recipeId } = req.body;
+  try {
+    const db = firebase.db;
+    const recipeRef = db.ref(`recipes/${recipeId}`);
+    await recipeRef.update({ comments: comments });
+    return res.status(200).json({ message: "Recipe updated successfully" });
+  } catch (e) {
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+}
+
 module.exports = {
   uploadRecipe,
   getRecipes,
   getRecipesByName,
   getRecipesByUser,
+  updateRecipe,
 };

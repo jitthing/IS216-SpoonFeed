@@ -1,63 +1,52 @@
-<script>
+<script setup>
 import RecipeCard from '../../components/Card.vue'
-import Sidebar from '../../components/Sidebar.vue'
 import axios from 'axios'
 import RecipePost from '../../components/RecipePost.vue'
+import { ref, onMounted, watch } from 'vue'
+import { useUser } from 'vue-clerk'
 
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
-export default {
-  data() {
-    return {
-      search: '',
-      recipes: [],
-      selectedRecipe: {},
-      openRecipe: false,
-      currentNumberItems: 15,
-      isLoaded: false
-    }
-  },
-  components: {
-    RecipeCard,
-    Sidebar,
-    RecipePost
-  },
-  created() {
-    this.fetchDBData()
-  },
-  computed: {
-    dynamicColumnClass() {
-      return this.openRecipe ? 'col-9' : 'col-12'
-    },
-    canLoadMore() {
-      return this.recipes.length > this.currentNumberItems
-    }
-  },
-  methods: {
-    async fetchDBData() {
-      try {
-        axios.get(BACKEND_URL + '/get-recipes').then((response) => {
-          this.recipes = response.data.recipes
-          this.isLoaded = true
-        })
-      } catch {
-        ;(error) => console.log(error)
-      }
-    },
-    async searchRecipe() {
-      this.isLoaded = false
-    },
-    setRecipe(recipe) {
-      this.selectedRecipe = recipe
-      this.openRecipe = true
-    },
-    closeModal() {
-      this.openRecipe = false
-    },
-    fetchMore() {
-      this.currentNumberItems += 6
-    }
+const { user } = useUser()
+const userId = user.value.id
+const userName = user.value.firstName
+
+const search = ref('')
+const recipes = ref([])
+const selectedRecipe = ref({})
+const openRecipe = ref(false)
+const currentNumberItems = ref(15)
+const isLoaded = ref(false)
+const canLoadMore = ref(false)
+
+onMounted(() => {
+  fetchData()
+})
+
+watch(openRecipe, () => {
+  fetchData()
+})
+
+const fetchData = async () => {
+  try {
+    axios.get(BACKEND_URL + '/get-recipes').then((response) => {
+      recipes.value = response.data.recipes
+      isLoaded.value = true
+    })
+  } catch {
+    ;(error) => console.log(error)
   }
+}
+
+const searchRecipe = async () => {
+  this.isLoaded = false
+}
+const setRecipe = (recipe) => {
+  selectedRecipe.value = recipe
+  openRecipe.value = true
+}
+const closeModal = () => {
+  openRecipe.value = false
 }
 </script>
 
@@ -75,7 +64,7 @@ export default {
       />
     </div>
     <div class="container-fluid row bottom">
-      <div :class="dynamicColumnClass" class="try">
+      <div class="try">
         <div class="second justify-content-end">
           <button type="button" class="btn mx-2">Filter</button>
           <button type="button" class="btn">Sort</button>
@@ -98,7 +87,13 @@ export default {
         <h2 v-else>Loading...</h2>
       </div>
     </div>
-    <RecipePost v-if="openRecipe" :recipe-details="selectedRecipe" @close-modal="closeModal" />
+    <RecipePost
+      v-if="openRecipe"
+      :recipe-details="selectedRecipe"
+      @close-modal="closeModal"
+      :userId="userId"
+      :user-name="userName"
+    />
   </div>
 </template>
 
