@@ -1,7 +1,6 @@
 <script>
 import axios from 'axios'
 import RecipeCard from '../../components/Card.vue'
-import FoodCard from '../../components/FoodCard.vue'
 
 const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
 
@@ -17,7 +16,6 @@ export default {
   },
   components: {
     RecipeCard,
-    FoodCard
   },
   methods: {
     async fetchData() {
