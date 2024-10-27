@@ -9,11 +9,13 @@ export default {
   data() {
     return {
       search: '',
+      searchResults: [],
       recipes: [],
       selectedRecipe: {},
       openRecipe: false,
       currentNumberItems: 15,
-      isLoaded: false
+      isLoaded: false,
+      searchResultsLoaded: false
     }
   },
   created() {
@@ -38,20 +40,46 @@ export default {
     }
   },
   methods: {
+    async fetchSearch() {
+      this.searchResultsLoaded = false
+      axios
+        .get('https://api.spoonacular.com/recipes/autocomplete', {
+          params: {
+            query: this.search,
+            number: 15,
+            apiKey: spoonacularApiKey
+          }
+        })
+        .then((response) => {
+          this.searchResults = response.data
+          console.log(this.searchResults)
+          this.searchResultsLoaded = true
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
+    setSearch(title) {
+      this.search = title
+      this.searchResultsLoaded = false
+      this.fetchData()
+    },
     async fetchData() {
       this.isLoaded = false
+      this.searchResultsLoaded = false
       axios
         .get('https://api.spoonacular.com/recipes/complexSearch', {
           params: {
             query: this.search,
             apiKey: spoonacularApiKey,
-            number: 15
+            number: 30
           }
         })
         .then((response) => {
           // console.log(response.data.results)
           this.recipes = response.data.results
           this.isLoaded = true
+
           // console.log(this.recipes)
         })
     },
@@ -93,9 +121,7 @@ export default {
 </script>
 
 <template>
-  <div class="content-wrapper">
-    <!-- ideas for the main page: show what the user has saved and maybe somehow recommend some online recipes for them based on an algo or something idk -->
-    <!-- but might be better to just focus on the frontend itself -->
+  <div class="content-wrapper" @click="this.searchResultsLoaded = false">
     <div class="top">
       <input
         type="text"
@@ -105,7 +131,15 @@ export default {
         size="50"
         height="20"
         @keydown.enter="fetchData"
+        @keydown="fetchSearch"
       />
+      <div v-if="searchResultsLoaded">
+        <ul class="search-results">
+          <li v-for="result in searchResults" :key="result.id" @click="setSearch(result.title)">
+            {{ result.title }}
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="container-fluid row bottom">
       <div :class="dynamicColumnClass" class="try">
@@ -128,6 +162,7 @@ export default {
             </button>
           </div>
         </div>
+        <h2 v-else-if="isLoaded && this.recipes.length == 0">No results found.</h2>
         <h2 v-else>Loading...</h2>
       </div>
       <Sidebar
@@ -143,6 +178,19 @@ export default {
 <style scoped>
 .try {
   height: 100%;
+}
+.search-results {
+  list-style-type: none;
+  padding: 0;
+  z-index: 40;
+  position: relative;
+  height: 15vh;
+  width: fit-content;
+  overflow-y: auto;
+}
+.search-results li {
+  background-color: white;
+  padding: 5px;
 }
 .content-wrapper {
   background-color: white;
