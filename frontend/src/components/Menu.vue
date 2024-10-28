@@ -34,7 +34,7 @@ import { RouterLink } from 'vue-router'
 
 <template>
   <nav class="navigation-container">
-    <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/051d50d98b800bd765f41efcc267bd378047656ce8c99147959177eb6e11538d?placeholderIfAbsent=true&apiKey=3d645b295fdd4c58b9ee9c63fae10398" class="background-image" alt="" />
+    <img loading="lazy" src="../assets/menu.jpg" class="background-image" alt="" />
     <section class="navigation-links">
       <ul>
         <li><RouterLink class="nav-link nav-item" to="/dashboard">Home</RouterLink></li>
