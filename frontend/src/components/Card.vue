@@ -9,29 +9,18 @@ export default {
 </script>
 
 <template>
-  <!-- BS card: Start -->
-  <!-- <div class="card">
-    <img :src="image" class="recipe-image card-img-top" alt="..." />
-    <div class="card-body">
-      <h5 class="card-title">{{ title }}</h5>
-    </div>
-    <div class="card-body">
-      <button @click="$emit('openRecipe')" class="recipe-button btn">Open Recipe</button>
-    </div> 
-  </div> -->
-  <div class="card border-0 d-flex noMP" @click="$emit('openRecipe')">
+  <div class="card my-card border-0 d-flex no-MP" @click="$emit('openRecipe')">
     <img class="card-img" :src="image" alt="..." />
-    <div class="card-img-overlay d-flex flex-column justify-content-end noMP">
-      <div class="translucent_bg">
+    <div class="card-img-overlay d-flex flex-column justify-content-end no-MP">
+      <div class="translucent-bg">
         <h5 class="card-title px-1">{{ title }}</h5>
       </div>
     </div>
   </div>
-  <!-- BS card: End -->
 </template>
 
 <style scoped>
-.noMP {
+.no-MP {
   margin: 0;
   padding: 0;
   :hover {
@@ -39,22 +28,20 @@ export default {
   }
 }
 
-.translucent_bg {
+.my-card {
+  container-type: inline-size;
+}
+
+@container (min-width: 1px) {
+  .my-card .card-title {
+    font-size: 6.5cqi;
+  }
+}
+
+.translucent-bg {
   background: rgba(255, 255, 255, 0.5);
   width: 100%;
   height: 35%;
 }
 
-/* .recipe-image {
-  position: absolute;
-  object-fit: cover;
-  object-position: center;
-}
-.recipe-button {
-  background-color: #523e2c;
-  color: white;
-  justify-content: start;
-  margin-left: 5px;
-  font-size: calc(2vh);
-} */
 </style>
