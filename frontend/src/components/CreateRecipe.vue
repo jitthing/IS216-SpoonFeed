@@ -130,7 +130,7 @@ const onFileChange = (e) => {
             type="text"
             class="form-control"
             id="recipeIngredients"
-            placeholder="Type your ingredients here"
+            placeholder="Press Enter to add your ingredient"
             v-model="currIngredient"
             @keydown.enter="addIngredient"
           />
@@ -147,7 +147,7 @@ const onFileChange = (e) => {
             type="text"
             class="form-control"
             id="recipeInstructions"
-            placeholder="Type your instructions here"
+            placeholder="Press Enter to add your instruction"
             v-model="currInstruction"
             @keydown.enter="addInstruction"
           />

@@ -85,6 +85,15 @@ const updateSaved = async () => {
       })
       .then((response) => {
         console.log(response.data)
+        if (isSaved.value) {
+          toast.success('Recipe saved!', {
+            autoClose: 1000
+          })
+        } else {
+          toast.info('Recipe unsaved!', {
+            autoClose: 1000
+          })
+        }
       })
   } catch (error) {
     console.error(error)
@@ -120,7 +129,9 @@ const emit = defineEmits(['closeModal'])
       <div class="comments-section">
         <h3>Comments</h3>
         <ul class="comments">
-          <li v-for="comment in comments" :key="comment.id">{{ comment.text }}</li>
+          <li v-for="comment in comments" :key="comment.id">
+            {{ comment.text }} by {{ comment.name }}
+          </li>
         </ul>
         <input v-model="newComment" placeholder="Add a comment..." />
         <button @click="addComment">Post</button>
@@ -131,6 +142,10 @@ const emit = defineEmits(['closeModal'])
 </template>
 
 <style scoped>
+img {
+  width: 100%;
+  border-radius: 25px;
+}
 .modal-container {
   z-index: 10;
   position: fixed;
