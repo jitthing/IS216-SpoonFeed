@@ -56,7 +56,7 @@ function closeModal() {
   </div>
 
   <div class="profile">
-      <router-link to="/profile" class="profile-link">My Profile</router-link>
+    <router-link to="/profile" class="profile-link">My Profile</router-link>
     <UserButton />
   </div>
 </template>

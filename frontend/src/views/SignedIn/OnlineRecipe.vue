@@ -191,6 +191,10 @@ export default {
 .search-results li {
   background-color: white;
   padding: 5px;
+  :hover {
+    background-color: lightgrey;
+    cursor: pointer;
+  }
 }
 .content-wrapper {
   background-color: white;
