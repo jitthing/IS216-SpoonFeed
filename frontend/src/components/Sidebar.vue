@@ -74,7 +74,10 @@ export default {
       <ol>
         <li v-for="instruction in recipeInfo.instructions">{{ instruction.step }}</li>
       </ol>
-      <button class="btn mb-1">Save</button>
+      <button class="btn mb-1">
+        <!-- <VIcon name="FaBookmark" /> -->
+        Save
+      </button>
     </div>
     <h2 v-else>Loading...</h2>
   </div>

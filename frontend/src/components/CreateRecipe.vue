@@ -180,5 +180,6 @@ const onFileChange = (e) => {
 button {
   background-color: #523e2c;
   color: white;
+  border-radius: 10px;
 }
 </style>

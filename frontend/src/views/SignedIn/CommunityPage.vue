@@ -131,6 +131,12 @@ const closeModal = () => {
 }
 .recipecard {
   margin: 10px 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.recipecard:hover {
+  transform: translateY(-5px);
 }
 .results {
   overflow: auto;

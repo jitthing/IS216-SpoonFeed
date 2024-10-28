@@ -3,7 +3,11 @@ const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
 // import the rest of the controllers for each model
-const { checkUser, updateSaved } = require("../controllers/userController");
+const {
+  checkUser,
+  updateCommunitySaved,
+  updateApiSaved,
+} = require("../controllers/userController");
 const {
   uploadRecipe,
   getRecipes,
@@ -16,7 +20,8 @@ router = express.Router();
 
 // User routes
 router.post("/check-user", checkUser);
-router.post("/update-saved", updateSaved);
+router.post("/update-saved-community", updateCommunitySaved);
+router.post("/update-saved-api", updateApiSaved);
 
 // Recipe routes
 router.get("/get-recipes", getRecipes);

@@ -9,13 +9,16 @@ export default {
   data() {
     return {
       search: '',
+      ingredientSearch: [],
       searchResults: [],
       recipes: [],
       selectedRecipe: {},
       openRecipe: false,
       currentNumberItems: 15,
       isLoaded: false,
-      searchResultsLoaded: false
+      haveResults: false,
+      searchResultsLoaded: false,
+      searchByFilter: false
     }
   },
   created() {
@@ -40,6 +43,15 @@ export default {
     }
   },
   methods: {
+    toggleMode() {
+      this.searchByFilter = !this.searchByFilter
+      this.ingredientSearch = []
+    },
+    addIngredient() {
+      this.ingredientSearch.push(this.search)
+      this.search = ''
+      this.fetchDataByIngredient()
+    },
     async fetchSearch() {
       this.searchResultsLoaded = false
       axios
@@ -64,9 +76,31 @@ export default {
       this.searchResultsLoaded = false
       this.fetchData()
     },
+    async fetchDataByIngredient() {
+      this.isLoaded = false
+      this.haveResults = false
+      axios
+        .get('https://api.spoonacular.com/recipes/findByIngredients', {
+          params: {
+            ingredients: this.ingredientSearch.join(','),
+            apiKey: spoonacularApiKey,
+            number: 30,
+            ranking: 2
+          }
+        })
+        .then((response) => {
+          this.recipes = response.data
+          this.isLoaded = true
+          this.haveResults = true
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
     async fetchData() {
       this.isLoaded = false
       this.searchResultsLoaded = false
+      this.haveResults = false
       axios
         .get('https://api.spoonacular.com/recipes/complexSearch', {
           params: {
@@ -79,6 +113,7 @@ export default {
           // console.log(response.data.results)
           this.recipes = response.data.results
           this.isLoaded = true
+          this.haveResults = true
 
           // console.log(this.recipes)
         })
@@ -95,6 +130,7 @@ export default {
           .then((response) => {
             this.recipes = response.data.recipes
             this.isLoaded = true
+            this.haveResults = true
             // console.log(this.recipes)
           })
       } catch (error) {
@@ -132,7 +168,24 @@ export default {
         height="20"
         @keydown.enter="fetchData"
         @keydown="fetchSearch"
+        v-if="!searchByFilter"
       />
+      <input
+        type="text"
+        class="searchbar"
+        v-model="search"
+        placeholder="Search by ingredients here"
+        size="50"
+        height="20"
+        @keydown.enter="addIngredient"
+        v-else
+      />
+      <p class="d-inline mx-2" @click="toggleMode">Change</p>
+      <ul v-if="this.ingredientSearch.length > 0" class="ingredient-list">
+        <li v-for="ingredient in ingredientSearch" :key="ingredient">
+          {{ ingredient }}
+        </li>
+      </ul>
       <div v-if="searchResultsLoaded">
         <ul class="search-results">
           <li v-for="result in searchResults" :key="result.id" @click="setSearch(result.title)">
@@ -147,7 +200,7 @@ export default {
           <button type="button" class="btn mx-2">Filter</button>
           <button type="button" class="btn">Sort</button>
         </div>
-        <div class="container-fluid row results" v-if="isLoaded">
+        <div class="container-fluid row results" v-if="isLoaded && haveResults">
           <RecipeCard
             class="recipecard col-xl-3 col-lg-4 col-md-10 col-sm-10"
             v-for="recipe in displayedItems"
@@ -162,7 +215,7 @@ export default {
             </button>
           </div>
         </div>
-        <h2 v-else-if="isLoaded && this.recipes.length == 0">No results found.</h2>
+        <h2 v-else-if="isLoaded">No results found.</h2>
         <h2 v-else>Loading...</h2>
       </div>
       <Sidebar
@@ -176,6 +229,18 @@ export default {
 </template>
 
 <style scoped>
+.ingredient-list {
+  list-style-type: none;
+  padding: 0;
+}
+.ingredient-list li {
+  display: inline;
+  padding: 5px;
+  background-color: lightgrey;
+  margin-right: 5px;
+  border-radius: 10px;
+  border: 1px solid black;
+}
 .try {
   height: 100%;
 }
@@ -226,6 +291,12 @@ export default {
 }
 .recipecard {
   margin: 10px 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.recipecard:hover {
+  transform: translateY(-5px);
 }
 .results {
   overflow: auto;

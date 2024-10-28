@@ -33,7 +33,7 @@ const toggleSave = () => {
 
 const addComment = () => {
   comments.value.push({
-    name: props.userName ? props.userName : props.userId,
+    name: props.userName ? props.userName : 'annoyomous',
     text: newComment.value
   })
   newComment.value = ''
@@ -48,8 +48,8 @@ const checkSaved = async () => {
         userId: props.userId
       })
       .then((response) => {
-        console.log(response.data)
-        const savedRecipes = response.data.userData.saved
+        // console.log(response.data)
+        const savedRecipes = response.data.userData.CommunitySaved
         if (savedRecipes.includes(props.recipeDetails.id)) {
           isSaved.value = true
         }
@@ -62,7 +62,7 @@ const checkSaved = async () => {
 const updateRecipe = async () => {
   try {
     axios
-      .post(BACKEND_URL + '/update-recipe', {
+      .post(BACKEND_URL + '/update-recipe-community', {
         recipeId: props.recipeDetails.id,
         comments: comments.value
       })
