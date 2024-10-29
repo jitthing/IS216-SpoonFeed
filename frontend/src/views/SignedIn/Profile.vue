@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useUser } from 'vue-clerk'
-import axios from '@/axios'
 import RecipeCard from '@/components/Card.vue'
 import CreateRecipe from '@/components/CreateRecipe.vue'
 import CreateBoard from '@/components/CreateBoard.vue' // Ensure you import CreateBoard.vue
