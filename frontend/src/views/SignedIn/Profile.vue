@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useUser } from 'vue-clerk'
+import axios from '@/axios'
 import RecipeCard from '@/components/Card.vue'
 import RecipePost from '@/components/RecipePost.vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
@@ -8,146 +9,54 @@ import '@vuepic/vue-datepicker/dist/main.css'
 
 const { user, isLoaded } = useUser()
 const activeTab = ref('created')
+const recipes = ref([])
+const savedRecipes = ref([])
+const selectedRecipe = ref({})
+const openRecipe = ref(false)
+const isLoading = ref(true)
+const selectedDate = ref(null)
+const showCalendar = ref(false)
 
-// Load user information when mounted
-onMounted(async () => {
-  if (isLoaded.value) {
-    // Fetch created recipes and saved boards (if needed)
-    // Fetch unorganized images for the user if needed
-    axios
-      .post(`${BACKEND_URL}/check-user`, {
-        userId: user.value.id
-      })
-      .then((response) => {
-        console.log(response.data)
-        savedRecipes.value = response.data.userData.ApiSaved
-      })
-  }
-})
-
-// Computed property for filtered and sorted recipes
-const filteredRecipes = computed(() => {
-  let recipes = []
-
-  if (activeTab.value === 'created') {
-    recipes = Object.values(createdRecipes.value || {})
-    console.log('Filtered created recipes:', recipes)
-  } else {
-    const communityRecipes = savedRecipes.value.community || []
-    const apiRecipes = savedRecipes.value.api || []
-    recipes = [...communityRecipes, ...apiRecipes]
-    console.log('Filtered saved recipes:', recipes)
-  }
-
-  return recipes.sort((a, b) => {
-    if (sortOption.value === 'oldest') {
-      return new Date(a.timestamp || 0) - new Date(b.timestamp || 0)
-    }
-    return new Date(b.timestamp || 0) - new Date(a.timestamp || 0)
-  })
-})
-
-// Fetch user's data
-const fetchUserData = async () => {
-  if (!user.value?.id) return
-
-  console.log('Fetching data for user:', user.value?.id)
-  isLoading.value = true
-
+// Fetch created recipes
+const fetchCreatedRecipes = async () => {
   try {
-    // Get created recipes
-    const createdResponse = await axios.post('/api/get-recipes-by-user', {
-      id: user.value.id
+    console.log('Fetching created recipes for user:', user.value?.id)
+    const response = await axios.get('/api/get-recipes')
+    const allRecipes = response.data.recipes
+    
+    const userRecipes = Object.values(allRecipes).filter(recipe => 
+      recipe.authorId === user.value?.id
+    )
+    
+    // Log each recipe with its extracted timestamp
+    userRecipes.forEach(recipe => {
+      const timestampMatch = recipe.imageUrl.match(/-(\d+)\?/);
+      if (timestampMatch) {
+        const timestamp = parseInt(timestampMatch[1]);
+        const date = new Date(timestamp);
+        console.log('Recipe:', recipe.name, 'Date:', date);
+      }
     })
-    if (createdResponse.data && createdResponse.data.recipes) {
-      createdRecipes.value = createdResponse.data.recipes
-      console.log('Created recipes:', createdRecipes.value)
-    }
+    
+    recipes.value = userRecipes
+  } catch (error) {
+    console.error('Error fetching created recipes:', error)
+    recipes.value = []
+  }
+}
 
-    // Get saved recipes
+// Fetch saved recipes
+const fetchSavedRecipes = async () => {
+  try {
     const userResponse = await axios.post('/api/check-user', {
       userId: user.value?.id,
       firstName: user.value?.firstName
     })
-
-    if (userResponse.data && userResponse.data.userData) {
-      // Get the saved recipe IDs
-      const communityIds = userResponse.data.userData.CommunitySaved || []
-      const apiIds = userResponse.data.userData.ApiSaved || []
-
-      console.log('Community IDs:', communityIds)
-      console.log('API IDs:', apiIds)
-
-      // Fetch community recipes data
-      if (communityIds.length > 0) {
-        const communityResponse = await axios.get('/api/get-recipes')
-        const allRecipes = communityResponse.data.recipes || {}
-        const savedCommunityRecipes = communityIds.map((id) => allRecipes[id]).filter(Boolean)
-        savedRecipes.value.community = savedCommunityRecipes
-        console.log('Saved community recipes:', savedRecipes.value.community)
-      }
-
-      // For API recipes, we need to fetch each recipe from Spoonacular
-      if (apiIds.length > 0) {
-        const apiRecipes = []
-        for (const id of apiIds) {
-          try {
-            const apiResponse = await axios.get(`/api/get-recipe/${id}`)
-            if (apiResponse.data) {
-              apiRecipes.push(apiResponse.data)
-            }
-          } catch (error) {
-            console.error(`Error fetching API recipe ${id}:`, error)
-          }
-        }
-        savedRecipes.value.api = apiRecipes
-        console.log('Saved API recipes:', savedRecipes.value.api)
-      }
     
-    console.log('User response:', userResponse.data)  // Debug log
-    
-    if (userResponse.data?.userData?.savedRecipes) {
-      // Get the array of saved recipe IDs
-      const savedRecipeIds = userResponse.data.userData.savedRecipes
-      console.log('Saved recipe IDs:', savedRecipeIds)
-      
-      // Fetch all recipes
-      const recipesResponse = await axios.get('/api/get-recipes')
-      const allRecipes = recipesResponse.data.recipes
-      
-      // Filter recipes that match saved IDs
-      savedRecipes.value = Object.values(allRecipes).filter(recipe => 
-        savedRecipeIds.includes(recipe.id)
-      )
-      
-      console.log('Filtered saved recipes:', savedRecipes.value)
-    } else {
-      savedRecipes.value = []
-      console.log('No saved recipes found')
+    if (userResponse.data?.userData) {
+      savedRecipes.value = userResponse.data.userData.savedRecipes || []
     }
   } catch (error) {
-    console.error('Error fetching user data:', error)
-    createdRecipes.value = {}
-    savedRecipes.value = { community: [], api: [] }
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Watch for user changes
-watch(
-  () => user.value?.id,
-  (newId) => {
-    if (newId) {
-      fetchUserData()
-    }
-  }
-)
-
-onMounted(() => {
-  if (user.value?.id) {
-    fetchUserData()
-  }
     console.error('Error fetching saved recipes:', error)
     savedRecipes.value = []
   }
