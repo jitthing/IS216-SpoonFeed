@@ -22,7 +22,7 @@ onMounted(() => {
 
 watchEffect(() => {
   if (props.recipeDetails) {
-    comments.value = props.recipeDetails.comments
+    comments.value = props.recipeDetails.comments ? props.recipeDetails.comments : []
   }
 })
 
@@ -62,7 +62,7 @@ const checkSaved = async () => {
 const updateRecipe = async () => {
   try {
     axios
-      .post(BACKEND_URL + '/update-recipe-community', {
+      .post(BACKEND_URL + '/update-recipe', {
         recipeId: props.recipeDetails.id,
         comments: comments.value
       })
@@ -78,7 +78,7 @@ const updateSaved = async () => {
   //   console.log(props.user.value.id)
   try {
     axios
-      .post(BACKEND_URL + '/update-saved', {
+      .post(BACKEND_URL + '/update-saved-community', {
         userId: props.userId,
         recipeId: props.recipeDetails.id,
         saved: isSaved.value
