@@ -4,22 +4,43 @@ import { useUser } from 'vue-clerk'
 import axios from '@/axios'
 import RecipeCard from '@/components/Card.vue'
 import CreateRecipe from '@/components/CreateRecipe.vue'
+import CreateBoard from '@/components/CreateBoard.vue' // Ensure you import CreateBoard.vue
+import axios from 'axios'
+
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
+
+// Modal state
+const modalOpen = ref(false)
+const showCreateBoardModal = ref(false) // For Create Board modal
+const selectedBoard = ref(null) // To track which board is selected
+const createdRecipes = ref([])
+const savedBoards = ref([]) // Store created boards
+const unorganizedImages = ref([]) // Store unorganized saved images
+const savedRecipes = ref([]) // Store saved recipes
 
 const { user, isLoaded } = useUser()
 const activeTab = ref('created')
-const modalOpen = ref(false)
-const createdRecipes = ref([])
-const savedRecipes = ref({
-  community: [],
-  api: []
+
+// Load user information when mounted
+onMounted(async () => {
+  if (isLoaded.value) {
+    // Fetch created recipes and saved boards (if needed)
+    // Fetch unorganized images for the user if needed
+    axios
+      .post(`${BACKEND_URL}/check-user`, {
+        userId: user.value.id
+      })
+      .then((response) => {
+        console.log(response.data)
+        savedRecipes.value = response.data.userData.ApiSaved
+      })
+  }
 })
-const sortOption = ref('newest')
-const isLoading = ref(true)
 
 // Computed property for filtered and sorted recipes
 const filteredRecipes = computed(() => {
   let recipes = []
-  
+
   if (activeTab.value === 'created') {
     recipes = Object.values(createdRecipes.value || {})
     console.log('Filtered created recipes:', recipes)
@@ -41,10 +62,10 @@ const filteredRecipes = computed(() => {
 // Fetch user's data
 const fetchUserData = async () => {
   if (!user.value?.id) return
-  
+
   console.log('Fetching data for user:', user.value?.id)
   isLoading.value = true
-  
+
   try {
     // Get created recipes
     const createdResponse = await axios.post('/api/get-recipes-by-user', {
@@ -60,26 +81,24 @@ const fetchUserData = async () => {
       userId: user.value.id,
       firstName: user.value.firstName
     })
-    
+
     if (userResponse.data && userResponse.data.userData) {
       // Get the saved recipe IDs
       const communityIds = userResponse.data.userData.CommunitySaved || []
       const apiIds = userResponse.data.userData.ApiSaved || []
-      
+
       console.log('Community IDs:', communityIds)
       console.log('API IDs:', apiIds)
-      
+
       // Fetch community recipes data
       if (communityIds.length > 0) {
         const communityResponse = await axios.get('/api/get-recipes')
         const allRecipes = communityResponse.data.recipes || {}
-        const savedCommunityRecipes = communityIds
-          .map(id => allRecipes[id])
-          .filter(Boolean)
+        const savedCommunityRecipes = communityIds.map((id) => allRecipes[id]).filter(Boolean)
         savedRecipes.value.community = savedCommunityRecipes
         console.log('Saved community recipes:', savedRecipes.value.community)
       }
-      
+
       // For API recipes, we need to fetch each recipe from Spoonacular
       if (apiIds.length > 0) {
         const apiRecipes = []
@@ -107,11 +126,14 @@ const fetchUserData = async () => {
 }
 
 // Watch for user changes
-watch(() => user.value?.id, (newId) => {
-  if (newId) {
-    fetchUserData()
+watch(
+  () => user.value?.id,
+  (newId) => {
+    if (newId) {
+      fetchUserData()
+    }
   }
-})
+)
 
 onMounted(() => {
   if (user.value?.id) {
@@ -161,9 +183,7 @@ const handleRecipeCreated = async () => {
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="loading-state">
-      Loading...
-    </div>
+    <div v-if="isLoading" class="loading-state">Loading...</div>
 
     <!-- Content -->
     <div v-else>
@@ -176,33 +196,28 @@ const handleRecipeCreated = async () => {
         <div v-else>
           <button @click="modalOpen = true" class="create-recipe-btn">Create Recipe</button>
           <div class="recipes-grid">
-            <RecipeCard 
-              v-for="recipe in filteredRecipes" 
-              :key="recipe.id" 
-              :recipe="recipe"
-            />
+            <RecipeCard v-for="recipe in filteredRecipes" :key="recipe.id" :recipe="recipe" />
           </div>
         </div>
       </div>
 
       <!-- Saved Tab -->
       <div v-if="activeTab === 'saved'">
-        <div v-if="savedRecipes.community.length === 0 && savedRecipes.api.length === 0" class="empty-state">
+        <div
+          v-if="savedRecipes.community.length === 0 && savedRecipes.api.length === 0"
+          class="empty-state"
+        >
           <p>No saved recipes yet. Save some recipes to see them here!</p>
         </div>
         <div v-else class="recipes-grid">
-          <RecipeCard 
-            v-for="recipe in filteredRecipes" 
-            :key="recipe.id" 
-            :recipe="recipe"
-          />
+          <RecipeCard v-for="recipe in filteredRecipes" :key="recipe.id" :recipe="recipe" />
         </div>
       </div>
     </div>
 
     <!-- Create Recipe Modal -->
-    <CreateRecipe 
-      v-if="modalOpen" 
+    <CreateRecipe
+      v-if="modalOpen"
       @close-modal="modalOpen = false"
       @recipe-created="handleRecipeCreated"
     />

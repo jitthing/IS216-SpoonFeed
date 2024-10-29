@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 import axios from 'axios'
 import RecipeCard from '../../components/Card.vue'
 import Sidebar from '../../components/Sidebar.vue'
@@ -154,10 +154,174 @@ export default {
     }
   }
 }
+</script> -->
+<script setup>
+import axios from 'axios'
+import RecipeCard from '../../components/Card.vue'
+import Sidebar from '../../components/Sidebar.vue'
+import { ref, onMounted, computed, watchEffect } from 'vue'
+import { useUser } from 'vue-clerk'
+
+const { user } = useUser()
+
+const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
+
+const search = ref('')
+const ingredientSearch = ref([])
+const searchResults = ref([])
+const recipes = ref([])
+const selectedRecipe = ref({})
+const openRecipe = ref(false)
+const currentNumberItems = ref(15)
+const isLoaded = ref(false)
+const haveResults = ref(false)
+const searchResultsLoaded = ref(false)
+const searchByFilter = ref(false)
+const userId = ref('')
+
+onMounted(() => {
+  randomData()
+})
+
+watchEffect(() => {
+  if (user) {
+    userId.value = user.value.id
+  }
+})
+
+const dynamicColumnClass = computed(() => {
+  return openRecipe.value ? 'col-9' : 'col-12'
+})
+
+const displayedItems = computed(() => {
+  return recipes.value.slice(0, currentNumberItems.value)
+})
+
+const canLoadMore = computed(() => {
+  return recipes.value.length > currentNumberItems.value
+})
+
+const dynamicLoading = computed(() => {
+  return !isLoaded.value ? 'd-flex justify-content-center align-items-center' : 'none'
+})
+
+const toggleMode = () => {
+  searchByFilter.value = !searchByFilter.value
+  ingredientSearch.value = []
+}
+
+const addIngredient = () => {
+  ingredientSearch.value.push(search.value)
+  search.value = ''
+  fetchDataByIngredient()
+}
+
+const fetchSearch = async () => {
+  searchResultsLoaded.value = false
+  axios
+    .get('https://api.spoonacular.com/recipes/autocomplete', {
+      params: {
+        query: search.value,
+        number: 15,
+        apiKey: spoonacularApiKey
+      }
+    })
+    .then((response) => {
+      searchResults.value = response.data
+      searchResultsLoaded.value = true
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
+const setSearch = (title) => {
+  search.value = title
+  searchResultsLoaded.value = false
+  fetchSearch()
+}
+
+const fetchDataByIngredient = async () => {
+  isLoaded.value = false
+  haveResults.value = false
+  axios
+    .get('https://api.spoonacular.com/recipes/findByIngredients', {
+      params: {
+        ingredients: ingredientSearch.value.join(','),
+        number: 15,
+        apiKey: spoonacularApiKey,
+        ranking: 1
+      }
+    })
+    .then((response) => {
+      recipes.value = response.data
+      isLoaded.value = true
+      haveResults.value = true
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
+const fetchData = async () => {
+  isLoaded.value = false
+  haveResults.value = false
+  searchResultsLoaded.value = false
+  axios
+    .get('https://api.spoonacular.com/recipes/complexSearch', {
+      params: {
+        query: search.value,
+        number: 30,
+        apiKey: spoonacularApiKey
+      }
+    })
+    .then((response) => {
+      recipes.value = response.data.results
+      isLoaded.value = true
+      haveResults.value = true
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
+const randomData = async () => {
+  isLoaded.value = false
+  haveResults.value = false
+  axios
+    .get('https://api.spoonacular.com/recipes/random', {
+      params: {
+        number: 30,
+        apiKey: spoonacularApiKey
+      }
+    })
+    .then((response) => {
+      recipes.value = response.data.recipes
+      isLoaded.value = true
+      haveResults.value = true
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
+const setRecipe = (recipe) => {
+  selectedRecipe.value = recipe
+  // console.log(selectedRecipe.value)
+  openRecipe.value = true
+}
+
+const closeSide = () => {
+  openRecipe.value = false
+}
+
+const fetchMore = () => {
+  currentNumberItems.value += 6
+}
 </script>
 
 <template>
-  <div class="content-wrapper" @click="this.searchResultsLoaded = false">
+  <div class="content-wrapper" @click="searchResultsLoaded = false">
     <div class="top">
       <input
         type="text"
@@ -181,7 +345,7 @@ export default {
         v-else
       />
       <p class="d-inline mx-2" @click="toggleMode">Change</p>
-      <ul v-if="this.ingredientSearch.length > 0" class="ingredient-list">
+      <ul v-if="ingredientSearch.length > 0" class="ingredient-list">
         <li v-for="ingredient in ingredientSearch" :key="ingredient">
           {{ ingredient }}
         </li>
@@ -222,6 +386,7 @@ export default {
         class="col-3"
         v-if="openRecipe"
         :recipe-details="selectedRecipe"
+        :user-id="userId"
         @close-side="closeSide"
       />
     </div>
