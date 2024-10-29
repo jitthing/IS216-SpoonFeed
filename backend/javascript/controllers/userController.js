@@ -74,4 +74,27 @@ async function updateApiSaved(req, res) {
   }
 }
 
-module.exports = { checkUser, updateCommunitySaved, updateApiSaved };
+async function getCommunitySaved(req, res) {
+  const { userId, recipeIds } = req.body;
+  const db = firebase.db;
+  const recipesRef = db.ref("recipes");
+  const snapshot = await recipesRef.once("value");
+  const recipes = snapshot.val();
+  var result = [];
+  if (recipes) {
+    for (const key in recipes) {
+      if (recipeIds.includes(key)) {
+        result.push(recipes[key]);
+      }
+    }
+    return res.status(200).json({ message: "Recipes found", result });
+  }
+  return res.status(404).json({ message: "No recipes found" });
+}
+
+module.exports = {
+  checkUser,
+  updateCommunitySaved,
+  updateApiSaved,
+  getCommunitySaved,
+};
