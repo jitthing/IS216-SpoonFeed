@@ -138,6 +138,16 @@ const confirmEditInstruction = (index) => {
     alert('Please enter a valid instruction')
   }
 }
+
+const cancelEditIngredient = () => {
+  editingIngredientIndex.value = null
+  currIngredient.value = ''
+}
+
+const cancelEditInstruction = () => {
+  editingInstructionIndex.value = null
+  currInstruction.value = ''
+}
 </script>
 
 <template>
@@ -169,7 +179,7 @@ const confirmEditInstruction = (index) => {
                   @keydown.enter.prevent="confirmEditIngredient(index)"
                 />
                 <button @click="confirmEditIngredient(index)">Confirm</button>
-                <button @click="editingIngredientIndex = null">Cancel</button>
+                <button @click="cancelEditIngredient">Cancel</button>
               </span>
             </li>
           </ul>
@@ -198,7 +208,7 @@ const confirmEditInstruction = (index) => {
                   @keydown.enter.prevent="confirmEditInstruction(index)"
                 />
                 <button @click="confirmEditInstruction(index)">Confirm</button>
-                <button @click="editingInstructionIndex = null">Cancel</button>
+                <button @click="cancelEditInstruction">Cancel</button>
               </span>
             </li>
           </ol>

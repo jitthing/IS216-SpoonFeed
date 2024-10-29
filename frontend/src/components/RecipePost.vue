@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, watchEffect } from 'vue'
 import { toast } from 'vue3-toastify'
-import { useUser } from 'vue-clerk'
 import axios from 'axios'
 
 const props = defineProps({

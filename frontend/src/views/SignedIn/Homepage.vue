@@ -1,38 +1,76 @@
-<script>
+<script setup>
 import axios from 'axios'
 import RecipeCard from '../../components/Card.vue'
+import { ref, onMounted, watchEffect } from 'vue'
+import { useUser } from 'vue-clerk'
+
+const { user } = useUser()
 
 const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
-export default {
-  data() {
-    return {
-      search: '',
-      recipes: []
-    }
-  },
-  created() {
-    this.fetchData()
-  },
-  components: {
-    RecipeCard
-  },
-  methods: {
-    async fetchData() {
-      axios
-        .get('https://api.spoonacular.com/recipes/complexSearch', {
-          params: {
-            query: 'pasta',
-            apiKey: spoonacularApiKey
-          }
-        })
-        .then((response) => {
-          // console.log(response.data.results)
-          this.recipes = response.data.results
-          console.log(this.recipes)
-        })
-    }
+const search = ref('')
+const recipes = ref([])
+const similarRecipes = ref([]) // At random
+const trendingRecipes = ref({})
+const savedRecipes = ref([])
+
+onMounted(() => {
+  fetchHottestRecipes()
+})
+
+const fetchHottestRecipes = async () => {
+  axios.get(BACKEND_URL + '/get-hottest-recipes').then((response) => {
+    trendingRecipes.value = response.data.recipes
+    console.log(trendingRecipes.value)
+  })
+}
+
+const fetchUser = async () => {
+  try {
+    axios
+      .post(BACKEND_URL + '/check-user', {
+        userId: user.value.id
+      })
+      .then((response) => {
+        const userSaved = response.data.userData.ApiSaved
+        const randomNum = Math.floor(Math.random() * userSaved.length)
+        axios
+          .get(`https://api.spoonacular.com/recipes/${userSaved[randomNum]}/similar`, {
+            params: {
+              apiKey: spoonacularApiKey,
+              number: 10
+            }
+          })
+          .then((response) => {
+            console.log(response.data)
+            similarRecipes.value = response.data
+          })
+      })
+  } catch (error) {
+    console.error(error)
   }
+}
+
+watchEffect(() => {
+  if (user.value) {
+    fetchUser()
+  }
+})
+
+const fetchData = async () => {
+  axios
+    .get('https://api.spoonacular.com/recipes/complexSearch', {
+      params: {
+        query: 'pasta',
+        apiKey: spoonacularApiKey
+      }
+    })
+    .then((response) => {
+      // console.log(response.data.results)
+      this.recipes = response.data.results
+      console.log(this.recipes)
+    })
 }
 </script>
 
@@ -96,25 +134,29 @@ export default {
           <a href="#foodcard">foodcard</a>
         </div>
         <div class="h2 custom-margins">Recommended</div>
-        <div class="scroll-menu">
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
+        <div class="container-fluid row" v-if="similarRecipes.length > 0">
+          <RecipeCard
+            class="col-2"
+            v-for="recipe in similarRecipes"
+            :key="recipe.id"
+            :title="recipe.title"
+            :image="`https://img.spoonacular.com/recipes/${recipe.id}-312x231.jpg`"
+          />
+        </div>
+        <div class="scroll-menu" v-else>
+          <h2>Loading...</h2>
         </div>
         <div class="h2 custom-margins">Trending Recipes</div>
-        <div class="scroll-menu">
+        <div class="container-fluid row" v-if="trendingRecipes">
+          <RecipeCard
+            class="col-2"
+            :key="recipe"
+            :title="recipe.name"
+            :image="recipe.imageUrl"
+            v-for="recipe in trendingRecipes"
+          />
+        </div>
+        <div class="scroll-menu" v-else>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
@@ -165,7 +207,6 @@ export default {
   overflow: auto;
   white-space: nowrap;
 }
-
 .scroll-menu a {
   display: inline-block;
   color: black;

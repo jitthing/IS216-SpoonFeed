@@ -15,6 +15,7 @@ const {
   getRecipesByName,
   getRecipesByUser,
   updateRecipe,
+  getHottestRecipes,
 } = require("../controllers/recipeController");
 
 router = express.Router();
@@ -27,6 +28,7 @@ router.post("/get-community-saved", getCommunitySaved);
 
 // Recipe routes
 router.get("/get-recipes", getRecipes);
+router.get("/get-hottest-recipes", getHottestRecipes);
 router.get("/get-recipes-by-name", getRecipesByName);
 router.get("/get-recipes-by-user", getRecipesByUser);
 router.post("/upload-recipe", upload.single("recipeImage"), uploadRecipe);

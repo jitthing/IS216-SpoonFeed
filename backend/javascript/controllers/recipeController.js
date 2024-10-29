@@ -11,6 +11,17 @@ async function getRecipes(req, res) {
   return res.status(404).json({ message: "No recipes found" });
 }
 
+async function getHottestRecipes(req, res) {
+  const db = firebase.db;
+  const recipesRef = db.ref("recipes");
+  const snapshot = await recipesRef.orderByChild("numSaves").once("value");
+  const recipes = snapshot.val();
+  if (recipes) {
+    return res.status(200).json({ message: "Hottest Recipes found", recipes });
+  }
+  return res.status(404).json({ message: "No hottest recipes found" });
+}
+
 async function getRecipesByName(req, res) {
   const searchText = req.body.searchText;
   const words = searchText.split(" ");
@@ -157,4 +168,5 @@ module.exports = {
   getRecipesByName,
   getRecipesByUser,
   updateRecipe,
+  getHottestRecipes,
 };
