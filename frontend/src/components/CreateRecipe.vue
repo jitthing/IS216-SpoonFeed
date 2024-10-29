@@ -26,17 +26,21 @@ const macros = ref('')
 // Functions
 const submitRecipe = async () => {
   const formData = new FormData()
+  const timestamp = Date.now()
+
   const recipeData = {
     recipeAuthorId: props.userId,
     recipeAuthor: props.userName,
     recipeName: recipeName.value,
     recipeIngredients: allIngredients.value,
-    recipeInstructions: allInstructions.value
+    recipeInstructions: allInstructions.value,
+    numSaves: 0
   }
 
   formData.append('recipeData', JSON.stringify(recipeData))
-  if (recipeImage.value) {
-    formData.append('recipeImage', recipeImage.value)
+   if (recipeImage.value) {
+    const fileName = `${recipeName.value}-${timestamp}`
+    formData.append('recipeImage', recipeImage.value, fileName)
   }
 
   const toastId = toast.loading('Uploading recipe...')
