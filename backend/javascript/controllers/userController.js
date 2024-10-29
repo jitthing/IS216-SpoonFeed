@@ -48,7 +48,7 @@ async function updateCommunitySaved(req, res) {
 }
 
 async function updateApiSaved(req, res) {
-  const { userId, recipeId, saved } = req.body;
+  const { userId, recipeId } = req.body;
   try {
     const userRef = firebase.db.ref(`users/${userId}`);
     const snapshot = await userRef.once("value");
@@ -56,7 +56,7 @@ async function updateApiSaved(req, res) {
 
     if (userData) {
       const savedRecipes = userData.ApiSaved || [];
-      if (saved) {
+      if (!savedRecipes.includes(recipeId)) {
         savedRecipes.push(recipeId);
       } else {
         const index = savedRecipes.indexOf(recipeId);

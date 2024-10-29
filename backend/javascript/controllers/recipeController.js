@@ -117,14 +117,37 @@ async function uploadRecipe(req, res) {
 }
 
 async function updateRecipe(req, res) {
-  const { comments, recipeId } = req.body;
-  try {
-    const db = firebase.db;
-    const recipeRef = db.ref(`recipes/${recipeId}`);
-    await recipeRef.update({ comments: comments });
-    return res.status(200).json({ message: "Recipe updated successfully" });
-  } catch (e) {
-    return res.status(500).json({ message: "Internal server error", error });
+  const { comments, recipeId, saved } = req.body;
+  if (comments) {
+    try {
+      const db = firebase.db;
+      const recipeRef = db.ref(`recipes/${recipeId}`);
+      await recipeRef.update({ comments: comments });
+      return res.status(200).json({ message: "Recipe updated successfully" });
+    } catch (e) {
+      return res.status(500).json({ message: "Internal server error", error });
+    }
+  } else if (saved !== undefined) {
+    {
+      try {
+        const db = firebase.db;
+        const recipeRef = db.ref(`recipes/${recipeId}`);
+        const snapshot = await recipeRef.once("value");
+        const recipe = snapshot.val();
+        const numSaves = recipe.numSaves || 0;
+        if (saved) {
+          await recipeRef.update({ numSaves: numSaves + 1 });
+          return res.status(200).json({ message: "Recipe saved successfully" });
+        } else {
+          await recipeRef.update({ numSaves: numSaves - 1 });
+          return res
+            .status(200)
+            .json({ message: "Recipe unsaved successfully" });
+        }
+      } catch (e) {
+        return res.status(500).json({ message: "Something wrong", e });
+      }
+    }
   }
 }
 

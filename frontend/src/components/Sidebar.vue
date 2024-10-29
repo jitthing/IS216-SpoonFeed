@@ -1,6 +1,7 @@
-<script>
+<!-- <script>
 import axios from 'axios'
 const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 export default {
   data() {
@@ -13,6 +14,10 @@ export default {
   props: {
     recipeDetails: {
       type: Object,
+      required: true
+    },
+    userId: {
+      type: String,
       required: true
     }
   },
@@ -49,9 +54,95 @@ export default {
         .catch((error) => {
           console.log('there is no recipe details yet')
         })
+    },
+    async saveRecipe() {
+      try {
+        axios
+          .post(BACKEND_URL + '/update-api-saved', {
+            recipeId: this.recipeDetails.id,
+            userId: props.userId
+          })
+          .then((response) => {
+            console.log(response.data)
+          })
+      } catch {
+        console.error('error')
+      }
     }
   },
   emits: ['closeSide']
+}
+</script> -->
+<script setup>
+import axios from 'axios'
+import { watch, ref, computed } from 'vue'
+import { toast } from 'vue3-toastify'
+const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
+
+const recipe = ref({})
+const recipeInfo = ref({})
+const isLoaded = ref(false)
+
+defineEmits(['closeSide'])
+
+const { recipeDetails, userId } = defineProps({
+  recipeDetails: {
+    type: Object,
+    required: true
+  },
+  userId: {
+    type: String,
+    required: true
+  }
+})
+const fetchData = async () => {
+  const recipeInfoAPI = `https://api.spoonacular.com/recipes/${recipe.value.id}/information`
+  axios
+    .get(recipeInfoAPI, {
+      params: {
+        apiKey: spoonacularApiKey
+      }
+    })
+    .then((response) => {
+      recipeInfo.value.ingredients = response.data.extendedIngredients
+      recipeInfo.value.instructions = response.data.analyzedInstructions[0].steps
+      isLoaded.value = true
+    })
+    .catch((error) => {
+      console.log('There is no recipe details yet')
+    })
+}
+
+const dynamicLoadingStyle = computed(() => {
+  return !isLoaded.value ? 'd-flex justify-content-center align-items-center' : 'none'
+})
+
+watch(
+  () => recipeDetails,
+  (newVal) => {
+    if (newVal) {
+      recipe.value = newVal
+      fetchData()
+    }
+  },
+  { immediate: true }
+)
+
+const saveRecipe = async () => {
+  try {
+    axios
+      .post(`${BACKEND_URL}/update-saved-api`, {
+        userId: userId,
+        recipeId: recipe.value.id
+      })
+      .then((response) => {
+        console.log(response.data)
+        toast.success('Save updated!')
+      })
+  } catch (error) {
+    toast.error(`Error: ${error.response.data.message}`)
+  }
 }
 </script>
 
@@ -74,7 +165,7 @@ export default {
       <ol>
         <li v-for="instruction in recipeInfo.instructions">{{ instruction.step }}</li>
       </ol>
-      <button class="btn mb-1">
+      <button class="btn mb-1" @click="saveRecipe">
         <!-- <VIcon name="FaBookmark" /> -->
         Save
       </button>

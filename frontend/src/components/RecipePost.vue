@@ -84,7 +84,7 @@ const updateSaved = async () => {
         saved: isSaved.value
       })
       .then((response) => {
-        console.log(response.data)
+        // console.log(response.data)
         if (isSaved.value) {
           toast.success('Recipe saved!', {
             autoClose: 1000
@@ -94,6 +94,14 @@ const updateSaved = async () => {
             autoClose: 1000
           })
         }
+        axios
+          .post(BACKEND_URL + '/update-recipe', {
+            recipeId: props.recipeDetails.id,
+            saved: isSaved.value
+          })
+          .then((response) => {
+            console.log(response.data)
+          })
       })
   } catch (error) {
     console.error(error)
