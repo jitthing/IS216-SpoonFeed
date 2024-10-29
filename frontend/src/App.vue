@@ -39,8 +39,7 @@ watchEffect(() => {
 </template>
 
 <style>
-button {
-  background-color: #523e2c;
+*::-webkit-scrollbar {
+  display: none;
 }
-
 </style>

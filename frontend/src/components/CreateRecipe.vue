@@ -22,6 +22,8 @@ const recipeImage = ref(null)
 const currInstruction = ref('')
 const allInstructions = ref([])
 const macros = ref('')
+const editingIngredientIndex = ref(null) // Track which ingredient is being edited
+const editingInstructionIndex = ref(null) // Track which instruction is being edited
 
 // Functions
 const submitRecipe = async () => {
@@ -106,6 +108,36 @@ const onFileChange = (e) => {
   recipeImage.value = file
   console.log(recipeImage.value)
 }
+
+const editIngredient = (index) => {
+  editingIngredientIndex.value = index
+  currIngredient.value = allIngredients.value[index]
+}
+
+const confirmEditIngredient = (index) => {
+  if (currIngredient.value.trim() !== '') {
+    allIngredients.value.splice(index, 1, currIngredient.value.trim())
+    currIngredient.value = ''
+    editingIngredientIndex.value = null
+  } else {
+    alert('Please enter a valid ingredient')
+  }
+}
+
+const editInstruction = (index) => {
+  editingInstructionIndex.value = index
+  currInstruction.value = allInstructions.value[index]
+}
+
+const confirmEditInstruction = (index) => {
+  if (currInstruction.value.trim() !== '') {
+    allInstructions.value.splice(index, 1, currInstruction.value.trim())
+    currInstruction.value = ''
+    editingInstructionIndex.value = null
+  } else {
+    alert('Please enter a valid instruction')
+  }
+}
 </script>
 
 <template>
@@ -125,8 +157,20 @@ const onFileChange = (e) => {
           <label for="recipeIngredients" class="form-label">Recipe Ingredients</label>
           <ul>
             <li v-for="(ingredient, index) in allIngredients" :key="index">
-              {{ ingredient }}
-              <button @click="removeIngredient(index)">Remove</button>
+              <span v-if="editingIngredientIndex !== index">
+                {{ ingredient }}
+                <button @click="editIngredient(index)">Edit</button>
+                <button @click="removeIngredient(index)">Remove</button>
+              </span>
+              <span v-else>
+                <input
+                  type="text"
+                  v-model="currIngredient"
+                  @keydown.enter.prevent="confirmEditIngredient(index)"
+                />
+                <button @click="confirmEditIngredient(index)">Confirm</button>
+                <button @click="editingIngredientIndex = null">Cancel</button>
+              </span>
             </li>
           </ul>
           <input
@@ -142,8 +186,20 @@ const onFileChange = (e) => {
           <label for="recipeInstructions" class="form-label">Recipe Instructions</label>
           <ol>
             <li v-for="(instruction, index) in allInstructions" :key="index">
-              {{ instruction }}
-              <button @click="removeInstruction(index)">Remove</button>
+              <span v-if="editingInstructionIndex !== index">
+                {{ instruction }}
+                <button @click="editInstruction(index)">Edit</button>
+                <button @click="removeInstruction(index)">Remove</button>
+              </span>
+              <span v-else>
+                <input
+                  type="text"
+                  v-model="currInstruction"
+                  @keydown.enter.prevent="confirmEditInstruction(index)"
+                />
+                <button @click="confirmEditInstruction(index)">Confirm</button>
+                <button @click="editingInstructionIndex = null">Cancel</button>
+              </span>
             </li>
           </ol>
           <input

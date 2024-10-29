@@ -15,7 +15,7 @@ export default {
     this.fetchData()
   },
   components: {
-    RecipeCard,
+    RecipeCard
   },
   methods: {
     async fetchData() {
@@ -74,7 +74,7 @@ export default {
         <h2 v-else>Loading...</h2> -->
         <div class="banner">
           <!-- Need to replace <user> with username -->
-          <span class="h1">Welcome back &lt;User&gt;</span> <br>
+          <span class="h1">Welcome back &lt;User&gt;</span> <br />
           <span class="h4"> What will you cook today? </span>
         </div>
         <div class="h2 custom-margins">Saved</div>
@@ -85,7 +85,7 @@ export default {
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>  
+          <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
@@ -103,7 +103,7 @@ export default {
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>  
+          <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
@@ -121,7 +121,7 @@ export default {
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>  
+          <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
@@ -148,7 +148,7 @@ export default {
   height: 100vh;
   padding-inline: 10px;
   border: 1px solid black;
-  overflow: scroll;
+  overflow: auto;
 }
 .searchbar {
   border-radius: 10px;
