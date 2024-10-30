@@ -134,44 +134,28 @@ const fetchData = async () => {
           <a href="#foodcard">foodcard</a>
         </div>
         <div class="h2 custom-margins">Recommended</div>
-        <div class="container-fluid row" v-if="similarRecipes.length > 0">
-          <RecipeCard
-            class="col-2"
-            v-for="recipe in similarRecipes"
-            :key="recipe.id"
-            :title="recipe.title"
-            :image="`https://img.spoonacular.com/recipes/${recipe.id}-312x231.jpg`"
-          />
-        </div>
-        <div class="scroll-menu" v-else>
-          <h2>Loading...</h2>
+        <div class="scroll-container" v-if="similarRecipes.length > 0">
+          <div class="scroll-menu">
+            <RecipeCard
+              class="recipe-card"
+              v-for="recipe in similarRecipes"
+              :key="recipe.id"
+              :title="recipe.title"
+              :image="`https://img.spoonacular.com/recipes/${recipe.id}-312x231.jpg`"
+            />
+          </div>
         </div>
         <div class="h2 custom-margins">Trending Recipes</div>
-        <div class="container-fluid row" v-if="trendingRecipes">
-          <RecipeCard
-            class="col-2"
-            :key="recipe"
-            :title="recipe.name"
-            :image="recipe.imageUrl"
-            v-for="recipe in trendingRecipes"
-          />
-        </div>
-        <div class="scroll-menu" v-else>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
+        <div class="scroll-container" v-if="trendingRecipes">
+          <div class="scroll-menu">
+            <RecipeCard
+              class="recipe-card"
+              :key="recipe"
+              :title="recipe.name"
+              :image="recipe.imageUrl"
+              v-for="recipe in trendingRecipes"
+            />
+          </div>
         </div>
       </div>
       <Sidebar
@@ -226,5 +210,96 @@ const fetchData = async () => {
 
 .custom-margins {
   margin-top: 50px;
+}
+
+.scroll-container {
+  width: 100%;
+  position: relative;
+  margin: 1rem 0;
+}
+
+.scroll-menu {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem;
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  align-items: stretch;
+}
+
+.scroll-menu::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scroll-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.scroll-menu::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.scroll-menu::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.recipe-card {
+  flex: 0 0 auto;
+  min-width: 200px; /* Base minimum width */
+}
+
+/* Responsive breakpoints */
+@media (min-width: 576px) {
+  .recipe-card {
+    width: calc(50% - 1rem); /* 2 cards per row */
+    max-width: 300px;
+  }
+
+  .scroll-menu {
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .recipe-card {
+    width: calc(33.333% - 1rem); /* 3 cards per row */
+  }
+}
+
+@media (min-width: 992px) {
+  .recipe-card {
+    width: calc(25% - 1rem); /* 4 cards per row */
+  }
+}
+
+@media (min-width: 1200px) {
+  .recipe-card {
+    width: calc(20% - 1rem); /* 5 cards per row */
+  }
+}
+
+@media (min-width: 1400px) {
+  .recipe-card {
+    width: calc(16.666% - 1rem); /* 6 cards per row */
+  }
+}
+
+/* Adjust gap and padding for smaller screens */
+@media (max-width: 575px) {
+  .scroll-menu {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .recipe-card {
+    width: 220px; /* Slightly smaller cards for very small screens */
+    height: 160px;
+  }
 }
 </style>
