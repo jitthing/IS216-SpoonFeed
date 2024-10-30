@@ -16,7 +16,7 @@ const savedRecipes = ref({
 })
 const selectedRecipe = ref({
   community: {},
-  api: {} 
+  api: {}
 })
 const openRecipe = ref(false)
 const isLoading = ref(true)
@@ -35,21 +35,21 @@ const fetchCreatedRecipes = async () => {
     console.log('Fetching created recipes for user:', user.value?.id)
     const response = await axios.get('/api/get-recipes')
     const allRecipes = response.data.recipes
-    
-    const userRecipes = Object.values(allRecipes).filter(recipe => 
-      recipe.authorId === user.value?.id
+
+    const userRecipes = Object.values(allRecipes).filter(
+      (recipe) => recipe.authorId === user.value?.id
     )
-    
+
     // Log each recipe with its extracted timestamp
-    userRecipes.forEach(recipe => {
-      const timestampMatch = recipe.imageUrl.match(/-(\d+)\?/);
+    userRecipes.forEach((recipe) => {
+      const timestampMatch = recipe.imageUrl.match(/-(\d+)\?/)
       if (timestampMatch) {
-        const timestamp = parseInt(timestampMatch[1]);
-        const date = new Date(timestamp);
-        console.log('Recipe:', recipe.name, 'Date:', date);
+        const timestamp = parseInt(timestampMatch[1])
+        const date = new Date(timestamp)
+        console.log('Recipe:', recipe.name, 'Date:', date)
       }
     })
-    
+
     recipes.value = userRecipes
   } catch (error) {
     console.error('Error fetching created recipes:', error)
@@ -61,18 +61,18 @@ const fetchCreatedRecipes = async () => {
 const fetchSavedRecipes = async () => {
   try {
     console.log('Fetching saved recipes for user:', user.value?.id)
-    
+
     const userResponse = await axios.post('/api/check-user', {
       userId: user.value?.id,
       firstName: user.value?.firstName
     })
-    
+
     console.log('Full user response:', userResponse.data)
 
     if (userResponse.data?.userData) {
       const communityIds = userResponse.data.userData.CommunitySaved || []
       const apiIds = userResponse.data.userData.ApiSaved || []
-      
+
       console.log('Community IDs:', communityIds)
       console.log('API IDs:', apiIds)
 
@@ -82,11 +82,11 @@ const fetchSavedRecipes = async () => {
         const communityResponse = await axios.post('/api/get-community-saved', {
           recipeIds: communityIds
         })
-        
+
         console.log('Raw community response:', communityResponse.data)
-        
+
         if (communityResponse.data.recipes && communityResponse.data.recipes.length > 0) {
-          const communityRecipes = communityResponse.data.recipes.map(recipe => ({
+          const communityRecipes = communityResponse.data.recipes.map((recipe) => ({
             ...recipe,
             type: 'community'
           }))
@@ -110,7 +110,7 @@ const fetchSavedRecipes = async () => {
           }
         })
         // Add type field to API recipes
-        const apiRecipes = (apiResponse.data || []).map(recipe => ({
+        const apiRecipes = (apiResponse.data || []).map((recipe) => ({
           ...recipe,
           type: 'api'
         }))
@@ -133,21 +133,32 @@ const filteredRecipes = computed(() => {
       return recipes.value
     } else {
       // Combine community and API recipes for saved tab
-      const combinedRecipes = [
-        ...savedRecipes.value.community,
-        ...savedRecipes.value.api
-      ]
+      const combinedRecipes = [...savedRecipes.value.community, ...savedRecipes.value.api]
       console.log('Combined recipes:', combinedRecipes)
       return combinedRecipes
     }
   }
 
   const selected = new Date(selectedDate.value)
-  const startOfDay = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate(), 0, 0, 0)
-  const endOfDay = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate(), 23, 59, 59)
-  
+  const startOfDay = new Date(
+    selected.getFullYear(),
+    selected.getMonth(),
+    selected.getDate(),
+    0,
+    0,
+    0
+  )
+  const endOfDay = new Date(
+    selected.getFullYear(),
+    selected.getMonth(),
+    selected.getDate(),
+    23,
+    59,
+    59
+  )
+
   if (activeTab.value === 'created') {
-    return recipes.value.filter(recipe => {
+    return recipes.value.filter((recipe) => {
       const timestampMatch = recipe.imageUrl?.match(/-(\d+)\?/)
       if (!timestampMatch) return false
       const timestamp = parseInt(timestampMatch[1])
@@ -156,7 +167,7 @@ const filteredRecipes = computed(() => {
     })
   } else {
     // Filter only community recipes by date
-    const filteredCommunity = savedRecipes.value.community.filter(recipe => {
+    const filteredCommunity = savedRecipes.value.community.filter((recipe) => {
       const timestampMatch = recipe.imageUrl?.match(/-(\d+)\?/)
       if (!timestampMatch) return false
       const timestamp = parseInt(timestampMatch[1])
@@ -177,11 +188,14 @@ const setRecipe = async (recipe) => {
   try {
     if (activeTab.value === 'fridge') {
       // Fetch full recipe details for fridge tab
-      const response = await axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
-        params: {
-          apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+      const response = await axios.get(
+        `https://api.spoonacular.com/recipes/${recipe.id}/information`,
+        {
+          params: {
+            apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+          }
         }
-      })
+      )
 
       selectedRecipe.value = {
         id: response.data.id,
@@ -196,11 +210,14 @@ const setRecipe = async (recipe) => {
       }
     } else if (recipe.type === 'api') {
       // For saved API recipes, fetch fresh data
-      const response = await axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
-        params: {
-          apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+      const response = await axios.get(
+        `https://api.spoonacular.com/recipes/${recipe.id}/information`,
+        {
+          params: {
+            apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+          }
         }
-      })
+      )
 
       selectedRecipe.value = {
         id: response.data.id,
@@ -221,9 +238,10 @@ const setRecipe = async (recipe) => {
         image: recipe.imageUrl,
         summary: recipe.description,
         instructions: recipe.instructions,
-        extendedIngredients: recipe.ingredients?.map(ing => ({
-          original: ing
-        })) || [],
+        extendedIngredients:
+          recipe.ingredients?.map((ing) => ({
+            original: ing
+          })) || [],
         readyInMinutes: recipe.readyInMinutes || 0,
         servings: recipe.servings || 0,
         type: 'community'
@@ -252,7 +270,7 @@ onMounted(async () => {
 watch(activeTab, async (newTab) => {
   console.log('Tab changed to:', newTab)
   if (newTab === 'fridge') return // Don't load anything for fridge tab
-  
+
   isLoading.value = true
   try {
     if (newTab === 'saved') {
@@ -272,7 +290,7 @@ const searchIngredients = async () => {
     showSuggestions.value = false
     return
   }
-  
+
   try {
     const response = await axios.get('https://api.spoonacular.com/food/ingredients/autocomplete', {
       params: {
@@ -282,7 +300,7 @@ const searchIngredients = async () => {
       }
     })
     // For example, typing "cury" might suggest "curry", "curry leaves", etc.
-    ingredientSuggestions.value = response.data.map(item => item.name)
+    ingredientSuggestions.value = response.data.map((item) => item.name)
     showSuggestions.value = true
   } catch (error) {
     console.error('Error fetching ingredient suggestions:', error)
@@ -311,7 +329,7 @@ const removeIngredient = (index) => {
 
 const findRecipes = async () => {
   if (!fridgeIngredients.value.length) return
-  
+
   isLoading.value = true
   try {
     // Using the complex search endpoint instead
@@ -328,9 +346,8 @@ const findRecipes = async () => {
     })
 
     suggestedRecipes.value = response.data.results
-    
-    console.log('Found recipes:', suggestedRecipes.value)
 
+    console.log('Found recipes:', suggestedRecipes.value)
   } catch (error) {
     console.error('Error finding recipes:', error)
     if (error.response?.status === 402) {
@@ -350,29 +367,35 @@ const findRecipes = async () => {
     <div class="profile-header">
       <h2>My Profile</h2>
       <div class="tab-container">
-        <button 
+        <button
           :class="{ active: activeTab === 'created' }"
-          @click="() => {
-            if (!isLoading.value) activeTab = 'created'
-          }"
+          @click="
+            () => {
+              if (!isLoading.value) activeTab = 'created'
+            }
+          "
           :disabled="isLoading.value"
         >
           Created
         </button>
-        <button 
+        <button
           :class="{ active: activeTab === 'saved' }"
-          @click="() => {
-            if (!isLoading.value) activeTab = 'saved'
-          }"
+          @click="
+            () => {
+              if (!isLoading.value) activeTab = 'saved'
+            }
+          "
           :disabled="isLoading.value"
         >
           Saved
         </button>
-        <button 
+        <button
           :class="{ active: activeTab === 'fridge' }"
-          @click="() => {
-            if (!isLoading.value) activeTab = 'fridge'
-          }"
+          @click="
+            () => {
+              if (!isLoading.value) activeTab = 'fridge'
+            }
+          "
           :disabled="isLoading.value"
         >
           My Fridge
@@ -400,9 +423,7 @@ const findRecipes = async () => {
 
     <!-- Content -->
     <div class="content">
-      <div v-if="isLoading" class="loading-state">
-        Loading...
-      </div>
+      <div v-if="isLoading" class="loading-state">Loading...</div>
       <div v-else>
         <!-- Created Tab -->
         <div v-if="activeTab === 'created'">
@@ -450,11 +471,9 @@ const findRecipes = async () => {
                 placeholder="Add ingredients from your fridge..."
                 class="ingredient-search"
               />
-              <button @click="addIngredient" class="add-ingredient">
-                Add
-              </button>
+              <button @click="addIngredient" class="add-ingredient">Add</button>
             </div>
-            
+
             <!-- Suggestions dropdown -->
             <div v-if="showSuggestions && ingredientSuggestions.length" class="suggestions">
               <div
@@ -470,9 +489,10 @@ const findRecipes = async () => {
 
           <!-- Ingredient Tags -->
           <div class="ingredient-tags">
-            <div v-for="(ingredient, index) in fridgeIngredients" 
-                 :key="index" 
-                 class="ingredient-tag"
+            <div
+              v-for="(ingredient, index) in fridgeIngredients"
+              :key="index"
+              class="ingredient-tag"
             >
               {{ ingredient }}
               <span @click="removeIngredient(index)" class="remove-tag">&times;</span>
@@ -480,8 +500,8 @@ const findRecipes = async () => {
           </div>
 
           <!-- Find Recipes Button -->
-          <button 
-            @click="findRecipes" 
+          <button
+            @click="findRecipes"
             class="find-recipes-btn"
             :disabled="!fridgeIngredients.length"
           >
@@ -678,7 +698,7 @@ const findRecipes = async () => {
   background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
 

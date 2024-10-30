@@ -118,7 +118,7 @@ const saveRecipe = async () => {
       <!-- Save Button -->
       <div class="action-buttons">
         <button @click="saveRecipe" class="save-button">
-          <span v-if="savedRecipes.includes(recipeDetails.id)">★ Saved</span>
+          <span v-if="savedRecipes?.includes(recipeDetails.id)">★ Saved</span>
           <span v-else>★ Save Recipe</span>
         </button>
       </div>

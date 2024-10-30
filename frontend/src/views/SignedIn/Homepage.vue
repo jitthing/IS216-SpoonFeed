@@ -1,7 +1,9 @@
 <script setup>
 import axios from 'axios'
 import RecipeCard from '../../components/Card.vue'
-import { ref, onMounted, watchEffect } from 'vue'
+import Sidebar from '../../components/Sidebar.vue'
+import RecipePost from '@/components/RecipePost.vue'
+import { ref, onMounted, watchEffect, computed } from 'vue'
 import { useUser } from 'vue-clerk'
 
 const { user } = useUser()
@@ -9,11 +11,14 @@ const { user } = useUser()
 const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
-const search = ref('')
-const recipes = ref([])
+const sidebarOpen = ref(false)
+const openRecipe = ref(false)
+const selectedRecipe = ref({})
 const similarRecipes = ref([]) // At random
 const trendingRecipes = ref({})
 const savedRecipes = ref([])
+const userId = ref('')
+const userName = ref('')
 
 onMounted(() => {
   fetchHottestRecipes()
@@ -22,7 +27,7 @@ onMounted(() => {
 const fetchHottestRecipes = async () => {
   axios.get(BACKEND_URL + '/get-hottest-recipes').then((response) => {
     trendingRecipes.value = response.data.recipes
-    console.log(trendingRecipes.value)
+    // console.log(trendingRecipes.value)
   })
 }
 
@@ -34,6 +39,9 @@ const fetchUser = async () => {
       })
       .then((response) => {
         const userSaved = response.data.userData.ApiSaved
+        savedRecipes.value = response.data.userData.ApiSaved
+        userId.value = user.value.id
+        userName.value = user.value.firstName
         const randomNum = Math.floor(Math.random() * userSaved.length)
         axios
           .get(`https://api.spoonacular.com/recipes/${userSaved[randomNum]}/similar`, {
@@ -56,6 +64,30 @@ watchEffect(() => {
   if (user.value) {
     fetchUser()
   }
+})
+
+const setApiRecipe = (recipe) => {
+  selectedRecipe.value = recipe
+  sidebarOpen.value = true
+}
+
+const setCommunityRecipe = (recipe) => {
+  selectedRecipe.value = recipe
+  openRecipe.value = true
+  console.log(savedRecipes.value.includes(recipe.id))
+}
+
+const closeRecipe = () => {
+  openRecipe.value = false
+  fetchHottestRecipes()
+}
+
+const closeSide = () => {
+  sidebarOpen.value = false
+}
+
+const dynamicColumnClass = computed(() => {
+  return sidebarOpen.value ? 'col-9' : 'col-12'
 })
 
 const fetchData = async () => {
@@ -141,6 +173,8 @@ const fetchData = async () => {
               v-for="recipe in similarRecipes"
               :key="recipe.id"
               :title="recipe.title"
+              :userId="userId"
+              @open-recipe="setApiRecipe(recipe)"
               :image="`https://img.spoonacular.com/recipes/${recipe.id}-312x231.jpg`"
             />
           </div>
@@ -153,6 +187,7 @@ const fetchData = async () => {
               :key="recipe"
               :title="recipe.name"
               :image="recipe.imageUrl"
+              @open-recipe="setCommunityRecipe(recipe)"
               v-for="recipe in trendingRecipes"
             />
           </div>
@@ -160,11 +195,21 @@ const fetchData = async () => {
       </div>
       <Sidebar
         class="col-3"
-        v-if="openRecipe"
+        v-if="sidebarOpen"
         :recipe-details="selectedRecipe"
+        :saved-recipes="savedRecipes"
+        :user-id="userId"
         @close-side="closeSide"
       />
     </div>
+    <RecipePost
+      v-if="openRecipe"
+      :recipe-details="selectedRecipe"
+      @close-modal="closeRecipe"
+      :userId="userId"
+      :user-name="userName"
+      :user-email="userEmail"
+    />
   </div>
 </template>
 
