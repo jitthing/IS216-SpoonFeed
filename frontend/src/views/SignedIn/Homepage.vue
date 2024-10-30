@@ -133,7 +133,7 @@ const fetchData = async () => {
           <a href="#foodcard">foodcard</a>
           <a href="#foodcard">foodcard</a>
         </div>
-        <div class="h2 custom-margins">Recommended</div>
+        <div class="h2 custom-margins">Recommended for you</div>
         <div class="scroll-container" v-if="similarRecipes.length > 0">
           <div class="scroll-menu">
             <RecipeCard
@@ -145,7 +145,7 @@ const fetchData = async () => {
             />
           </div>
         </div>
-        <div class="h2 custom-margins">Trending Recipes</div>
+        <div class="h2 custom-margins">Trending Community Recipes</div>
         <div class="scroll-container" v-if="trendingRecipes">
           <div class="scroll-menu">
             <RecipeCard
@@ -173,7 +173,7 @@ const fetchData = async () => {
   background-color: white;
   height: 100vh;
   padding-inline: 10px;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   overflow: auto;
 }
 .searchbar {

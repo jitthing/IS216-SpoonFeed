@@ -10,6 +10,7 @@ const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 const { user } = useUser()
 const userId = user.value.id
 const userName = user.value.firstName
+const userEmail = user.value.primaryEmailAddress
 
 const search = ref('')
 const recipes = ref([])
@@ -93,6 +94,7 @@ const closeModal = () => {
       @close-modal="closeModal"
       :userId="userId"
       :user-name="userName"
+      :user-email="userEmail"
     />
   </div>
 </template>
@@ -105,7 +107,7 @@ const closeModal = () => {
   background-color: white;
   height: 100vh;
   /* padding-inline: 10px; */
-  border: 1px solid black;
+  /* border: 1px solid black; */
 }
 .searchbar {
   border-radius: 10px;

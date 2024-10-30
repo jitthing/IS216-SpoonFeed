@@ -56,7 +56,8 @@ async function updateApiSaved(req, res) {
 
     if (userData) {
       const savedRecipes = userData.ApiSaved || [];
-      if (!savedRecipes.includes(recipeId)) {
+      const saved = savedRecipes.includes(recipeId);
+      if (!saved) {
         savedRecipes.push(recipeId);
       } else {
         const index = savedRecipes.indexOf(recipeId);
@@ -65,7 +66,9 @@ async function updateApiSaved(req, res) {
         }
       }
       await userRef.update({ ApiSaved: savedRecipes });
-      return res.status(200).json({ message: "Saved updated" });
+      return res
+        .status(200)
+        .json({ message: "Saved updated", wasSaved: saved });
     } else {
       return res.status(404).json({ message: "User not found" });
     }
@@ -78,37 +81,37 @@ async function getCommunitySaved(req, res) {
   const { recipeIds } = req.body;
   const db = firebase.db;
   const recipesRef = db.ref("recipes");
-  
+
   try {
     const snapshot = await recipesRef.once("value");
     const recipes = snapshot.val();
     const result = [];
-    
+
     if (recipes) {
       for (const key in recipes) {
         if (recipeIds.includes(key)) {
           result.push({
             ...recipes[key],
-            id: key
+            id: key,
           });
         }
       }
-      
+
       return res.status(200).json({
         message: "Recipes found",
-        recipes: result
+        recipes: result,
       });
     }
-    
+
     return res.status(200).json({
       message: "No recipes found",
-      recipes: []
+      recipes: [],
     });
   } catch (error) {
-    console.error('Error fetching community recipes:', error);
+    console.error("Error fetching community recipes:", error);
     return res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 }

@@ -5,7 +5,7 @@ import SignedOut from './views/SignedOut/SignedOut.vue'
 import SignedIn from './views/SignedIn/SignedIn.vue'
 import { watchEffect } from 'vue'
 
-const { user, isSignedIn } = useUser()
+const { user, isSignedIn, isLoaded } = useUser()
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 async function checkUser(user) {
@@ -24,7 +24,7 @@ async function checkUser(user) {
 }
 
 watchEffect(() => {
-  if (isSignedIn) {
+  if (isLoaded) {
     checkUser(user)
   }
 })

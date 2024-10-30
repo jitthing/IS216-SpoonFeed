@@ -9,6 +9,7 @@ import { OhVueIcon } from 'oh-vue-icons'
 const { user } = useUser()
 
 const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 const search = ref('')
 const ingredientSearch = ref([])
@@ -22,14 +23,21 @@ const haveResults = ref(false)
 const searchResultsLoaded = ref(false)
 const searchByFilter = ref(false)
 const userId = ref('')
+const savedRecipes = ref([])
 
 onMounted(() => {
   randomData()
 })
 
+const fetchUser = async () => {
+  axios.post(`${BACKEND_URL}/check-user`, { userId: userId.value }).then((response) => {
+    savedRecipes.value = response.data.userData.ApiSaved
+  })
+}
 watchEffect(() => {
   if (user) {
     userId.value = user.value.id
+    fetchUser()
   }
 })
 
@@ -88,6 +96,7 @@ const setSearch = (title) => {
 const fetchDataByIngredient = async () => {
   isLoaded.value = false
   haveResults.value = false
+  console.log(ingredientSearch.value.join(','))
   axios
     .get('https://api.spoonacular.com/recipes/findByIngredients', {
       params: {
@@ -151,8 +160,8 @@ const randomData = async () => {
 
 const setRecipe = (recipe) => {
   selectedRecipe.value = recipe
-  // console.log(selectedRecipe.value)
   openRecipe.value = true
+  console.log(savedRecipes.value.includes(recipe.id))
 }
 
 const closeSide = () => {
@@ -237,6 +246,7 @@ const fetchMore = () => {
         v-if="openRecipe"
         :recipe-details="selectedRecipe"
         :user-id="userId"
+        :saved-recipes="savedRecipes"
         @close-side="closeSide"
       />
     </div>
@@ -280,7 +290,7 @@ const fetchMore = () => {
   background-color: white;
   height: 100vh;
   /* padding-inline: 10px; */
-  border: 1px solid black;
+  /* border: 1px solid black; */
 }
 .searchbar {
   border-radius: 10px;
