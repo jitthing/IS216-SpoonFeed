@@ -10,12 +10,19 @@ import '@vuepic/vue-datepicker/dist/main.css'
 const { user, isLoaded } = useUser()
 const activeTab = ref('created')
 const recipes = ref([])
-const savedRecipes = ref([])
-const selectedRecipe = ref({})
+const savedRecipes = ref({
+  community: [],
+  api: []
+})
+const selectedRecipe = ref({
+  community: {},
+  api: {} 
+})
 const openRecipe = ref(false)
 const isLoading = ref(true)
 const selectedDate = ref(null)
 const showCalendar = ref(false)
+const isDevelopment = computed(() => import.meta.env.MODE === 'development')
 
 // Fetch created recipes
 const fetchCreatedRecipes = async () => {
@@ -48,54 +55,112 @@ const fetchCreatedRecipes = async () => {
 // Fetch saved recipes
 const fetchSavedRecipes = async () => {
   try {
+    console.log('Fetching saved recipes for user:', user.value?.id)
+    
     const userResponse = await axios.post('/api/check-user', {
       userId: user.value?.id,
       firstName: user.value?.firstName
     })
     
+    console.log('Full user response:', userResponse.data)
+
     if (userResponse.data?.userData) {
-      savedRecipes.value = userResponse.data.userData.savedRecipes || []
+      const communityIds = userResponse.data.userData.CommunitySaved || []
+      const apiIds = userResponse.data.userData.ApiSaved || []
+      
+      console.log('Community IDs:', communityIds)
+      console.log('API IDs:', apiIds)
+
+      // Fetch community recipes
+      if (communityIds.length > 0) {
+        console.log('Fetching community recipes with IDs:', communityIds)
+        const communityResponse = await axios.post('/api/get-community-saved', {
+          recipeIds: communityIds
+        })
+        
+        console.log('Raw community response:', communityResponse.data)
+        
+        if (communityResponse.data.recipes && communityResponse.data.recipes.length > 0) {
+          const communityRecipes = communityResponse.data.recipes.map(recipe => ({
+            ...recipe,
+            type: 'community'
+          }))
+          savedRecipes.value.community = communityRecipes
+          console.log('Processed community recipes:', savedRecipes.value.community)
+        } else {
+          console.log('No recipes found in community response')
+          savedRecipes.value.community = []
+        }
+      } else {
+        console.log('No community IDs found')
+        savedRecipes.value.community = []
+      }
+
+      // Fetch Spoonacular API recipes
+      if (apiIds.length > 0) {
+        const apiResponse = await axios.get(`https://api.spoonacular.com/recipes/informationBulk`, {
+          params: {
+            ids: apiIds.join(','),
+            apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+          }
+        })
+        // Add type field to API recipes
+        const apiRecipes = (apiResponse.data || []).map(recipe => ({
+          ...recipe,
+          type: 'api'
+        }))
+        savedRecipes.value.api = apiRecipes
+        console.log('Saved API recipes:', savedRecipes.value.api)
+      } else {
+        savedRecipes.value.api = []
+      }
     }
   } catch (error) {
-    console.error('Error fetching saved recipes:', error)
-    savedRecipes.value = []
+    console.error('Error in fetchSavedRecipes:', error.response || error)
+    savedRecipes.value = { community: [], api: [] }
   }
 }
 
 // Filter recipes by date
 const filteredRecipes = computed(() => {
   if (!selectedDate.value) {
-    return activeTab.value === 'created' ? recipes.value : savedRecipes.value
+    if (activeTab.value === 'created') {
+      return recipes.value
+    } else {
+      // Combine community and API recipes for saved tab
+      const combinedRecipes = [
+        ...savedRecipes.value.community,
+        ...savedRecipes.value.api
+      ]
+      console.log('Combined recipes:', combinedRecipes)
+      return combinedRecipes
+    }
   }
 
   const selected = new Date(selectedDate.value)
   const startOfDay = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate(), 0, 0, 0)
   const endOfDay = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate(), 23, 59, 59)
   
-  console.log('Filtering for date range:', startOfDay, 'to', endOfDay)
-
   if (activeTab.value === 'created') {
     return recipes.value.filter(recipe => {
-      // Extract timestamp from imageUrl
-      const timestampMatch = recipe.imageUrl.match(/-(\d+)\?/);
-      if (!timestampMatch) return false;
-      
-      const timestamp = parseInt(timestampMatch[1]);
-      const recipeDate = new Date(timestamp);
-      
-      console.log('Recipe:', recipe.name, 'Date:', recipeDate);
-      return recipeDate >= startOfDay && recipeDate <= endOfDay;
-    });
+      const timestampMatch = recipe.imageUrl?.match(/-(\d+)\?/)
+      if (!timestampMatch) return false
+      const timestamp = parseInt(timestampMatch[1])
+      const recipeDate = new Date(timestamp)
+      return recipeDate >= startOfDay && recipeDate <= endOfDay
+    })
   } else {
-    return savedRecipes.value.filter(recipe => {
-      const timestampMatch = recipe.imageUrl.match(/-(\d+)\?/);
-      if (!timestampMatch) return false;
-      
-      const timestamp = parseInt(timestampMatch[1]);
-      const recipeDate = new Date(timestamp);
-      
-      return recipeDate >= startOfDay && recipeDate <= endOfDay;
-    });
+    // Filter only community recipes by date
+    const filteredCommunity = savedRecipes.value.community.filter(recipe => {
+      const timestampMatch = recipe.imageUrl?.match(/-(\d+)\?/)
+      if (!timestampMatch) return false
+      const timestamp = parseInt(timestampMatch[1])
+      const recipeDate = new Date(timestamp)
+      return recipeDate >= startOfDay && recipeDate <= endOfDay
+    })
+
+    // Include all API recipes since they don't have dates
+    return [...filteredCommunity, ...savedRecipes.value.api]
   }
 })
 
@@ -121,14 +186,20 @@ onMounted(async () => {
 })
 
 // Watch for tab changes to refresh data
-watch(activeTab, async () => {
+watch(activeTab, async (newTab) => {
+  console.log('Tab changed to:', newTab)
   isLoading.value = true
-  if (activeTab.value === 'created') {
-    await fetchCreatedRecipes()
-  } else {
-    await fetchSavedRecipes()
+  try {
+    if (newTab === 'saved') {
+      await fetchSavedRecipes()
+    } else {
+      await fetchCreatedRecipes()
+    }
+  } catch (error) {
+    console.error(`Error fetching ${newTab} recipes:`, error)
+  } finally {
+    isLoading.value = false
   }
-  isLoading.value = false
 })
 </script>
 
@@ -139,13 +210,19 @@ watch(activeTab, async () => {
       <div class="tab-container">
         <button 
           :class="{ active: activeTab === 'created' }"
-          @click="activeTab = 'created'"
+          @click="() => {
+            if (!isLoading.value) activeTab = 'created'
+          }"
+          :disabled="isLoading.value"
         >
           Created
         </button>
         <button 
           :class="{ active: activeTab === 'saved' }"
-          @click="activeTab = 'saved'"
+          @click="() => {
+            if (!isLoading.value) activeTab = 'saved'
+          }"
+          :disabled="isLoading.value"
         >
           Saved
         </button>
@@ -171,41 +248,51 @@ watch(activeTab, async () => {
     </div>
 
     <!-- Content -->
-    <div v-if="isLoading" class="loading-state">
-      Loading...
-    </div>
-    <div v-else>
-      <!-- Created Tab -->
-      <div v-if="activeTab === 'created'">
-        <div v-if="filteredRecipes.length === 0" class="empty-state">
-          <p>{{ selectedDate ? 'No recipes found for this date' : 'No recipes created yet!' }}</p>
-        </div>
-        <div v-else class="recipes-grid">
-          <RecipeCard
-            v-for="recipe in filteredRecipes"
-            class="recipecard"
-            :key="recipe.id"
-            :title="recipe.name"
-            :image="recipe.imageUrl"
-            @open-recipe="setRecipe(recipe)"
-          />
-        </div>
+    <div class="content">
+      <div v-if="isLoading" class="loading-state">
+        Loading...
       </div>
-
-      <!-- Saved Tab -->
-      <div v-if="activeTab === 'saved'">
-        <div v-if="filteredRecipes.length === 0" class="empty-state">
-          <p>{{ selectedDate ? 'No recipes found for this date' : 'No saved recipes yet!' }}</p>
+      <div v-else>
+        <!-- Created Tab -->
+        <div v-if="activeTab === 'created'">
+          <div v-if="filteredRecipes.length === 0" class="empty-state">
+            <p>{{ selectedDate ? 'No recipes found for this date' : 'No recipes created yet!' }}</p>
+          </div>
+          <div v-else class="recipes-grid">
+            <RecipeCard
+              v-for="recipe in filteredRecipes"
+              class="recipecard"
+              :key="recipe.id"
+              :title="recipe.name"
+              :image="recipe.imageUrl"
+              @open-recipe="setRecipe(recipe)"
+            />
+          </div>
         </div>
-        <div v-else class="recipes-grid">
-          <RecipeCard
-            v-for="recipe in filteredRecipes"
-            class="recipecard"
-            :key="recipe.id"
-            :title="recipe.name"
-            :image="recipe.imageUrl"
-            @open-recipe="setRecipe(recipe)"
-          />
+
+        <!-- Saved Tab -->
+        <div v-else>
+          <!-- Debug info -->
+          <!--<div v-if="isDevelopment" class="debug-info">
+            <pre>Active Tab: {{ activeTab }}</pre>
+            <pre>Community Recipes: {{ savedRecipes.community.length }}</pre>
+            <pre>API Recipes: {{ savedRecipes.api.length }}</pre>
+            <pre>Combined Recipes: {{ filteredRecipes.length }}</pre>
+          </div>-->
+
+          <div v-if="filteredRecipes.length === 0" class="empty-state">
+            <p>{{ selectedDate ? 'No recipes found for this date' : 'No saved recipes yet!' }}</p>
+          </div>
+          <div v-else class="recipes-grid">
+            <RecipeCard
+              v-for="recipe in filteredRecipes"
+              class="recipecard"
+              :key="recipe.id"
+              :title="recipe.type === 'community' ? recipe.name : recipe.title"
+              :image="recipe.type === 'community' ? recipe.imageUrl : recipe.image"
+              @open-recipe="setRecipe(recipe)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -323,5 +410,23 @@ watch(activeTab, async () => {
   text-align: center;
   padding: 20px;
   color: #666;
+}
+
+.tab-container button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.debug-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.debug-info pre {
+  margin: 0.5rem 0;
+  font-family: monospace;
 }
 </style>

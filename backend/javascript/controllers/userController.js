@@ -75,21 +75,42 @@ async function updateApiSaved(req, res) {
 }
 
 async function getCommunitySaved(req, res) {
-  const { userId, recipeIds } = req.body;
+  const { recipeIds } = req.body;
   const db = firebase.db;
   const recipesRef = db.ref("recipes");
-  const snapshot = await recipesRef.once("value");
-  const recipes = snapshot.val();
-  var result = [];
-  if (recipes) {
-    for (const key in recipes) {
-      if (recipeIds.includes(key)) {
-        result.push(recipes[key]);
+  
+  try {
+    const snapshot = await recipesRef.once("value");
+    const recipes = snapshot.val();
+    const result = [];
+    
+    if (recipes) {
+      for (const key in recipes) {
+        if (recipeIds.includes(key)) {
+          result.push({
+            ...recipes[key],
+            id: key
+          });
+        }
       }
+      
+      return res.status(200).json({
+        message: "Recipes found",
+        recipes: result
+      });
     }
-    return res.status(200).json({ message: "Recipes found", result });
+    
+    return res.status(200).json({
+      message: "No recipes found",
+      recipes: []
+    });
+  } catch (error) {
+    console.error('Error fetching community recipes:', error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    });
   }
-  return res.status(404).json({ message: "No recipes found" });
 }
 
 module.exports = {

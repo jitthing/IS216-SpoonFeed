@@ -36,14 +36,17 @@ const submitRecipe = async () => {
     recipeName: recipeName.value,
     recipeIngredients: allIngredients.value,
     recipeInstructions: allInstructions.value,
-    numSaves: 0
+    numSaves: 0,
+    timestamp: timestamp,
+    type: 'community'
   }
 
-  formData.append('recipeData', JSON.stringify(recipeData))
   if (recipeImage.value) {
-    formData.append('recipeImage', recipeImage.value)
+    const fileExtension = recipeImage.value.name.split('.').pop()
+    const fileName = `${recipeName.value}-${timestamp}.${fileExtension}`
+    formData.append('recipeImage', recipeImage.value, fileName)
   }
-
+  formData.append('recipeData', JSON.stringify(recipeData))
   const toastId = toast.loading('Uploading recipe...')
 
   try {
@@ -61,7 +64,7 @@ const submitRecipe = async () => {
     })
   } catch (error) {
     toast.update(toastId, {
-      render: `Error: ${error.response.data.message}`,
+      render: `Error: ${error.response?.data?.message || 'Failed to upload recipe'}`,
       type: 'error',
       isLoading: false,
       autoClose: 3000 // Auto-close after 3 seconds
