@@ -173,8 +173,27 @@ const clearDateFilter = () => {
   selectedDate.value = null
 }
 
-const setRecipe = (recipe) => {
-  selectedRecipe.value = recipe
+const setRecipe = async (recipe) => {
+  // For fridge tab recipes, fetch full details first
+  if (activeTab.value === 'fridge') {
+    try {
+      const response = await axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
+        params: {
+          apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+        }
+      })
+      selectedRecipe.value = {
+        ...response.data,
+        type: 'api'  // Add type to match the format expected by RecipePost
+      }
+    } catch (error) {
+      console.error('Error fetching recipe details:', error)
+      return
+    }
+  } else {
+    // For created/saved tabs, use existing logic
+    selectedRecipe.value = recipe
+  }
   openRecipe.value = true
 }
 
@@ -256,18 +275,31 @@ const findRecipes = async () => {
   
   isLoading.value = true
   try {
-    const response = await axios.get('https://api.spoonacular.com/recipes/findByIngredients', {
+    // Using the complex search endpoint instead
+    const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
       params: {
-        ingredients: fridgeIngredients.value.join(','),
+        includeIngredients: fridgeIngredients.value.join(','),
+        instructionsRequired: true,
+        fillIngredients: true,
+        addRecipeInformation: true,
         number: 12,
-        ranking: 2, // Maximize used ingredients
-        ignorePantry: true,
+        sort: 'max-used-ingredients',
         apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
       }
     })
-    suggestedRecipes.value = response.data
+
+    suggestedRecipes.value = response.data.results
+    
+    console.log('Found recipes:', suggestedRecipes.value)
+
   } catch (error) {
     console.error('Error finding recipes:', error)
+    if (error.response?.status === 402) {
+      alert('API daily limit reached. Please try again tomorrow.')
+    } else {
+      alert('Error finding recipes. Please try again later.')
+    }
+    suggestedRecipes.value = []
   } finally {
     isLoading.value = false
   }
