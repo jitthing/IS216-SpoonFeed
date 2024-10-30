@@ -1,5 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import CreateRecipe from './CreateRecipe.vue'
+import { ref } from 'vue'
 
 defineProps({
   isMenuOpen: {
@@ -7,6 +9,8 @@ defineProps({
     required: true
   }
 })
+
+const isCreateRecipeOpen = ref(false)
 </script>
 
 <template>
@@ -15,7 +19,7 @@ defineProps({
       <!-- Logo and Create Recipe Button -->
       <div class="menu-header">
         <img class="logo-image" src="../assets/spoonfeed.jpeg" alt="Logo" />
-        <button class="create-recipe-btn">Create Recipe</button>
+        <button class="create-recipe-btn" @click="isCreateRecipeOpen = true">Create Recipe</button>
       </div>
 
       <!-- Navigation Links -->
@@ -61,6 +65,8 @@ defineProps({
       </section>
     </div>
   </nav>
+
+  <CreateRecipe v-if="isCreateRecipeOpen" @closeModal="isCreateRecipeOpen = false" />
 </template>
 
 <style scoped>
@@ -68,6 +74,9 @@ defineProps({
   background-color: white;
   height: 100vh;
   padding: 1rem;
+  transform: translateX(0);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .menu-content {
@@ -95,7 +104,7 @@ defineProps({
   border: none;
   padding: 0.5rem 1rem;
   width: 100%;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
 }
 
@@ -144,14 +153,16 @@ defineProps({
   .sidebar {
     position: fixed;
     top: 0;
-    left: -100%;
+    left: 0;
+    transform: translateX(-100%);
     width: 250px;
     z-index: 1000;
-    transition: left 0.3s ease-in-out;
+    backdrop-filter: blur(4px);
   }
 
   .sidebar-open {
-    left: 0;
+    transform: translateX(0);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   }
 }
 </style>

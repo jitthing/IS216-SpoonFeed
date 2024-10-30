@@ -50,7 +50,7 @@ window.addEventListener('resize', () => {
 
     <div class="row">
       <div class="col-md-2 p-0" :class="{ 'd-none d-md-block': !isMenuOpen }">
-        <Menu :isMenuOpen="isMenuOpen" @toggle-menu="toggleMenu" />
+        <Menu :isMenuOpen="isMenuOpen" @toggle-menu="toggleMenu" @open="openModal" />
       </div>
 
       <main :class="{ 'col-md-10': isMenuOpen, 'col-12': !isMenuOpen, 'p-0': true }">
@@ -108,7 +108,7 @@ window.addEventListener('resize', () => {
   padding: 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(82, 62, 44, 0.1);
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu-toggle:hover {
@@ -128,7 +128,7 @@ window.addEventListener('resize', () => {
   height: 2px;
   background: #523e2c;
   margin: auto;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hamburger::before,
@@ -139,7 +139,7 @@ window.addEventListener('resize', () => {
   height: 2px;
   background: #523e2c;
   left: 0;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hamburger::before {
@@ -171,6 +171,6 @@ window.addEventListener('resize', () => {
 }
 
 main {
-  transition: width 0.3s ease-in-out;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>

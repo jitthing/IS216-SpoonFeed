@@ -4,6 +4,7 @@ import RecipeCard from '../../components/Card.vue'
 import Sidebar from '../../components/Sidebar.vue'
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useUser } from 'vue-clerk'
+import { OhVueIcon } from 'oh-vue-icons'
 
 const { user } = useUser()
 
@@ -187,7 +188,13 @@ const fetchMore = () => {
         @keydown.enter="addIngredient"
         v-else
       />
-      <p class="d-inline mx-2" @click="toggleMode">Change</p>
+      <div class="icon-wrapper" @click="toggleMode">
+        <oh-vue-icon
+          name="bi-arrow-repeat"
+          class="toggle-icon"
+          :title="searchByFilter ? 'Switch to recipe search' : 'Switch to ingredient search'"
+        />
+      </div>
       <ul v-if="ingredientSearch.length > 0" class="ingredient-list">
         <li v-for="ingredient in ingredientSearch" :key="ingredient">
           {{ ingredient }}
@@ -318,5 +325,23 @@ const fetchMore = () => {
 button {
   background-color: #523e2c;
   color: white;
+}
+
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.icon-wrapper:hover {
+  transform: rotate(180deg);
+}
+
+.toggle-icon {
+  color: #523e2c;
+  width: 24px;
+  height: 24px;
 }
 </style>

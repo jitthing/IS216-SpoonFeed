@@ -10,10 +10,10 @@ import router from './router'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css' // Import the toast styles
 
-// import { addIcons, OhVueIcon } from 'oh-vue-icons'
-// import { FaBookmark, FaRegularBookmark, IoSwapHorizontalOutline } from 'oh-vue-icons/icons'
+import { OhVueIcon, addIcons } from 'oh-vue-icons'
+import { BiArrowRepeat } from 'oh-vue-icons/icons'
 
-// addIcons(FaBookmark, FaRegularBookmark, IoSwapHorizontalOutline)
+addIcons(BiArrowRepeat)
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 

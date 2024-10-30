@@ -14,12 +14,30 @@ async function getRecipes(req, res) {
 async function getHottestRecipes(req, res) {
   const db = firebase.db;
   const recipesRef = db.ref("recipes");
-  const snapshot = await recipesRef.orderByChild("numSaves").once("value");
-  const recipes = snapshot.val();
-  if (recipes) {
-    return res.status(200).json({ message: "Hottest Recipes found", recipes });
+  try {
+    // Order by numSaves in descending order and limit to 5 results
+    const snapshot = await recipesRef
+      .orderByChild("numSaves")
+      .limitToLast(5)
+      .once("value");
+
+    // Convert the snapshot to array and reverse it (to get descending order)
+    const recipes = [];
+    snapshot.forEach((childSnapshot) => {
+      recipes.unshift(childSnapshot.val()); // unshift to reverse the order
+    });
+
+    if (recipes.length > 0) {
+      return res
+        .status(200)
+        .json({ message: "Hottest Recipes found", recipes });
+    }
+    return res.status(404).json({ message: "No hottest recipes found" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error fetching hottest recipes", error });
   }
-  return res.status(404).json({ message: "No hottest recipes found" });
 }
 
 async function getRecipesByName(req, res) {
