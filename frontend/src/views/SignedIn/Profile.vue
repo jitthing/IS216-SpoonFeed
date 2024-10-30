@@ -23,6 +23,11 @@ const isLoading = ref(true)
 const selectedDate = ref(null)
 const showCalendar = ref(false)
 const isDevelopment = computed(() => import.meta.env.MODE === 'development')
+const fridgeIngredients = ref([])
+const currentIngredient = ref('')
+const suggestedRecipes = ref([])
+const ingredientSuggestions = ref([])
+const showSuggestions = ref(false)
 
 // Fetch created recipes
 const fetchCreatedRecipes = async () => {
@@ -188,6 +193,8 @@ onMounted(async () => {
 // Watch for tab changes to refresh data
 watch(activeTab, async (newTab) => {
   console.log('Tab changed to:', newTab)
+  if (newTab === 'fridge') return // Don't load anything for fridge tab
+  
   isLoading.value = true
   try {
     if (newTab === 'saved') {
@@ -201,6 +208,70 @@ watch(activeTab, async (newTab) => {
     isLoading.value = false
   }
 })
+
+const searchIngredients = async () => {
+  if (currentIngredient.value.length < 2) {
+    showSuggestions.value = false
+    return
+  }
+  
+  try {
+    const response = await axios.get('https://api.spoonacular.com/food/ingredients/autocomplete', {
+      params: {
+        query: currentIngredient.value,
+        number: 5, // Show top 5 suggestions
+        apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+      }
+    })
+    // For example, typing "cury" might suggest "curry", "curry leaves", etc.
+    ingredientSuggestions.value = response.data.map(item => item.name)
+    showSuggestions.value = true
+  } catch (error) {
+    console.error('Error fetching ingredient suggestions:', error)
+    showSuggestions.value = false
+  }
+}
+
+const selectIngredient = (ingredient) => {
+  currentIngredient.value = ingredient
+  showSuggestions.value = false
+  addIngredient()
+}
+
+const addIngredient = () => {
+  const ingredient = currentIngredient.value.trim().toLowerCase()
+  if (ingredient && !fridgeIngredients.value.includes(ingredient)) {
+    fridgeIngredients.value.push(ingredient)
+    currentIngredient.value = ''
+    showSuggestions.value = false
+  }
+}
+
+const removeIngredient = (index) => {
+  fridgeIngredients.value.splice(index, 1)
+}
+
+const findRecipes = async () => {
+  if (!fridgeIngredients.value.length) return
+  
+  isLoading.value = true
+  try {
+    const response = await axios.get('https://api.spoonacular.com/recipes/findByIngredients', {
+      params: {
+        ingredients: fridgeIngredients.value.join(','),
+        number: 12,
+        ranking: 2, // Maximize used ingredients
+        ignorePantry: true,
+        apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+      }
+    })
+    suggestedRecipes.value = response.data
+  } catch (error) {
+    console.error('Error finding recipes:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -226,11 +297,20 @@ watch(activeTab, async (newTab) => {
         >
           Saved
         </button>
+        <button 
+          :class="{ active: activeTab === 'fridge' }"
+          @click="() => {
+            if (!isLoading.value) activeTab = 'fridge'
+          }"
+          :disabled="isLoading.value"
+        >
+          My Fridge
+        </button>
       </div>
     </div>
 
     <!-- Calendar Filter -->
-    <div class="calendar-section">
+    <div v-if="activeTab !== 'fridge'" class="calendar-section">
       <button @click="showCalendar = !showCalendar" class="calendar-toggle">
         {{ showCalendar ? 'Hide Calendar' : 'Show Calendar' }}
       </button>
@@ -261,8 +341,8 @@ watch(activeTab, async (newTab) => {
           <div v-else class="recipes-grid">
             <RecipeCard
               v-for="recipe in filteredRecipes"
-              class="recipecard"
               :key="recipe.id"
+              class="recipecard"
               :title="recipe.name"
               :image="recipe.imageUrl"
               @open-recipe="setRecipe(recipe)"
@@ -271,27 +351,91 @@ watch(activeTab, async (newTab) => {
         </div>
 
         <!-- Saved Tab -->
-        <div v-else>
-          <!-- Debug info -->
-          <!--<div v-if="isDevelopment" class="debug-info">
-            <pre>Active Tab: {{ activeTab }}</pre>
-            <pre>Community Recipes: {{ savedRecipes.community.length }}</pre>
-            <pre>API Recipes: {{ savedRecipes.api.length }}</pre>
-            <pre>Combined Recipes: {{ filteredRecipes.length }}</pre>
-          </div>-->
-
+        <div v-else-if="activeTab === 'saved'">
           <div v-if="filteredRecipes.length === 0" class="empty-state">
             <p>{{ selectedDate ? 'No recipes found for this date' : 'No saved recipes yet!' }}</p>
           </div>
           <div v-else class="recipes-grid">
             <RecipeCard
               v-for="recipe in filteredRecipes"
-              class="recipecard"
               :key="recipe.id"
+              class="recipecard"
               :title="recipe.type === 'community' ? recipe.name : recipe.title"
               :image="recipe.type === 'community' ? recipe.imageUrl : recipe.image"
               @open-recipe="setRecipe(recipe)"
             />
+          </div>
+        </div>
+
+        <!-- Fridge Tab -->
+        <div v-else-if="activeTab === 'fridge'" class="fridge-container">
+          <!-- Ingredient Input Section -->
+          <div class="ingredient-input">
+            <div class="input-wrapper">
+              <input
+                v-model="currentIngredient"
+                @input="searchIngredients"
+                @keyup.enter="addIngredient"
+                placeholder="Add ingredients from your fridge..."
+                class="ingredient-search"
+              />
+              <button @click="addIngredient" class="add-ingredient">
+                Add
+              </button>
+            </div>
+            
+            <!-- Suggestions dropdown -->
+            <div v-if="showSuggestions && ingredientSuggestions.length" class="suggestions">
+              <div
+                v-for="suggestion in ingredientSuggestions"
+                :key="suggestion"
+                @click="selectIngredient(suggestion)"
+                class="suggestion-item"
+              >
+                {{ suggestion }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Ingredient Tags -->
+          <div class="ingredient-tags">
+            <div v-for="(ingredient, index) in fridgeIngredients" 
+                 :key="index" 
+                 class="ingredient-tag"
+            >
+              {{ ingredient }}
+              <span @click="removeIngredient(index)" class="remove-tag">&times;</span>
+            </div>
+          </div>
+
+          <!-- Find Recipes Button -->
+          <button 
+            @click="findRecipes" 
+            class="find-recipes-btn"
+            :disabled="!fridgeIngredients.length"
+          >
+            Find Recipes
+          </button>
+
+          <!-- Results Section -->
+          <div v-if="suggestedRecipes.length" class="suggested-recipes">
+            <h3>Recipes You Can Make:</h3>
+            <div class="recipes-grid">
+              <RecipeCard
+                v-for="recipe in suggestedRecipes"
+                :key="recipe.id"
+                :title="recipe.title"
+                :image="recipe.image"
+                @open-recipe="setRecipe(recipe)"
+              >
+                <template #extra>
+                  <div class="recipe-match-info">
+                    <p>Used Ingredients: {{ recipe.usedIngredientCount }}</p>
+                    <p>Missing Ingredients: {{ recipe.missedIngredientCount }}</p>
+                  </div>
+                </template>
+              </RecipeCard>
+            </div>
           </div>
         </div>
       </div>
@@ -428,5 +572,94 @@ watch(activeTab, async (newTab) => {
 .debug-info pre {
   margin: 0.5rem 0;
   font-family: monospace;
+}
+
+.fridge-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.ingredient-input {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.ingredient-search {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #523e2c;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background: #f5f5f5;
+}
+
+.ingredient-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ingredient-tag {
+  background: #523e2c;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.remove-tag {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.find-recipes-btn {
+  background: #523e2c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin: 20px 0;
+}
+
+.find-recipes-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.recipe-match-info {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
 }
 </style>
