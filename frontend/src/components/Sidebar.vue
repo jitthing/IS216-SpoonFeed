@@ -97,21 +97,37 @@ const { recipeDetails, userId } = defineProps({
   }
 })
 const fetchData = async () => {
-  const recipeInfoAPI = `https://api.spoonacular.com/recipes/${recipe.value.id}/information`
-  axios
-    .get(recipeInfoAPI, {
+  // If it's a community recipe, use the data directly
+  if (recipe.value.type === 'community') {
+    recipeInfo.value = {
+      ingredients: recipe.value.extendedIngredients,
+      instructions: [{ step: recipe.value.instructions }]
+    }
+    isLoaded.value = true
+    return
+  }
+
+  // For API recipes, fetch additional details
+  try {
+    const recipeInfoAPI = `https://api.spoonacular.com/recipes/${recipe.value.id}/information`
+    const response = await axios.get(recipeInfoAPI, {
       params: {
         apiKey: spoonacularApiKey
       }
     })
-    .then((response) => {
-      recipeInfo.value.ingredients = response.data.extendedIngredients
-      recipeInfo.value.instructions = response.data.analyzedInstructions[0].steps
-      isLoaded.value = true
-    })
-    .catch((error) => {
-      console.log('There is no recipe details yet')
-    })
+    
+    recipeInfo.value.ingredients = response.data.extendedIngredients
+    recipeInfo.value.instructions = response.data.analyzedInstructions[0]?.steps || [{ step: response.data.instructions }]
+    isLoaded.value = true
+  } catch (error) {
+    console.error('Error fetching recipe details:', error)
+    // Use existing data if API call fails
+    recipeInfo.value = {
+      ingredients: recipe.value.extendedIngredients || [],
+      instructions: [{ step: recipe.value.instructions || 'No instructions available' }]
+    }
+    isLoaded.value = true
+  }
 }
 
 const dynamicLoadingStyle = computed(() => {
@@ -122,11 +138,11 @@ watch(
   () => recipeDetails,
   (newVal) => {
     if (newVal) {
-      recipe.value = newVal
+      recipe.value = { ...newVal }  // Create a copy of the recipe details
       fetchData()
     }
   },
-  { immediate: true }
+  { immediate: true, deep: true }  // Add deep watching
 )
 
 const saveRecipe = async () => {
@@ -148,27 +164,29 @@ const saveRecipe = async () => {
 
 <template>
   <div class="sidebar" :class="dynamicLoadingStyle">
-    <!-- <p>{{ recipeDetails.title }}</p>
-    <img :src="recipeDetails.image" alt="..." /> -->
     <div v-if="isLoaded">
       <button class="btn mt-1" @click="$emit('closeSide')">Close</button>
-      <p v-if="Object.keys(recipeDetails).length === 0">Recipe details is empty</p>
-      <div v-else>
-        <h2>{{ recipeDetails.title }}</h2>
-        <img :src="recipeDetails.image" alt="..." class="image" />
+
+      <div v-if="recipe">
+        <h2>{{ recipe.title || recipe.name }}</h2>
+        <img :src="recipe.image || recipe.imageUrl" alt="Recipe image" class="image" />
+        
+        <h3>Ingredients</h3>
+        <ul>
+          <li v-for="(ingredient, index) in recipeInfo.ingredients" :key="index">
+            {{ ingredient.original || ingredient }}
+          </li>
+        </ul>
+
+        <h3>Instructions</h3>
+        <ol>
+          <li v-for="(instruction, index) in recipeInfo.instructions" :key="index">
+            {{ instruction.step || instruction }}
+          </li>
+        </ol>
+
+        <button class="btn mb-1" @click="saveRecipe">Save</button>
       </div>
-      <h3>Ingredients</h3>
-      <ul>
-        <li v-for="ingredient in recipeInfo.ingredients">{{ ingredient.original }}</li>
-      </ul>
-      <h3>Instructions</h3>
-      <ol>
-        <li v-for="instruction in recipeInfo.instructions">{{ instruction.step }}</li>
-      </ol>
-      <button class="btn mb-1" @click="saveRecipe">
-        <!-- <VIcon name="FaBookmark" /> -->
-        Save
-      </button>
     </div>
     <h2 v-else>Loading...</h2>
   </div>

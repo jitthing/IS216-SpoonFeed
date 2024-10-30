@@ -3,9 +3,9 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useUser } from 'vue-clerk'
 import axios from '@/axios'
 import RecipeCard from '@/components/Card.vue'
-import RecipePost from '@/components/RecipePost.vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import Sidebar from '@/components/Sidebar.vue'
 
 const { user, isLoaded } = useUser()
 const activeTab = ref('created')
@@ -174,27 +174,66 @@ const clearDateFilter = () => {
 }
 
 const setRecipe = async (recipe) => {
-  // For fridge tab recipes, fetch full details first
-  if (activeTab.value === 'fridge') {
-    try {
+  try {
+    if (activeTab.value === 'fridge') {
+      // Fetch full recipe details for fridge tab
       const response = await axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
         params: {
           apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
         }
       })
+
       selectedRecipe.value = {
-        ...response.data,
-        type: 'api'  // Add type to match the format expected by RecipePost
+        id: response.data.id,
+        title: response.data.title,
+        image: response.data.image,
+        summary: response.data.summary,
+        instructions: response.data.instructions,
+        extendedIngredients: response.data.extendedIngredients,
+        readyInMinutes: response.data.readyInMinutes,
+        servings: response.data.servings,
+        type: 'api'
       }
-    } catch (error) {
-      console.error('Error fetching recipe details:', error)
-      return
+    } else if (recipe.type === 'api') {
+      // For saved API recipes, fetch fresh data
+      const response = await axios.get(`https://api.spoonacular.com/recipes/${recipe.id}/information`, {
+        params: {
+          apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
+        }
+      })
+
+      selectedRecipe.value = {
+        id: response.data.id,
+        title: response.data.title,
+        image: response.data.image,
+        summary: response.data.summary,
+        instructions: response.data.instructions,
+        extendedIngredients: response.data.extendedIngredients,
+        readyInMinutes: response.data.readyInMinutes,
+        servings: response.data.servings,
+        type: 'api'
+      }
+    } else {
+      // For community recipes (created or saved)
+      selectedRecipe.value = {
+        id: recipe.id,
+        title: recipe.name,
+        image: recipe.imageUrl,
+        summary: recipe.description,
+        instructions: recipe.instructions,
+        extendedIngredients: recipe.ingredients?.map(ing => ({
+          original: ing
+        })) || [],
+        readyInMinutes: recipe.readyInMinutes || 0,
+        servings: recipe.servings || 0,
+        type: 'community'
+      }
     }
-  } else {
-    // For created/saved tabs, use existing logic
-    selectedRecipe.value = recipe
+    openRecipe.value = true
+  } catch (error) {
+    console.error('Error in setRecipe:', error)
+    toast.error('Failed to load recipe details. Please try again.')
   }
-  openRecipe.value = true
 }
 
 const closeModal = () => {
@@ -474,12 +513,13 @@ const findRecipes = async () => {
     </div>
 
     <!-- Recipe Details Modal -->
-    <RecipePost
+    <Sidebar
       v-if="openRecipe"
       :recipe-details="selectedRecipe"
-      @close-modal="closeModal"
-      :userId="user.value?.id"
-      :user-name="user.value?.firstName"
+      :user-id="user.value?.id"
+      @close-side="closeModal"
+      @save-recipe="handleSaveApiRecipe"
+      class="recipe-sidebar"
     />
   </div>
 </template>
@@ -693,5 +733,18 @@ const findRecipes = async () => {
   font-size: 0.9rem;
   color: #666;
   margin-top: 5px;
+}
+
+.recipe-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 25%;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  padding: 20px;
 }
 </style>
