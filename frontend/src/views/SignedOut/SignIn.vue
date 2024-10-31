@@ -6,7 +6,7 @@ import { SignIn } from 'vue-clerk'
   <div class="outerbox">
     <div class="content-wrapper">
       <div class="signIn">
-        <SignIn path="/sign-in" after-sign-in-url="/" sign-up-url="/sign-up" />
+        <SignIn routing="path" path="/sign-in" afterSignInUrl="/" signUpUrl="/sign-up" />
       </div>
     </div>
   </div>
@@ -18,13 +18,53 @@ import { SignIn } from 'vue-clerk'
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  height: 90vh;
-  width: 100vh;
+  min-height: 90vh;
+  width: 100%;
+  padding: 1rem;
 }
-.outerbox{
+
+.outerbox {
   position: relative;
-  background-image: url("/src/assets/background.png");
+  background-image: url('/src/assets/background.png');
   background-repeat: no-repeat;
-  background-size: 100%;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}
+
+/* Mobile devices */
+@media screen and (max-width: 480px) {
+  .content-wrapper {
+    padding: 0.5rem;
+  }
+
+  .signIn {
+    width: 100%;
+    max-width: 350px;
+  }
+}
+
+/* Tablets */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .signIn {
+    width: 100%;
+    max-width: 450px;
+  }
+}
+
+/* Laptops and smaller desktops */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .signIn {
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
+/* Large desktops */
+@media screen and (min-width: 1025px) {
+  .signIn {
+    width: 100%;
+    max-width: 550px;
+  }
 }
 </style>

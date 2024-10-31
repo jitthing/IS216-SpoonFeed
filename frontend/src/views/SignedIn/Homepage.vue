@@ -120,8 +120,8 @@ const fetchData = async () => {
         height="20"
       />
     </div> -->
-    <div class="container-fluid row bottom">
-      <div :class="dynamicColumnClass" class="try">
+    <div class="homepage-container">
+      <div :class="dynamicColumnClass" class="main-content">
         <!-- <div class="second justify-content-end" :class="dynamicLoading">
           <button type="button" class="btn mx-2">Filter</button>
           <button type="button" class="btn">Sort</button>
@@ -144,7 +144,7 @@ const fetchData = async () => {
         <h2 v-else>Loading...</h2> -->
         <div class="banner">
           <!-- Need to replace <user> with username -->
-          <span class="h1">Welcome back &lt;User&gt;</span> <br />
+          <span class="h1">Welcome back {{ userName }}</span> <br />
           <span class="h4"> What will you cook today? </span>
         </div>
         <div class="h2 custom-margins">Saved</div>
@@ -194,7 +194,7 @@ const fetchData = async () => {
         </div>
       </div>
       <Sidebar
-        class="col-3"
+        class="sidebar-container"
         v-if="sidebarOpen"
         :recipe-details="selectedRecipe"
         :saved-recipes="savedRecipes"
@@ -345,6 +345,47 @@ const fetchData = async () => {
   .recipe-card {
     width: 220px; /* Slightly smaller cards for very small screens */
     height: 160px;
+  }
+}
+
+.homepage-container {
+  position: relative;
+  display: flex;
+  height: 100%;
+}
+
+.main-content {
+  flex: 1;
+  transition: width 0.3s ease;
+}
+
+.sidebar-container {
+  width: 400px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .homepage-container {
+    display: block;
+  }
+
+  .sidebar-container {
+    width: 100%;
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+  }
+
+  .main-content {
+    width: 100% !important;
   }
 }
 </style>

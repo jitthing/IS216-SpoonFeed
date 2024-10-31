@@ -218,7 +218,7 @@ const fetchMore = () => {
       </div>
     </div>
     <div class="container-fluid row bottom">
-      <div :class="dynamicColumnClass" class="try">
+      <div :class="[dynamicColumnClass, { 'sidebar-open': openRecipe }]" class="try">
         <div class="second justify-content-end" :class="dynamicLoading">
           <button type="button" class="btn mx-2">Filter</button>
           <button type="button" class="btn">Sort</button>
@@ -242,7 +242,7 @@ const fetchMore = () => {
         <h2 v-else>Loading...</h2>
       </div>
       <Sidebar
-        class="col-3"
+        :class="['sidebar-container', { 'sidebar-open': openRecipe }]"
         v-if="openRecipe"
         :recipe-details="selectedRecipe"
         :user-id="userId"
@@ -353,5 +353,60 @@ button {
   color: #523e2c;
   width: 24px;
   height: 24px;
+}
+
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  height: 100vh;
+  background-color: white;
+  transition: right 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar-container.sidebar-open {
+  right: 0;
+}
+
+/* Tablet and larger screens */
+@media screen and (min-width: 768px) {
+  .sidebar-container {
+    position: relative;
+    right: 0;
+    width: 25%;
+    height: 90vh;
+  }
+
+  .try.sidebar-open {
+    width: 75%;
+  }
+}
+
+/* Adjust column sizes for different screen sizes */
+@media screen and (max-width: 767px) {
+  .recipecard {
+    width: calc(100% - 20px);
+    margin: 10px;
+  }
+
+  .try {
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .recipecard {
+    width: calc(50% - 20px);
+    margin: 10px;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  .recipecard {
+    width: calc(33.333% - 20px);
+    margin: 10px;
+  }
 }
 </style>

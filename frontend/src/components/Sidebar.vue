@@ -30,7 +30,13 @@ const fetchData = async () => {
   if (recipe.value.type === 'community') {
     recipeInfo.value = {
       ingredients: recipe.value.extendedIngredients,
-      instructions: [{ step: recipe.value.instructions }]
+      // Handle both string and array cases for instructions
+      instructions: Array.isArray(recipe.value.instructions)
+        ? recipe.value.instructions.map((step) => ({ step }))
+        : recipe.value.instructions
+            .split('\n')
+            .filter((step) => step.trim())
+            .map((step) => ({ step: step.trim() }))
     }
     isLoaded.value = true
     return
@@ -155,8 +161,9 @@ const saveRecipe = async () => {
   height: 100%;
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  width: 100%;
 }
 
 .sidebar-content {
@@ -258,5 +265,54 @@ const saveRecipe = async () => {
   align-items: center;
   justify-content: center;
   color: #523e2c;
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    z-index: 1000;
+  }
+
+  .recipe-header {
+    padding: 20px 16px;
+  }
+
+  .close-button {
+    font-size: 28px;
+    padding: 10px;
+  }
+
+  .image-container {
+    max-height: 200px;
+  }
+
+  .recipe-details {
+    padding: 20px;
+  }
+}
+
+/* Tablet styles */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .sidebar {
+    height: 90vh;
+  }
+
+  .image-container {
+    max-height: 250px;
+  }
+}
+
+/* Desktop styles */
+@media screen and (min-width: 769px) {
+  .sidebar {
+    height: 100vh;
+    border-radius: 12px 0 0 12px;
+  }
 }
 </style>
