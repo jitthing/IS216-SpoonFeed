@@ -29,7 +29,7 @@ const editingInstructionIndex = ref(null) // Track which instruction is being ed
 const submitRecipe = async () => {
   const formData = new FormData()
   const timestamp = Date.now()
-  
+
   const recipeData = {
     recipeAuthorId: props.userId,
     recipeAuthor: props.userName,
@@ -47,6 +47,7 @@ const submitRecipe = async () => {
     formData.append('recipeImage', recipeImage.value, fileName)
   }
   formData.append('recipeData', JSON.stringify(recipeData))
+  console.log(recipeData)
   const toastId = toast.loading('Uploading recipe...')
 
   try {

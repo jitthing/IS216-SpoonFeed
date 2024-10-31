@@ -15,6 +15,7 @@ const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 const isSaved = ref(false)
 const comments = ref([])
 const newComment = ref('')
+const numSaves = ref(props.recipeDetails.numSaves || 0)
 
 onMounted(() => {
   checkSaved()
@@ -28,6 +29,7 @@ watchEffect(() => {
 
 const toggleSave = () => {
   isSaved.value = !isSaved.value
+  numSaves.value = isSaved.value ? numSaves.value + 1 : numSaves.value - 1
   updateSaved()
 }
 
@@ -108,89 +110,120 @@ const updateSaved = async () => {
   }
 }
 
+const deleteRecipe = async () => {
+  try {
+    axios.post(BACKEND_URL + '/delete-recipe', { recipeId: props.recipeDetails.id })
+    toast.success('Recipe deleted!', {
+      autoClose: 1000
+    })
+    emit('closeModal')
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 const emit = defineEmits(['closeModal'])
 </script>
 
 <template>
-  <div class="modal-container">
-    <div class="modal-body">
-      <!-- Post Header -->
-      <div class="post-header">
-        <div class="author-info">
-          <div class="author-avatar">{{ recipeDetails.author?.charAt(0).toUpperCase() }}</div>
-          <span class="author-name">{{ recipeDetails.author }}</span>
+  <!-- Add transition wrapper -->
+  <Transition name="modal" appear>
+    <div class="modal-backdrop" @click.self="emit('closeModal')">
+      <Transition name="modal-content">
+        <div class="modal-body">
+          <!-- Post Header -->
+          <div class="post-header">
+            <div class="author-info">
+              <div class="author-avatar">{{ recipeDetails.author?.charAt(0).toUpperCase() }}</div>
+              <span class="author-name">{{ recipeDetails.author }}</span>
+            </div>
+            <div>
+              <button
+                class="delete-btn"
+                @click="deleteRecipe"
+                v-if="recipeDetails.authorId === userId"
+              >
+                Delete
+              </button>
+              <button class="close-button" @click="emit('closeModal')">×</button>
+            </div>
+          </div>
+
+          <!-- Post Image -->
+          <div class="image-container">
+            <img :src="recipeDetails.imageUrl" alt="Recipe Image" class="post-image" />
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button @click="toggleSave" :class="{ saved: isSaved }" class="save-button">
+              <span v-if="isSaved">★</span>
+              <span v-else>☆</span>
+            </button>
+            <span class="saves-count">{{ numSaves }} saves</span>
+          </div>
+
+          <!-- Recipe Title -->
+          <h1 class="recipe-title">{{ recipeDetails.name }}</h1>
+
+          <!-- Recipe Details -->
+          <div class="recipe-details">
+            <div class="section">
+              <h3>Ingredients</h3>
+              <ul class="ingredients-list">
+                <li v-for="ingredient in recipeDetails.ingredients">{{ ingredient }}</li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Instructions</h3>
+              <ol class="instructions-list">
+                <li v-for="instruction in recipeDetails.instructions">{{ instruction }}</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Comments Section -->
+          <div class="comments-section">
+            <h3>Comments</h3>
+            <ul class="comments-list">
+              <li v-for="comment in comments" :key="comment.id" class="comment">
+                <span class="comment-author">{{ comment.name }}</span>
+                <span class="comment-text">{{ comment.text }}</span>
+              </li>
+            </ul>
+            <div class="comment-input">
+              <input
+                v-model="newComment"
+                placeholder="Add a comment..."
+                @keyup.enter="addComment"
+              />
+              <button @click="addComment" class="post-comment-btn">Post</button>
+            </div>
+          </div>
         </div>
-        <button class="close-button" @click="emit('closeModal')">×</button>
-      </div>
-
-      <!-- Post Image -->
-      <div class="image-container">
-        <img :src="recipeDetails.imageUrl" alt="Recipe Image" class="post-image" />
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <button @click="toggleSave" :class="{ saved: isSaved }" class="save-button">
-          <span v-if="isSaved">★</span>
-          <span v-else>☆</span>
-        </button>
-        <span class="saves-count">{{ recipeDetails.numSaves || 0 }} saves</span>
-      </div>
-
-      <!-- Recipe Title -->
-      <h1 class="recipe-title">{{ recipeDetails.name }}</h1>
-
-      <!-- Recipe Details -->
-      <div class="recipe-details">
-        <div class="section">
-          <h3>Ingredients</h3>
-          <ul class="ingredients-list">
-            <li v-for="ingredient in recipeDetails.ingredients">{{ ingredient }}</li>
-          </ul>
-        </div>
-
-        <div class="section">
-          <h3>Instructions</h3>
-          <ol class="instructions-list">
-            <li v-for="instruction in recipeDetails.instructions">{{ instruction }}</li>
-          </ol>
-        </div>
-      </div>
-
-      <!-- Comments Section -->
-      <div class="comments-section">
-        <h3>Comments</h3>
-        <ul class="comments-list">
-          <li v-for="comment in comments" :key="comment.id" class="comment">
-            <span class="comment-author">{{ comment.name }}</span>
-            <span class="comment-text">{{ comment.text }}</span>
-          </li>
-        </ul>
-        <div class="comment-input">
-          <input v-model="newComment" placeholder="Add a comment..." @keyup.enter="addComment" />
-          <button @click="addComment" class="post-comment-btn">Post</button>
-        </div>
-      </div>
+      </Transition>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <style scoped>
-.modal-container {
-  z-index: 10;
+.modal-backdrop {
+  z-index: 1000;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.75); /* Translucent black background */
   display: flex;
   justify-content: center;
   align-items: center;
+  backdrop-filter: blur(2px); /* Optional: adds slight blur to background */
 }
 
 .modal-body {
-  z-index: 20;
+  z-index: 1001;
   background-color: #fff;
   border-radius: 12px;
   width: 90%;
@@ -237,6 +270,21 @@ const emit = defineEmits(['closeModal'])
   font-size: 24px;
   cursor: pointer;
   color: #262626;
+}
+
+.delete-btn {
+  background-color: #523e2c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.delete-btn:hover {
+  background-color: #3e2e21;
 }
 
 .image-container {
@@ -352,78 +400,28 @@ const emit = defineEmits(['closeModal'])
 .post-comment-btn:hover {
   background-color: #3e2e21;
 }
+
+/* Add transition animations */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-content-enter-active,
+.modal-content-leave-active {
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.modal-content-enter-from,
+.modal-content-leave-to {
+  transform: scale(0.95);
+  opacity: 0;
+}
 </style>
-
-<!-- <template>
-  <div class="modal-container">
-    <div class="modal-body">
-      <div class="post-header">
-        <img :src="recipeDetails.imageUrl" alt="Recipe Image" class="post-image" />
-        <h1>{{ recipeDetails.name }}</h1>
-        <span>
-          <h2>By {{ recipeDetails.author }}</h2>
-          <button @click="toggleSave" :class="{ saved: isSaved }" class="save-button">
-            <span v-if="isSaved">★</span>
-            <span v-else>☆</span>
-          </button>
-        </span>
-
-        <h3>Ingredients</h3>
-        <ul>
-          <li v-for="ingredient in recipeDetails.ingredients">{{ ingredient }}</li>
-        </ul>
-        <h3>Instructions</h3>
-        <ol>
-          <li v-for="instruction in recipeDetails.instructions">{{ instruction }}</li>
-        </ol>
-      </div>
-      <div class="comments-section">
-        <h3>Comments</h3>
-        <ul class="comments">
-          <li v-for="comment in comments" :key="comment.id">
-            {{ comment.text }} by {{ comment.name }}
-          </li>
-        </ul>
-        <input v-model="newComment" placeholder="Add a comment..." />
-        <button @click="addComment">Post</button>
-      </div>
-      <button @click="emit('closeModal')">Close</button>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-img {
-  width: 100%;
-  border-radius: 25px;
-}
-.modal-container {
-  z-index: 10;
-  position: fixed;
-  top: 0;
-  left: calc((100vw / 6));
-  width: 82%;
-  height: 100%;
-  background-color: #00000080;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.modal-body {
-  z-index: 20;
-  background-color: #fff;
-  border-radius: 25px;
-  padding: 10px;
-  margin: 0 10vw;
-  height: 70vh;
-  overflow-y: auto;
-}
-button {
-  background-color: #523e2c;
-  color: white;
-}
-.comments {
-  list-style-type: none;
-  padding: 0;
-}
-</style> -->

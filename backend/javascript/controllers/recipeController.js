@@ -180,6 +180,18 @@ async function updateRecipe(req, res) {
   }
 }
 
+async function deleteRecipe(req, res) {
+  try {
+    const recipeId = req.body.recipeId;
+    const db = firebase.db;
+    const recipeRef = db.ref(`recipes/${recipeId}`);
+    await recipeRef.remove();
+    return res.status(200).json({ message: "Recipe deleted successfully" });
+  } catch (error) {
+    return res.status(400).json({ message: "Failed to delete recipe" });
+  }
+}
+
 module.exports = {
   uploadRecipe,
   getRecipes,
@@ -187,4 +199,5 @@ module.exports = {
   getRecipesByUser,
   updateRecipe,
   getHottestRecipes,
+  deleteRecipe,
 };

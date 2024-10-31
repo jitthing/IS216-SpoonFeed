@@ -16,6 +16,7 @@ const {
   getRecipesByUser,
   updateRecipe,
   getHottestRecipes,
+  deleteRecipe,
 } = require("../controllers/recipeController");
 
 router = express.Router();
@@ -33,7 +34,7 @@ router.get("/get-recipes-by-name", getRecipesByName);
 router.get("/get-recipes-by-user", getRecipesByUser);
 router.post("/upload-recipe", upload.single("recipeImage"), uploadRecipe);
 router.post("/update-recipe", updateRecipe);
-
+router.post("/delete-recipe", deleteRecipe);
 // configure api endpoints for each function (controller)
 
 module.exports = router;

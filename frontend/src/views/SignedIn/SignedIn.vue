@@ -8,14 +8,16 @@ import { watchEffect, ref } from 'vue'
 const modalOpen = ref(false)
 const isMenuOpen = ref(window.innerWidth >= 768)
 
-const { user, isLoaded } = useUser()
-const userId = user.value.id
-const userName = user.value.firstName
+const { user } = useUser()
+const userId = ref('')
+const userName = ref('')
 
 watchEffect(() => {
-  if (isLoaded) {
+  if (user.value) {
     console.log('User is signed in:', user.value.firstName)
     console.log('User ID:', user.value.id)
+    userId.value = user.value.id
+    userName.value = user.value.firstName
   } else {
     console.log('User is not signed in.')
   }
@@ -50,7 +52,7 @@ window.addEventListener('resize', () => {
 
     <div class="row">
       <div class="col-md-2 p-0" :class="{ 'd-none d-md-block': !isMenuOpen }">
-        <Menu :isMenuOpen="isMenuOpen" @toggle-menu="toggleMenu" @open="openModal" />
+        <Menu :isMenuOpen="isMenuOpen" @toggle-menu="toggleMenu" @open-create-recipe="openModal" />
       </div>
 
       <main :class="{ 'col-md-10': isMenuOpen, 'col-12': !isMenuOpen, 'p-0': true }">

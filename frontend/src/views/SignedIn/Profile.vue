@@ -6,6 +6,7 @@ import RecipeCard from '@/components/Card.vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import Sidebar from '@/components/Sidebar.vue'
+import RecipePost from '@/components/RecipePost.vue'
 
 const { user, isLoaded } = useUser()
 const activeTab = ref('created')
@@ -132,10 +133,11 @@ const filteredRecipes = computed(() => {
     if (activeTab.value === 'created') {
       return recipes.value
     } else {
-      // Combine community and API recipes for saved tab
-      const combinedRecipes = [...savedRecipes.value.community, ...savedRecipes.value.api]
-      console.log('Combined recipes:', combinedRecipes)
-      return combinedRecipes
+      // Return separate arrays for community and API recipes
+      return {
+        community: savedRecipes.value.community,
+        api: savedRecipes.value.api
+      }
     }
   }
 
@@ -166,17 +168,17 @@ const filteredRecipes = computed(() => {
       return recipeDate >= startOfDay && recipeDate <= endOfDay
     })
   } else {
-    // Filter only community recipes by date
-    const filteredCommunity = savedRecipes.value.community.filter((recipe) => {
-      const timestampMatch = recipe.imageUrl?.match(/-(\d+)\?/)
-      if (!timestampMatch) return false
-      const timestamp = parseInt(timestampMatch[1])
-      const recipeDate = new Date(timestamp)
-      return recipeDate >= startOfDay && recipeDate <= endOfDay
-    })
-
-    // Include all API recipes since they don't have dates
-    return [...filteredCommunity, ...savedRecipes.value.api]
+    // Return filtered community recipes and all API recipes separately
+    return {
+      community: savedRecipes.value.community.filter((recipe) => {
+        const timestampMatch = recipe.imageUrl?.match(/-(\d+)\?/)
+        if (!timestampMatch) return false
+        const timestamp = parseInt(timestampMatch[1])
+        const recipeDate = new Date(timestamp)
+        return recipeDate >= startOfDay && recipeDate <= endOfDay
+      }),
+      api: savedRecipes.value.api
+    }
   }
 })
 
@@ -186,8 +188,8 @@ const clearDateFilter = () => {
 
 const setRecipe = async (recipe) => {
   try {
-    if (activeTab.value === 'fridge') {
-      // Fetch full recipe details for fridge tab
+    if (activeTab.value === 'fridge' || recipe.type === 'api') {
+      // Handle API recipes (including fridge tab)
       const response = await axios.get(
         `https://api.spoonacular.com/recipes/${recipe.id}/information`,
         {
@@ -198,53 +200,37 @@ const setRecipe = async (recipe) => {
       )
 
       selectedRecipe.value = {
-        id: response.data.id,
-        title: response.data.title,
-        image: response.data.image,
-        summary: response.data.summary,
-        instructions: response.data.instructions,
-        extendedIngredients: response.data.extendedIngredients,
-        readyInMinutes: response.data.readyInMinutes,
-        servings: response.data.servings,
-        type: 'api'
-      }
-    } else if (recipe.type === 'api') {
-      // For saved API recipes, fetch fresh data
-      const response = await axios.get(
-        `https://api.spoonacular.com/recipes/${recipe.id}/information`,
-        {
-          params: {
-            apiKey: import.meta.env.VITE_APP_SPOONACULAR_KEY
-          }
-        }
-      )
-
-      selectedRecipe.value = {
-        id: response.data.id,
-        title: response.data.title,
-        image: response.data.image,
-        summary: response.data.summary,
-        instructions: response.data.instructions,
-        extendedIngredients: response.data.extendedIngredients,
-        readyInMinutes: response.data.readyInMinutes,
-        servings: response.data.servings,
-        type: 'api'
+        api: {
+          id: response.data.id,
+          title: response.data.title,
+          image: response.data.image,
+          summary: response.data.summary,
+          instructions: response.data.instructions,
+          extendedIngredients: response.data.extendedIngredients,
+          readyInMinutes: response.data.readyInMinutes,
+          servings: response.data.servings,
+          type: 'api'
+        },
+        community: null
       }
     } else {
-      // For community recipes (created or saved)
+      // Handle community recipes
       selectedRecipe.value = {
-        id: recipe.id,
-        title: recipe.name,
-        image: recipe.imageUrl,
-        summary: recipe.description,
-        instructions: recipe.instructions,
-        extendedIngredients:
-          recipe.ingredients?.map((ing) => ({
-            original: ing
-          })) || [],
-        readyInMinutes: recipe.readyInMinutes || 0,
-        servings: recipe.servings || 0,
-        type: 'community'
+        api: null,
+        community: {
+          id: recipe.id,
+          name: recipe.name,
+          imageUrl: recipe.imageUrl,
+          description: recipe.description,
+          instructions: recipe.instructions,
+          ingredients: recipe.ingredients,
+          readyInMinutes: recipe.readyInMinutes || 0,
+          servings: recipe.servings || 0,
+          author: recipe.author,
+          authorId: recipe.authorId,
+          comments: recipe.comments || [],
+          numSaves: recipe.numSaves || 0
+        }
       }
     }
     openRecipe.value = true
@@ -444,18 +430,44 @@ const findRecipes = async () => {
 
         <!-- Saved Tab -->
         <div v-else-if="activeTab === 'saved'">
-          <div v-if="filteredRecipes.length === 0" class="empty-state">
+          <div
+            v-if="
+              activeTab === 'saved' &&
+              filteredRecipes.community.length === 0 &&
+              filteredRecipes.api.length === 0
+            "
+            class="empty-state"
+          >
             <p>{{ selectedDate ? 'No recipes found for this date' : 'No saved recipes yet!' }}</p>
           </div>
           <div v-else class="recipes-grid">
+            <!-- Community Recipes -->
             <RecipeCard
-              v-for="recipe in filteredRecipes"
-              :key="recipe.id"
+              v-for="recipe in filteredRecipes.community"
+              :key="`community-${recipe.id}`"
               class="recipecard"
-              :title="recipe.type === 'community' ? recipe.name : recipe.title"
-              :image="recipe.type === 'community' ? recipe.imageUrl : recipe.image"
+              :title="recipe.name"
+              :image="recipe.imageUrl"
               @open-recipe="setRecipe(recipe)"
-            />
+            >
+              <template #badge>
+                <span class="recipe-badge community">Community</span>
+              </template>
+            </RecipeCard>
+
+            <!-- API Recipes -->
+            <RecipeCard
+              v-for="recipe in filteredRecipes.api"
+              :key="`api-${recipe.id}`"
+              class="recipecard"
+              :title="recipe.title"
+              :image="recipe.image"
+              @open-recipe="setRecipe({ ...recipe, type: 'api' })"
+            >
+              <template #badge>
+                <span class="recipe-badge api">Spoonacular</span>
+              </template>
+            </RecipeCard>
           </div>
         </div>
 
@@ -534,12 +546,21 @@ const findRecipes = async () => {
 
     <!-- Recipe Details Modal -->
     <Sidebar
-      v-if="openRecipe"
-      :recipe-details="selectedRecipe"
+      v-if="openRecipe && selectedRecipe.api"
+      :recipe-details="selectedRecipe.api"
       :user-id="user.value?.id"
       @close-side="closeModal"
-      @save-recipe="handleSaveApiRecipe"
       class="recipe-sidebar"
+    />
+
+    <RecipePost
+      v-if="openRecipe && selectedRecipe.community"
+      :recipe-details="selectedRecipe.community"
+      :userId="user.value?.id"
+      :userName="user.value?.firstName"
+      :userEmail="user.value?.emailAddresses[0].emailAddress"
+      @close-modal="closeModal"
+      class="recipe-post"
     />
   </div>
 </template>
@@ -766,5 +787,40 @@ const findRecipes = async () => {
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   padding: 20px;
+}
+
+.recipe-post {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 8px;
+}
+
+.recipe-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.recipe-badge.community {
+  background-color: #523e2c;
+  color: white;
+}
+
+.recipe-badge.api {
+  background-color: #2c4152;
+  color: white;
 }
 </style>

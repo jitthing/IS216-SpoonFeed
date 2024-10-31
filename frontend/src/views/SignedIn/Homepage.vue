@@ -17,6 +17,7 @@ const selectedRecipe = ref({})
 const similarRecipes = ref([]) // At random
 const trendingRecipes = ref({})
 const savedRecipes = ref([])
+const savedRecipesData = ref([])
 const userId = ref('')
 const userName = ref('')
 
@@ -90,20 +91,25 @@ const dynamicColumnClass = computed(() => {
   return sidebarOpen.value ? 'col-9' : 'col-12'
 })
 
-const fetchData = async () => {
+const fetchSavedData = async () => {
   axios
-    .get('https://api.spoonacular.com/recipes/complexSearch', {
+    .get('https://api.spoonacular.com/recipes/informationBulk', {
       params: {
-        query: 'pasta',
+        ids: savedRecipes.value.join(','),
         apiKey: spoonacularApiKey
       }
     })
     .then((response) => {
       // console.log(response.data.results)
-      this.recipes = response.data.results
-      console.log(this.recipes)
+      savedRecipesData.value = response.data
     })
 }
+
+watchEffect(() => {
+  if (savedRecipes.value.length > 0) {
+    fetchSavedData()
+  }
+})
 </script>
 
 <template>
@@ -148,23 +154,20 @@ const fetchData = async () => {
           <span class="h4"> What will you cook today? </span>
         </div>
         <div class="h2 custom-margins">Saved</div>
-        <div class="scroll-menu">
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
-          <a href="#foodcard">foodcard</a>
+        <div class="scroll-container" v-if="savedRecipesData.length > 0">
+          <div class="scroll-menu">
+            <RecipeCard
+              class="recipe-card"
+              v-for="recipe in savedRecipesData"
+              :key="recipe.id"
+              :title="recipe.title"
+              :image="recipe.image"
+              :userId="userId"
+              @open-recipe="setApiRecipe(recipe)"
+            />
+          </div>
         </div>
+        <h4 class="mt-2" v-else><i>No saved recipes... Please start using our app.</i></h4>
         <div class="h2 custom-margins">Recommended for you</div>
         <div class="scroll-container" v-if="similarRecipes.length > 0">
           <div class="scroll-menu">
@@ -179,6 +182,7 @@ const fetchData = async () => {
             />
           </div>
         </div>
+        <h4 class="mt-2" v-else><i>No recommended recipes... Because you never save any!</i></h4>
         <div class="h2 custom-margins">Trending Community Recipes</div>
         <div class="scroll-container" v-if="trendingRecipes">
           <div class="scroll-menu">

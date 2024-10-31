@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { watch, ref, computed } from 'vue'
 import { toast } from 'vue3-toastify'
+
 const spoonacularApiKey = import.meta.env.VITE_APP_SPOONACULAR_KEY
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
@@ -104,56 +105,62 @@ const saveRecipe = async () => {
 </script>
 
 <template>
-  <div class="sidebar" :class="dynamicLoadingStyle">
-    <div v-if="isLoaded" class="sidebar-content">
-      <!-- Header -->
-      <div class="recipe-header">
-        <h2 class="recipe-title">{{ recipeDetails.title || recipeDetails.name }}</h2>
-        <button class="close-button" @click="$emit('closeSide')">×</button>
-      </div>
-
-      <!-- Image -->
-      <div class="image-container">
-        <img
-          :src="recipeDetails.image || recipeDetails.imageUrl"
-          alt="Recipe Image"
-          class="recipe-image"
-        />
-      </div>
-
-      <!-- Save Button -->
-      <div class="action-buttons">
-        <button @click="saveRecipe" class="save-button">
-          <span v-if="savedRecipes?.includes(recipeDetails.id)">★ Saved</span>
-          <span v-else>★ Save Recipe</span>
-        </button>
-      </div>
-
-      <!-- Recipe Details -->
-      <div class="recipe-details">
-        <div class="section">
-          <h3>Ingredients</h3>
-          <ul class="ingredients-list">
-            <li v-for="(ingredient, index) in recipeInfo.ingredients" :key="index">
-              {{ ingredient.original || ingredient.name }}
-            </li>
-          </ul>
+  <Transition name="slide" appear>
+    <div class="sidebar" :class="dynamicLoadingStyle" v-if="isLoaded">
+      <div class="sidebar-content">
+        <!-- Header -->
+        <div class="recipe-header">
+          <h2 class="recipe-title">{{ recipeDetails.title || recipeDetails.name }}</h2>
+          <button class="close-button" @click="$emit('closeSide')">×</button>
         </div>
 
-        <div class="section">
-          <h3>Instructions</h3>
-          <ol class="instructions-list">
-            <li v-for="(instruction, index) in recipeInfo.instructions" :key="index">
-              {{ instruction.step || instruction }}
-            </li>
-          </ol>
+        <!-- Image -->
+        <div class="image-container">
+          <img
+            :src="
+              recipeDetails.image ||
+              recipeDetails.imageUrl ||
+              `https://img.spoonacular.com/recipes/${recipeDetails.id}-312x231.jpg`
+            "
+            alt="Recipe Image"
+            class="recipe-image"
+          />
+        </div>
+
+        <!-- Save Button -->
+        <div class="action-buttons">
+          <button @click="saveRecipe" class="save-button">
+            <span v-if="savedRecipes?.includes(recipeDetails.id)">★ Saved</span>
+            <span v-else>★ Save Recipe</span>
+          </button>
+        </div>
+
+        <!-- Recipe Details -->
+        <div class="recipe-details">
+          <div class="section">
+            <h3>Ingredients</h3>
+            <ul class="ingredients-list">
+              <li v-for="(ingredient, index) in recipeInfo.ingredients" :key="index">
+                {{ ingredient.original || ingredient.name }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h3>Instructions</h3>
+            <ol class="instructions-list">
+              <li v-for="(instruction, index) in recipeInfo.instructions" :key="index">
+                {{ instruction.step || instruction }}
+              </li>
+            </ol>
+          </div>
         </div>
       </div>
     </div>
-    <div v-else class="loading">
+    <!-- <div v-else class="loading">
       <h2>Loading...</h2>
-    </div>
-  </div>
+    </div> -->
+  </Transition>
 </template>
 
 <style scoped>
@@ -313,6 +320,26 @@ const saveRecipe = async () => {
   .sidebar {
     height: 100vh;
     border-radius: 12px 0 0 12px;
+  }
+}
+
+/* Add these transition classes to the bottom of the style section */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* For mobile devices */
+@media screen and (max-width: 768px) {
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: translateY(100%);
   }
 }
 </style>

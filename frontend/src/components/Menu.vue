@@ -10,6 +10,8 @@ defineProps({
   }
 })
 
+defineEmits(['openCreateRecipe'])
+
 const isCreateRecipeOpen = ref(false)
 </script>
 
@@ -19,7 +21,7 @@ const isCreateRecipeOpen = ref(false)
       <!-- Logo and Create Recipe Button -->
       <div class="menu-header">
         <img class="logo-image" src="../assets/spoonfeed.jpeg" alt="Logo" />
-        <button class="create-recipe-btn" @click="isCreateRecipeOpen = true">Create Recipe</button>
+        <button class="create-recipe-btn" @click="$emit('openCreateRecipe')">Create Recipe</button>
       </div>
 
       <!-- Navigation Links -->
@@ -65,8 +67,6 @@ const isCreateRecipeOpen = ref(false)
       </section>
     </div>
   </nav>
-
-  <CreateRecipe v-if="isCreateRecipeOpen" @closeModal="isCreateRecipeOpen = false" />
 </template>
 
 <style scoped>
