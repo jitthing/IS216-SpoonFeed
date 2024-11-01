@@ -6,7 +6,7 @@ import { SignIn } from 'vue-clerk'
   <div class="outerbox">
     <div class="content-wrapper">
       <div class="signIn">
-        <SignIn routing="path" path="/sign-in" afterSignInUrl="/" signUpUrl="/sign-up" />
+        <SignIn routing="path" path="/sign-in" afterSignInUrl="/dashboard" signUpUrl="/sign-up" />
       </div>
     </div>
   </div>
