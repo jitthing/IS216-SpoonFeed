@@ -35,7 +35,6 @@ watchEffect(() => {
 
 <template>
   <header>
-    <!-- Create component of signed in view and signed out view, instead of rendering individual components like this -->
     <SignedOut v-if="!isSignedIn" />
     <SignedIn v-else />
   </header>
