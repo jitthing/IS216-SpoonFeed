@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, watchEffect } from 'vue'
 import { useUser } from 'vue-clerk'
 import axios from '@/axios'
 import RecipeCard from '@/components/Card.vue'
@@ -29,12 +29,25 @@ const currentIngredient = ref('')
 const suggestedRecipes = ref([])
 const ingredientSuggestions = ref([])
 const showSuggestions = ref(false)
+const userId = ref('')
+const userName = ref('')
+const userEmail = ref('')
+
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
+
+watchEffect(() => {
+  if (user.value) {
+    userId.value = user.value.id
+    userName.value = user.value.firstName
+    userEmail.value = user.value.emailAddresses[0].emailAddress
+  }
+})
 
 // Fetch created recipes
 const fetchCreatedRecipes = async () => {
   try {
     console.log('Fetching created recipes for user:', user.value?.id)
-    const response = await axios.get('/api/get-recipes')
+    const response = await axios.get(`${BACKEND_URL}/get-recipes`)
     const allRecipes = response.data.recipes
 
     const userRecipes = Object.values(allRecipes).filter(
@@ -63,7 +76,7 @@ const fetchSavedRecipes = async () => {
   try {
     console.log('Fetching saved recipes for user:', user.value?.id)
 
-    const userResponse = await axios.post('/api/check-user', {
+    const userResponse = await axios.post(`${BACKEND_URL}/check-user`, {
       userId: user.value?.id,
       firstName: user.value?.firstName
     })
@@ -80,7 +93,7 @@ const fetchSavedRecipes = async () => {
       // Fetch community recipes
       if (communityIds.length > 0) {
         console.log('Fetching community recipes with IDs:', communityIds)
-        const communityResponse = await axios.post('/api/get-community-saved', {
+        const communityResponse = await axios.post(`${BACKEND_URL}/get-community-saved`, {
           recipeIds: communityIds
         })
 
@@ -556,9 +569,9 @@ const findRecipes = async () => {
     <RecipePost
       v-if="openRecipe && selectedRecipe.community"
       :recipe-details="selectedRecipe.community"
-      :userId="user.value?.id"
-      :userName="user.value?.firstName"
-      :userEmail="user.value?.emailAddresses[0].emailAddress"
+      :userId="userId"
+      :userName="userName"
+      :userEmail="userEmail"
       @close-modal="closeModal"
       class="recipe-post"
     />

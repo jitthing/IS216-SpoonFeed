@@ -11,62 +11,64 @@ defineProps({
 })
 
 defineEmits(['openCreateRecipe'])
-
-const isCreateRecipeOpen = ref(false)
 </script>
 
 <template>
-  <nav class="sidebar" :class="{ 'sidebar-open': isMenuOpen }">
-    <div class="menu-content">
-      <!-- Logo and Create Recipe Button -->
-      <div class="menu-header">
-        <img class="logo-image" src="../assets/spoonfeed.jpeg" alt="Logo" />
-        <button class="create-recipe-btn" @click="$emit('openCreateRecipe')">Create Recipe</button>
-      </div>
+  <Transition name="slide-fade" appear>
+    <nav class="sidebar" :class="{ 'sidebar-open': isMenuOpen }">
+      <div class="menu-content">
+        <!-- Logo and Create Recipe Button -->
+        <div class="menu-header">
+          <img class="logo-image" src="../assets/spoonfeed.jpeg" alt="Logo" />
+          <button class="create-recipe-btn" @click="$emit('openCreateRecipe')">
+            Create Recipe
+          </button>
+        </div>
 
-      <!-- Navigation Links -->
-      <section class="navigation-links">
-        <ul>
-          <li>
-            <RouterLink
-              class="nav-link nav-item"
-              :class="{ active: $route.path === '/dashboard' }"
-              to="/dashboard"
-            >
-              Home
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink
-              class="nav-link nav-item"
-              :class="{ active: $route.path === '/online-recipes' }"
-              to="/online-recipes"
-            >
-              Online Recipes
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink
-              class="nav-link nav-item"
-              :class="{ active: $route.path === '/community-recipe' }"
-              to="/community-recipe"
-            >
-              Community Recipes
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink
-              class="nav-link nav-item"
-              :class="{ active: $route.path === '/profile' }"
-              to="/profile"
-            >
-              Profile
-            </RouterLink>
-          </li>
-        </ul>
-      </section>
-    </div>
-  </nav>
+        <!-- Navigation Links -->
+        <section class="navigation-links">
+          <ul>
+            <li>
+              <RouterLink
+                class="nav-link nav-item"
+                :class="{ active: $route.path === '/dashboard' }"
+                to="/dashboard"
+              >
+                Home
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink
+                class="nav-link nav-item"
+                :class="{ active: $route.path === '/online-recipes' }"
+                to="/online-recipes"
+              >
+                Online Recipes
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink
+                class="nav-link nav-item"
+                :class="{ active: $route.path === '/community-recipe' }"
+                to="/community-recipe"
+              >
+                Community Recipes
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink
+                class="nav-link nav-item"
+                :class="{ active: $route.path === '/profile' }"
+                to="/profile"
+              >
+                Profile
+              </RouterLink>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </nav>
+  </Transition>
 </template>
 
 <style scoped>

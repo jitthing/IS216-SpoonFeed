@@ -6,7 +6,6 @@ import axios from 'axios'
 const props = defineProps({
   userId: String,
   userName: String,
-  userEmail: String,
   recipeDetails: Object
 })
 
@@ -35,7 +34,7 @@ const toggleSave = () => {
 
 const addComment = () => {
   comments.value.push({
-    name: props.userName ? props.userName : props.userEmail.split('@')[0],
+    name: props.userName,
     text: newComment.value
   })
   newComment.value = ''

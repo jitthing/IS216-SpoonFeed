@@ -9,11 +9,14 @@ const { user, isSignedIn, isLoaded } = useUser()
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 async function checkUser(user) {
+  const firstName = user.value.firstName
+    ? user.value.firstName
+    : user.value.primaryEmailAddress.split('@')[0]
   try {
     axios
       .post(BACKEND_URL + '/check-user', {
         userId: user.value.id,
-        firstName: user.value.firstName
+        firstName: firstName
       })
       .then((response) => {
         console.log(response.data)
@@ -24,7 +27,7 @@ async function checkUser(user) {
 }
 
 watchEffect(() => {
-  if (isLoaded) {
+  if (user.value) {
     checkUser(user)
   }
 })
