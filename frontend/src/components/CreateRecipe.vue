@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+import axios, { all } from 'axios'
 import { toast } from 'vue3-toastify'
+
 
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
@@ -73,18 +74,41 @@ const submitRecipe = async () => {
   }
 }
 
-const calculateMacros = () => {
+const listMacros = (ingredientList) => {
   // Calculate macros
-  if (allIngredients.value.length === 0) {
-    const toast = toast.error('Please add ingredients to calculate macros')
-  } else {
-  }
+  axios.get('https://api.calorieninjas.com/v1/nutrition?query=' + ingredientList, {
+    headers: {
+      "X-Api-Key": "Fz5SQ0AxdFFtXCS/7rkzzw==CXV5SSl6DaUJQpP9"
+    }
+  }).then((response) => {
+    const data = response.data.items
+    console.log(ingredientList)
+    var macroCount = {} //calories, total fats, total saturated fats, total protein, total sodium, total carbs, total carbs
+    macroCount.calories = 0
+    macroCount.fat_total_g = 0
+    macroCount.protein_g = 0
+    macroCount.sodium_mg = 0
+    macroCount.carbohydrates_total_g = 0
+    
+    for (const item of data) { //supposed to iterate through all ingredients and not response data
+      macroCount.calories += item.calories,
+      macroCount.fat_total_g += item.fat_total_g,
+      macroCount.protein_g += item.protein_g,
+      macroCount.sodium_mg += item.sodium_mg,
+      macroCount.carbohydrates_total_g += item.carbohydrates_total_g
+    }
+    console.log(macroCount)
+    macros.value = macroCount
+  }).catch(error => {
+    console.error(error)
+  })
 }
 
 const addIngredient = () => {
   if (currIngredient.value.trim() !== '') {
     allIngredients.value.push(currIngredient.value.trim())
     currIngredient.value = ''
+    listMacros(allIngredients.value)
   } else {
     alert('Please enter a valid ingredient')
   }
@@ -92,6 +116,7 @@ const addIngredient = () => {
 
 const removeIngredient = (index) => {
   allIngredients.value.splice(index, 1)
+  listMacros(allIngredients.value)
 }
 
 const addInstruction = () => {
@@ -226,6 +251,7 @@ const cancelEditInstruction = () => {
           />
         </div>
         <button class="btn" @click="submitRecipe">Submit</button>
+        <h3 v-if="macros != null"> {{ macros }}</h3>
       </div>
     </div>
   </div>
