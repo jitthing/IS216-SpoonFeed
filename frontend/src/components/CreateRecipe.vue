@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import axios, { all } from 'axios'
 import { toast } from 'vue3-toastify'
 
-
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
+const NINJA_API_KEY = import.meta.env.VITE_APP_API_NINJA_KEY
 
 // Props
 const props = defineProps({
@@ -39,6 +39,7 @@ const submitRecipe = async () => {
     recipeInstructions: allInstructions.value,
     numSaves: 0,
     timestamp: timestamp,
+    macros: macros.value,
     type: 'community'
   }
 
@@ -66,7 +67,7 @@ const submitRecipe = async () => {
     })
   } catch (error) {
     toast.update(toastId, {
-      render: `Error: ${error.response?.data?.message || 'Failed to upload recipe'}`,
+      render: `Error: ${error.response?.data?.message}` || 'Failed to upload recipe',
       type: 'error',
       isLoading: false,
       autoClose: 3000 // Auto-close after 3 seconds
@@ -74,34 +75,39 @@ const submitRecipe = async () => {
   }
 }
 
-const listMacros = (ingredientList) => {
+const listMacros = () => {
   // Calculate macros
-  axios.get('https://api.calorieninjas.com/v1/nutrition?query=' + ingredientList, {
-    headers: {
-      "X-Api-Key": "Fz5SQ0AxdFFtXCS/7rkzzw==CXV5SSl6DaUJQpP9"
-    }
-  }).then((response) => {
-    const data = response.data.items
-    console.log(ingredientList)
-    var macroCount = {} //calories, total fats, total saturated fats, total protein, total sodium, total carbs, total carbs
-    macroCount.calories = 0
-    macroCount.fat_total_g = 0
-    macroCount.protein_g = 0
-    macroCount.sodium_mg = 0
-    macroCount.carbohydrates_total_g = 0
-    
-    for (const item of data) { //supposed to iterate through all ingredients and not response data
-      macroCount.calories += item.calories,
-      macroCount.fat_total_g += item.fat_total_g,
-      macroCount.protein_g += item.protein_g,
-      macroCount.sodium_mg += item.sodium_mg,
-      macroCount.carbohydrates_total_g += item.carbohydrates_total_g
-    }
-    console.log(macroCount)
-    macros.value = macroCount
-  }).catch(error => {
-    console.error(error)
-  })
+  const ingredientList = allIngredients.value.join(', ')
+  // console.log(ingredientList)
+  axios
+    .get('https://api.calorieninjas.com/v1/nutrition?query=' + ingredientList, {
+      headers: {
+        'X-Api-Key': NINJA_API_KEY
+      }
+    })
+    .then((response) => {
+      const data = response.data.items
+      var macroCount = {} //calories, total fats, total saturated fats, total protein, total sodium, total carbs, total carbs
+      macroCount.calories = 0
+      macroCount.fat_total_g = 0
+      macroCount.protein_g = 0
+      macroCount.sodium_mg = 0
+      macroCount.carbohydrates_total_g = 0
+
+      for (const item of data) {
+        //supposed to iterate through all ingredients and not response data
+        ;(macroCount.calories += item.calories),
+          (macroCount.fat_total_g += item.fat_total_g),
+          (macroCount.protein_g += item.protein_g),
+          (macroCount.sodium_mg += item.sodium_mg),
+          (macroCount.carbohydrates_total_g += item.carbohydrates_total_g)
+      }
+      console.log(macroCount)
+      macros.value = macroCount
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 }
 
 const addIngredient = () => {
@@ -250,8 +256,10 @@ const cancelEditInstruction = () => {
             @keydown.enter="addInstruction"
           />
         </div>
+        <div v-if="macros !== null">
+          <h4 v-for="(key, macro) in macros">{{ macro }}: {{ key }}</h4>
+        </div>
         <button class="btn" @click="submitRecipe">Submit</button>
-        <h3 v-if="macros != null"> {{ macros }}</h3>
       </div>
     </div>
   </div>

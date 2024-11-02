@@ -77,6 +77,22 @@ async function updateApiSaved(req, res) {
   }
 }
 
+async function addMealsPlanned(req, res) {
+  const { userId, recipeId, type } = req.body;
+  const userRef = firebase.db.ref(`users/${userId}`);
+  const snapshot = await userRef.once("value");
+  const userData = snapshot.val();
+
+  if (userData) {
+    const mealsPlanned = userData.MealsPlanned || [];
+    mealsPlanned.push({ recipeId, type });
+    await userRef.update({ MealsPlanned: mealsPlanned });
+    return res.status(200).json({ message: "Meals planned updated" });
+  } else {
+    return res.status(404).json({ message: "User not found" });
+  }
+}
+
 async function getCommunitySaved(req, res) {
   const { recipeIds } = req.body;
   const db = firebase.db;
@@ -121,4 +137,5 @@ module.exports = {
   updateCommunitySaved,
   updateApiSaved,
   getCommunitySaved,
+  addMealsPlanned,
 };

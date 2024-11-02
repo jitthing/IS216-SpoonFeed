@@ -102,6 +102,25 @@ const saveRecipe = async () => {
     toast.error(`Error: ${error.response.data.message}`)
   }
 }
+
+const addMealPlanned = async () => {
+  try {
+    axios
+      .post(BACKEND_URL + '/add-meals-planned', {
+        userId: userId,
+        recipeId: recipeDetails.id,
+        type: 'api'
+      })
+      .then((response) => {
+        console.log(response.data)
+        toast.success('Added to meals planned!', {
+          autoClose: 1000
+        })
+      })
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -133,6 +152,7 @@ const saveRecipe = async () => {
             <span v-if="savedRecipes?.includes(recipeDetails.id)">★ Saved</span>
             <span v-else>★ Save Recipe</span>
           </button>
+          <button @click="addMealPlanned" class="add-meal-btn">Add to meals planned</button>
         </div>
 
         <!-- Recipe Details -->
@@ -222,6 +242,10 @@ const saveRecipe = async () => {
   justify-content: center;
 }
 
+.action-buttons button {
+  margin: 0 10px;
+}
+
 .save-button {
   background-color: #523e2c;
   color: white;
@@ -237,6 +261,24 @@ const saveRecipe = async () => {
 }
 
 .save-button:hover {
+  background-color: #3e2e21;
+}
+
+.add-meal-btn {
+  background-color: #523e2c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.add-meal-btn:hover {
   background-color: #3e2e21;
 }
 

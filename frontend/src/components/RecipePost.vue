@@ -121,6 +121,25 @@ const deleteRecipe = async () => {
   }
 }
 
+const addMealPlanned = async () => {
+  try {
+    axios
+      .post(BACKEND_URL + '/add-meals-planned', {
+        userId: props.userId,
+        recipeId: props.recipeDetails.id,
+        type: 'community'
+      })
+      .then((response) => {
+        console.log(response.data)
+        toast.success('Added to meals planned!', {
+          autoClose: 1000
+        })
+      })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 const emit = defineEmits(['closeModal'])
 </script>
 
@@ -137,6 +156,7 @@ const emit = defineEmits(['closeModal'])
               <span class="author-name">{{ recipeDetails.author }}</span>
             </div>
             <div>
+              <button class="add-meal-btn" @click="addMealPlanned">Add to meals planned</button>
               <button
                 class="delete-btn"
                 @click="deleteRecipe"
@@ -283,6 +303,21 @@ const emit = defineEmits(['closeModal'])
 }
 
 .delete-btn:hover {
+  background-color: #3e2e21;
+}
+
+.add-meal-btn {
+  background-color: #523e2c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.add-meal-btn:hover {
   background-color: #3e2e21;
 }
 

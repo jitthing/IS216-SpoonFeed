@@ -90,6 +90,7 @@ async function uploadRecipe(req, res) {
     recipeAuthor,
     recipeIngredients,
     recipeInstructions,
+    macros,
   } = recipeData;
 
   if (!recipeName || !recipeIngredients || !recipeInstructions || !file) {
@@ -131,6 +132,7 @@ async function uploadRecipe(req, res) {
         instructions: recipeInstructions,
         imageUrl: publicUrl,
         numSaves: 0,
+        macros: macros,
         comments: [],
       });
 

@@ -8,6 +8,7 @@ const {
   updateCommunitySaved,
   updateApiSaved,
   getCommunitySaved,
+  addMealsPlanned,
 } = require("../controllers/userController");
 const {
   uploadRecipe,
@@ -25,6 +26,7 @@ router = express.Router();
 router.post("/check-user", checkUser);
 router.post("/update-saved-community", updateCommunitySaved);
 router.post("/update-saved-api", updateApiSaved);
+router.post("/add-meals-planned", addMealsPlanned);
 router.post("/get-community-saved", getCommunitySaved);
 
 // Recipe routes
