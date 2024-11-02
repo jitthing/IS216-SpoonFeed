@@ -20,9 +20,11 @@ const savedRecipes = ref([])
 const savedRecipesData = ref([])
 const userId = ref('')
 const userName = ref('')
+const foodTrivia = ref('')
 
 onMounted(() => {
   fetchHottestRecipes()
+  displayFoodTrivia()
 })
 
 const fetchHottestRecipes = async () => {
@@ -110,6 +112,22 @@ watchEffect(() => {
     fetchSavedData()
   }
 })
+
+const displayFoodTrivia = () => {
+  axios
+    .get('https://api.spoonacular.com/food/trivia/random', {
+      params: {
+        apiKey: spoonacularApiKey
+      }
+    })
+    .then((response) => {
+      foodTrivia.value = response.data.text
+      console.log(foodTrivia.value)
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
 </script>
 
 <template>
@@ -151,7 +169,7 @@ watchEffect(() => {
         <div class="banner">
           <!-- Need to replace <user> with username -->
           <span class="h1">Welcome back {{ userName }}</span> <br />
-          <span class="h4"> What will you cook today? </span>
+          <span class="h4"> {{ foodTrivia }} </span>
         </div>
         <div class="h2 custom-margins">Saved</div>
         <div class="scroll-container" v-if="savedRecipesData.length > 0">
