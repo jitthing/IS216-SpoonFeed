@@ -122,7 +122,6 @@ const displayFoodTrivia = () => {
     })
     .then((response) => {
       foodTrivia.value = response.data.text
-      console.log(foodTrivia.value)
     })
     .catch((error) => {
       console.error(error)
@@ -169,6 +168,7 @@ const displayFoodTrivia = () => {
         <div class="banner">
           <!-- Need to replace <user> with username -->
           <span class="h1">Welcome back {{ userName }}</span> <br />
+          <span class="h4">Did you know? </span>
           <span class="h4"> {{ foodTrivia }} </span>
         </div>
         <div class="h2 custom-margins">Saved</div>
