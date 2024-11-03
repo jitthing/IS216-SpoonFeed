@@ -66,19 +66,9 @@ window.addEventListener('resize', () => {
       </main>
     </div>
   </div>
-
-  <div class="profile">
-    <router-link to="/profile" class="profile-link">My Profile</router-link>
-    <UserButton />
-  </div>
 </template>
 
 <style scoped>
-.profile {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
 .image {
   margin: 10px;
 }
@@ -93,7 +83,7 @@ window.addEventListener('resize', () => {
 .profile-link {
   margin-right: 10px;
   text-decoration: none;
-  color: #acbaa1;
+  color: #523e2c;
 }
 
 .menu-toggle {

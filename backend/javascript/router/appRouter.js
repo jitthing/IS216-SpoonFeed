@@ -9,12 +9,16 @@ const {
   updateApiSaved,
   getCommunitySaved,
   addMealsPlanned,
+  getMealsPlanned,
+  getWeeklyPlan,
+  updateWeeklyPlan,
 } = require("../controllers/userController");
 const {
   uploadRecipe,
   getRecipes,
   getRecipesByName,
   getRecipesByUser,
+  getRecipeById,
   updateRecipe,
   getHottestRecipes,
   deleteRecipe,
@@ -27,7 +31,10 @@ router.post("/check-user", checkUser);
 router.post("/update-saved-community", updateCommunitySaved);
 router.post("/update-saved-api", updateApiSaved);
 router.post("/add-meals-planned", addMealsPlanned);
+router.post("/get-meals-planned", getMealsPlanned);
 router.post("/get-community-saved", getCommunitySaved);
+router.post("/get-weekly-plan", getWeeklyPlan);
+router.post("/update-weekly-plan", updateWeeklyPlan);
 
 // Recipe routes
 router.get("/get-recipes", getRecipes);
@@ -37,6 +44,7 @@ router.get("/get-recipes-by-user", getRecipesByUser);
 router.post("/upload-recipe", upload.single("recipeImage"), uploadRecipe);
 router.post("/update-recipe", updateRecipe);
 router.post("/delete-recipe", deleteRecipe);
+router.post("/get-recipe-by-id", getRecipeById);
 // configure api endpoints for each function (controller)
 
 module.exports = router;

@@ -584,6 +584,7 @@ const findRecipes = async () => {
   margin: 0 auto;
   padding: 20px;
   text-align: center;
+  height: 100vh;
 }
 
 .profile-header {

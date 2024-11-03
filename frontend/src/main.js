@@ -23,7 +23,6 @@ app.use(clerkPlugin, {
   publishableKey: PUBLISHABLE_KEY
 })
 app.use(Vue3Toastify)
-// app.component('VIcon', OhVueIcon)
 
 app.mount('#app')
 

@@ -6,6 +6,7 @@ import Dashboard from '../views/SignedIn/Homepage.vue'
 import OnlineRecipe from '../views/SignedIn/OnlineRecipe.vue'
 import CommunityPage from '../views/SignedIn/CommunityPage.vue'
 import Profile from '@/views/SignedIn/Profile.vue'
+import MealPlanner from '../views/SignedIn/MealPlanner.vue'
 import SSOCallback from '../views/SignedOut/SSOCallback.vue'
 
 const router = createRouter({
@@ -34,6 +35,7 @@ const router = createRouter({
     { path: '/online-recipes', name: 'onlinerecipe', component: OnlineRecipe },
     { path: '/profile', name: 'profile', component: Profile },
     { path: '/community-recipe', name: 'communityreceipe', component: CommunityPage },
+    { path: '/meal-planner', name: 'mealplanner', component: MealPlanner },
     {
       path: '/sso-callback',
       name: 'sso-callback',
