@@ -312,7 +312,7 @@ const cancelEditInstruction = () => {
   padding: 10px;
 }
 button {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border-radius: 10px;
 }

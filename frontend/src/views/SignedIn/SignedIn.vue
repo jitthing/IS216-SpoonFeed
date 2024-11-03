@@ -83,7 +83,7 @@ window.addEventListener('resize', () => {
   margin: 10px;
 }
 .create-recipe {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   align-self: center;
   height: 50%;
@@ -93,7 +93,7 @@ window.addEventListener('resize', () => {
 .profile-link {
   margin-right: 10px;
   text-decoration: none;
-  color: #523e2c;
+  color: #acbaa1;
 }
 
 .menu-toggle {
@@ -128,7 +128,7 @@ window.addEventListener('resize', () => {
   display: block;
   width: 20px;
   height: 2px;
-  background: #523e2c;
+  background: #acbaa1;
   margin: auto;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -139,7 +139,7 @@ window.addEventListener('resize', () => {
   position: absolute;
   width: 20px;
   height: 2px;
-  background: #523e2c;
+  background: #acbaa1;
   left: 0;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }

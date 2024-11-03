@@ -103,7 +103,7 @@ defineEmits(['openCreateRecipe'])
 }
 
 .create-recipe-btn {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -132,11 +132,11 @@ defineEmits(['openCreateRecipe'])
 
 .nav-item:hover {
   transform: translateX(10px);
-  color: #523e2c;
+  color: #acbaa1;
 }
 
 .nav-item.active {
-  color: #523e2c;
+  color: #acbaa1;
   font-weight: bold;
   transform: translateX(10px);
 }
@@ -149,7 +149,7 @@ defineEmits(['openCreateRecipe'])
   transform: translateY(-50%);
   width: 4px;
   height: 70%;
-  background-color: #523e2c;
+  background-color: #acbaa1;
   border-radius: 2px;
 }
 

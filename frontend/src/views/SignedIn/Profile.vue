@@ -600,14 +600,14 @@ const findRecipes = async () => {
 .tab-container button {
   padding: 10px 20px;
   border: none;
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .tab-container button.active {
-  background-color: #3e2e21;
+  background-color: #517470;
 }
 
 .recipes-grid {
@@ -637,7 +637,7 @@ const findRecipes = async () => {
 }
 
 .calendar-toggle {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   padding: 8px 16px;
   border: none;
@@ -719,7 +719,7 @@ const findRecipes = async () => {
 .ingredient-search {
   flex: 1;
   padding: 10px;
-  border: 2px solid #523e2c;
+  border: 2px solid #acbaa1;
   border-radius: 4px;
   font-size: 1rem;
 }
@@ -753,7 +753,7 @@ const findRecipes = async () => {
 }
 
 .ingredient-tag {
-  background: #523e2c;
+  background: #acbaa1;
   color: white;
   padding: 5px 10px;
   border-radius: 20px;
@@ -768,7 +768,7 @@ const findRecipes = async () => {
 }
 
 .find-recipes-btn {
-  background: #523e2c;
+  background: #acbaa1;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -828,7 +828,7 @@ const findRecipes = async () => {
 }
 
 .recipe-badge.community {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
 }
 

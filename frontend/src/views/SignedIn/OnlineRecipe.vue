@@ -333,7 +333,7 @@ const fetchMore = () => {
   margin: 0 auto;
 }
 button {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
 }
 
@@ -350,7 +350,7 @@ button {
 }
 
 .toggle-icon {
-  color: #523e2c;
+  color: #acbaa1;
   width: 24px;
   height: 24px;
 }

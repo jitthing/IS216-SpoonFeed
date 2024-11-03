@@ -88,7 +88,7 @@
   }
   
   .create-btn {
-    background-color: #523e2c;
+    background-color: #acbaa1;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -98,7 +98,7 @@
   }
   
   .create-btn:hover {
-    background-color: #3e2e21;
+    background-color: #acbaa1;
   }
   </style>
   

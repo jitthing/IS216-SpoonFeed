@@ -167,13 +167,13 @@ const displayFoodTrivia = () => {
         <h2 v-else>Loading...</h2> -->
         <div class="banner">
           <!-- Need to replace <user> with username -->
-          <span class="h1">Welcome back {{ userName }}</span> <br />
-          <span class="h4">Did you know? </span>
-          <span class="h4"> {{ foodTrivia }} </span>
+          <span class="banner-title">Welcome back {{ userName }}</span> <br />
+          <span class="banner-text">Did you know? </span>
+          <span class="banner-text"> {{ foodTrivia }} </span>
         </div>
         <div class="h2 custom-margins">Saved</div>
         <div class="scroll-container" v-if="savedRecipesData.length > 0">
-          <div class="scroll-menu">
+          <div class="scroll-menu inline-margin">
             <RecipeCard
               class="recipe-card"
               v-for="recipe in savedRecipesData"
@@ -188,7 +188,7 @@ const displayFoodTrivia = () => {
         <h4 class="mt-2" v-else><i>No saved recipes... Please start using our app.</i></h4>
         <div class="h2 custom-margins">Recommended for you</div>
         <div class="scroll-container" v-if="similarRecipes.length > 0">
-          <div class="scroll-menu">
+          <div class="scroll-menu inline-margin">
             <RecipeCard
               class="recipe-card"
               v-for="recipe in similarRecipes"
@@ -203,7 +203,7 @@ const displayFoodTrivia = () => {
         <h4 class="mt-2" v-else><i>No recommended recipes... Because you never save any!</i></h4>
         <div class="h2 custom-margins">Trending Community Recipes</div>
         <div class="scroll-container" v-if="trendingRecipes">
-          <div class="scroll-menu">
+          <div class="scroll-menu inline-margin">
             <RecipeCard
               class="recipe-card"
               :key="recipe"
@@ -239,11 +239,11 @@ const displayFoodTrivia = () => {
 .homepage {
   background-color: white;
   height: 100vh;
-  padding-inline: 10px;
+  /* padding-inline: 10px; */
   /* border: 1px solid black; */
   overflow: auto;
 }
-.searchbar {
+/* .searchbar {
   border-radius: 10px;
   margin-top: 20px;
   margin-bottom: 10px;
@@ -253,7 +253,7 @@ const displayFoodTrivia = () => {
   background-color: lightgrey;
   width: 100%;
   align-items: center;
-}
+} */
 .scroll-menu {
   overflow: auto;
   white-space: nowrap;
@@ -270,13 +270,28 @@ const displayFoodTrivia = () => {
 
 .banner {
   background-color: #acbaa1;
-  height: 15vh;
+  height: 17vh;
   width: 100%;
   padding-inline: 1%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.banner-title {
+  font-size: 2.7rem;
+}
+
+.banner-text {
+  font-size: 1.3rem;
 }
 
 .custom-margins {
   margin-top: 50px;
+  margin-inline: 20px;
+}
+
+.inline-margin {
+  margin-inline: 10px;
 }
 
 .scroll-container {

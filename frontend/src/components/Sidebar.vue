@@ -247,7 +247,7 @@ const addMealPlanned = async () => {
 }
 
 .save-button {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -261,11 +261,11 @@ const addMealPlanned = async () => {
 }
 
 .save-button:hover {
-  background-color: #3e2e21;
+  background-color: #517470;
 }
 
 .add-meal-btn {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -279,7 +279,7 @@ const addMealPlanned = async () => {
 }
 
 .add-meal-btn:hover {
-  background-color: #3e2e21;
+  background-color: #517470;
 }
 
 .recipe-details {
@@ -294,7 +294,7 @@ const addMealPlanned = async () => {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #523e2c;
+  color: #acbaa1;
 }
 
 .ingredients-list,
@@ -313,7 +313,7 @@ const addMealPlanned = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #523e2c;
+  color: #acbaa1;
 }
 
 /* Mobile styles */

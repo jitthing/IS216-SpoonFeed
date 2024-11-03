@@ -150,7 +150,7 @@ const closeModal = () => {
   margin: 0 auto;
 }
 button {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
 }
 </style>

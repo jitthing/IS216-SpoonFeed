@@ -270,7 +270,7 @@ const emit = defineEmits(['closeModal'])
 .author-avatar {
   width: 32px;
   height: 32px;
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -292,7 +292,7 @@ const emit = defineEmits(['closeModal'])
 }
 
 .delete-btn {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -303,11 +303,11 @@ const emit = defineEmits(['closeModal'])
 }
 
 .delete-btn:hover {
-  background-color: #3e2e21;
+  background-color: #517470;
 }
 
 .add-meal-btn {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -318,7 +318,7 @@ const emit = defineEmits(['closeModal'])
 }
 
 .add-meal-btn:hover {
-  background-color: #3e2e21;
+  background-color: #517470;
 }
 
 .image-container {
@@ -350,7 +350,7 @@ const emit = defineEmits(['closeModal'])
 }
 
 .save-button.saved {
-  color: #523e2c;
+  color: #acbaa1;
 }
 
 .saves-count {
@@ -422,7 +422,7 @@ const emit = defineEmits(['closeModal'])
 }
 
 .post-comment-btn {
-  background-color: #523e2c;
+  background-color: #acbaa1;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -432,7 +432,7 @@ const emit = defineEmits(['closeModal'])
 }
 
 .post-comment-btn:hover {
-  background-color: #3e2e21;
+  background-color: #acbaa1;
 }
 
 /* Add transition animations */
