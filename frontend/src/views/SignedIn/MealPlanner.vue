@@ -358,7 +358,7 @@ const removeMeal = (day, mealType, mealId) => {
 }
 
 .day-header {
-  background: #523e2c;
+  background: #acbaa1;
   color: white;
   padding: 12px;
   text-align: center;

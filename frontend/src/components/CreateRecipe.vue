@@ -226,8 +226,8 @@ const cancelEditInstruction = () => {
             <li v-for="(ingredient, index) in allIngredients" :key="index">
               <span v-if="editingIngredientIndex !== index">
                 {{ ingredient }}
-                <button @click.stop="editIngredient(index)">Edit</button>
-                <button @click.stop="removeIngredient(index)">Remove</button>
+                <button class="btn" @click.stop="editIngredient(index)">Edit</button>
+                <button class="btn" @click.stop="removeIngredient(index)">Remove</button>
               </span>
               <span v-else>
                 <input
@@ -235,8 +235,8 @@ const cancelEditInstruction = () => {
                   v-model="currIngredient"
                   @keydown.enter.prevent="confirmEditIngredient(index)"
                 />
-                <button @click.stop="confirmEditIngredient(index)">Confirm</button>
-                <button @click.stop="cancelEditIngredient">Cancel</button>
+                <button class="btn" @click.stop="confirmEditIngredient(index)">Confirm</button>
+                <button class="btn" @click.stop="cancelEditIngredient">Cancel</button>
               </span>
             </li>
           </ul>
@@ -255,8 +255,8 @@ const cancelEditInstruction = () => {
             <li v-for="(instruction, index) in allInstructions" :key="index">
               <span v-if="editingInstructionIndex !== index">
                 {{ instruction }}
-                <button @click.stop="editInstruction(index)">Edit</button>
-                <button @click.stop="removeInstruction(index)">Remove</button>
+                <button class="btn" @click.stop="editInstruction(index)">Edit</button>
+                <button class="btn" @click.stop="removeInstruction(index)">Remove</button>
               </span>
               <span v-else>
                 <input
@@ -264,8 +264,8 @@ const cancelEditInstruction = () => {
                   v-model="currInstruction"
                   @keydown.enter.prevent="confirmEditInstruction(index)"
                 />
-                <button @click.stop="confirmEditInstruction(index)">Confirm</button>
-                <button @click.stop="cancelEditInstruction">Cancel</button>
+                <button class="btn" @click.stop="confirmEditInstruction(index)">Confirm</button>
+                <button class="btn" @click.stop="cancelEditInstruction">Cancel</button>
               </span>
             </li>
           </ol>
@@ -315,6 +315,8 @@ button {
   background-color: #acbaa1;
   color: white;
   border-radius: 10px;
+  padding:3px;
+  margin: 2px;
 }
 .macros {
   border: solid 1px #dee2e6;

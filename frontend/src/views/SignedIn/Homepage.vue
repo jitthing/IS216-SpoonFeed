@@ -185,7 +185,7 @@ const displayFoodTrivia = () => {
             />
           </div>
         </div>
-        <h4 class="mt-2" v-else><i>No saved recipes... Please start using our app.</i></h4>
+        <h4 class="mt-2 inline-margin" v-else><i>No saved recipes... Please start using our app.</i></h4>
         <div class="h2 custom-margins">Recommended for you</div>
         <div class="scroll-container" v-if="similarRecipes.length > 0">
           <div class="scroll-menu inline-margin">
@@ -200,7 +200,7 @@ const displayFoodTrivia = () => {
             />
           </div>
         </div>
-        <h4 class="mt-2" v-else><i>No recommended recipes... Because you never save any!</i></h4>
+        <h4 class="mt-2 inline-margin" v-else><i>No recommended recipes... Because you never save any!</i></h4>
         <div class="h2 custom-margins">Trending Community Recipes</div>
         <div class="scroll-container" v-if="trendingRecipes">
           <div class="scroll-menu inline-margin">
@@ -287,7 +287,7 @@ const displayFoodTrivia = () => {
 
 .custom-margins {
   margin-top: 50px;
-  margin-inline: 20px;
+  margin-inline: 10px;
 }
 
 .inline-margin {

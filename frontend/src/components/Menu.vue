@@ -42,7 +42,7 @@ defineEmits(['openCreateRecipe'])
                 :class="{ active: $route.path === '/online-recipes' }"
                 to="/online-recipes"
               >
-                Online Recipes
+                Official Recipes
               </RouterLink>
             </li>
             <li>

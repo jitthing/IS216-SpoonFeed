@@ -294,15 +294,15 @@ const fetchMore = () => {
 }
 .searchbar {
   border-radius: 10px;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  margin-top: 1.5vh;
   padding-left: 20px;
+  height: 3.5vh;
 }
 .top {
-  background-color: lightgrey;
+  background-color: #acbaa1;
   width: 100%;
   align-items: center;
-  height: 5vh;
+  height: 7vh;
   padding-left: 10px;
 }
 .bottom {
@@ -350,9 +350,9 @@ button {
 }
 
 .toggle-icon {
-  color: #acbaa1;
-  width: 24px;
-  height: 24px;
+  color: white;
+  width: 26px;
+  height: 26px;
 }
 
 .sidebar-container {
