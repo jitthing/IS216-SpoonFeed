@@ -200,6 +200,12 @@ const emit = defineEmits(['closeModal'])
                 <li v-for="instruction in recipeDetails.instructions">{{ instruction }}</li>
               </ol>
             </div>
+            <div class="section" v-if="recipeDetails.macros">
+              <h3>Nutrition</h3>
+              <ul>
+                <li v-for="(macro, key) in recipeDetails.macros">{{ key }}: {{ macro }}</li>
+              </ul>
+            </div>
           </div>
 
           <!-- Comments Section -->
