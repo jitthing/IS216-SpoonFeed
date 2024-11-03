@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import axios, { all } from 'axios'
 import { toast } from 'vue3-toastify'
 
@@ -26,9 +26,26 @@ const macros = ref('')
 const editingIngredientIndex = ref(null) // Track which ingredient is being edited
 const editingInstructionIndex = ref(null) // Track which instruction is being edited
 
+const modalRef = ref(null)
+
 onMounted(() => {
+  // console.log("open")
   listMacros()
+  setTimeout(() => {
+    document.addEventListener('click', handleClickOutside);
+  }, 0);
 })
+
+onUnmounted(() => {
+  // console.log("close")
+  document.removeEventListener('click', handleClickOutside)
+})
+
+const handleClickOutside = (event) => {
+  if (modalRef.value && !modalRef.value.contains(event.target)) {
+    emit('closeModal')
+  }
+}
 
 // Functions
 const submitRecipe = async () => {
@@ -191,8 +208,8 @@ const cancelEditInstruction = () => {
 
 <template>
   <div class="modal-container">
-    <div class="modal-body container">
-      <h1 @click="$emit('closeModal')">Create Recipe (Click on me to close the form)</h1>
+    <div class="modal-body container" ref="modalRef">
+      <h1>Create Recipe</h1>
       <div>
         <div class="mb-3">
           <label for="recipeName" class="form-label">Recipe Name</label>
