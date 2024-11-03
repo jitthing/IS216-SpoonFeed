@@ -48,7 +48,8 @@ const fetchData = async () => {
     const recipeInfoAPI = `https://api.spoonacular.com/recipes/${recipe.value.id}/information`
     const response = await axios.get(recipeInfoAPI, {
       params: {
-        apiKey: spoonacularApiKey
+        apiKey: spoonacularApiKey,
+        includeNutrition: true
       }
     })
 
@@ -56,6 +57,13 @@ const fetchData = async () => {
     recipeInfo.value.instructions = response.data.analyzedInstructions[0]?.steps || [
       { step: response.data.instructions }
     ]
+    recipeInfo.value.macros = {}
+    for (const macro of response.data.nutrition.nutrients) {
+      if (['Calories', 'Protein', 'Fat', 'Carbohydrates'].includes(macro.name)) {
+        recipeInfo.value.macros[macro.name] = macro.amount
+      }
+    }
+    console.log(recipeInfo.value.macros)
     isLoaded.value = true
   } catch (error) {
     console.error('Error fetching recipe details:', error)
@@ -173,6 +181,12 @@ const addMealPlanned = async () => {
                 {{ instruction.step || instruction }}
               </li>
             </ol>
+          </div>
+          <div class="section" v-if="recipeInfo.macros">
+            <h3>Nutrition</h3>
+            <ul>
+              <li v-for="(amount, name) in recipeInfo.macros">{{ name }}: {{ amount }}</li>
+            </ul>
           </div>
         </div>
       </div>
