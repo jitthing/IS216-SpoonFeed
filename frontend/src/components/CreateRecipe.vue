@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios, { all } from 'axios'
 import { toast } from 'vue3-toastify'
 
@@ -25,6 +25,10 @@ const allInstructions = ref([])
 const macros = ref('')
 const editingIngredientIndex = ref(null) // Track which ingredient is being edited
 const editingInstructionIndex = ref(null) // Track which instruction is being edited
+
+onMounted(() => {
+  listMacros()
+})
 
 // Functions
 const submitRecipe = async () => {
@@ -88,21 +92,21 @@ const listMacros = () => {
     .then((response) => {
       const data = response.data.items
       var macroCount = {} //calories, total fats, total saturated fats, total protein, total sodium, total carbs, total carbs
-      macroCount.calories = 0
-      macroCount.fat_total_g = 0
-      macroCount.protein_g = 0
-      macroCount.sodium_mg = 0
-      macroCount.carbohydrates_total_g = 0
+      macroCount.Calories = 0
+      macroCount.Fats = 0
+      macroCount.Protein = 0
+      macroCount.Sodium = 0
+      macroCount.Carbohydrates = 0
 
       for (const item of data) {
         //supposed to iterate through all ingredients and not response data
-        ;(macroCount.calories += item.calories),
-          (macroCount.fat_total_g += item.fat_total_g),
-          (macroCount.protein_g += item.protein_g),
-          (macroCount.sodium_mg += item.sodium_mg),
-          (macroCount.carbohydrates_total_g += item.carbohydrates_total_g)
+        ;(macroCount.Calories += item.calories),
+          (macroCount.Fats += item.fat_total_g),
+          (macroCount.Protein += item.protein_g),
+          (macroCount.Sodium += item.sodium_mg),
+          (macroCount.Carbohydrates += item.carbohydrates_total_g)
       }
-      console.log(macroCount)
+      // console.log(macroCount)
       macros.value = macroCount
     })
     .catch((error) => {
@@ -256,8 +260,13 @@ const cancelEditInstruction = () => {
             @keydown.enter="addInstruction"
           />
         </div>
-        <div v-if="macros !== null">
-          <h4 v-for="(key, macro) in macros">{{ macro }}: {{ key }}</h4>
+        <div class="mb-3">Macronutrient information</div>
+        <div class="macros">
+          <span v-for="(key, macro) in macros">{{ macro }}: {{ key }} 
+            <span v-if="macro == 'Calories'">kcal</span> 
+            <span v-else-if="macro == 'Sodium'">mg</span>
+            <span v-else>g</span> <br>
+          </span>
         </div>
         <button class="btn" @click="submitRecipe">Submit</button>
       </div>
@@ -288,5 +297,11 @@ button {
   background-color: #523e2c;
   color: white;
   border-radius: 10px;
+}
+.macros {
+  border: solid 1px #dee2e6;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 5px;
 }
 </style>
