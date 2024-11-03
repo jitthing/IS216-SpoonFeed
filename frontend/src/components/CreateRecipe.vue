@@ -175,6 +175,7 @@ const confirmEditIngredient = (index) => {
     allIngredients.value.splice(index, 1, currIngredient.value.trim())
     currIngredient.value = ''
     editingIngredientIndex.value = null
+    listMacros()
   } else {
     alert('Please enter a valid ingredient')
   }
@@ -225,8 +226,8 @@ const cancelEditInstruction = () => {
             <li v-for="(ingredient, index) in allIngredients" :key="index">
               <span v-if="editingIngredientIndex !== index">
                 {{ ingredient }}
-                <button @click="editIngredient(index)">Edit</button>
-                <button @click="removeIngredient(index)">Remove</button>
+                <button @click.stop="editIngredient(index)">Edit</button>
+                <button @click.stop="removeIngredient(index)">Remove</button>
               </span>
               <span v-else>
                 <input
@@ -234,8 +235,8 @@ const cancelEditInstruction = () => {
                   v-model="currIngredient"
                   @keydown.enter.prevent="confirmEditIngredient(index)"
                 />
-                <button @click="confirmEditIngredient(index)">Confirm</button>
-                <button @click="cancelEditIngredient">Cancel</button>
+                <button @click.stop="confirmEditIngredient(index)">Confirm</button>
+                <button @click.stop="cancelEditIngredient">Cancel</button>
               </span>
             </li>
           </ul>
@@ -254,8 +255,8 @@ const cancelEditInstruction = () => {
             <li v-for="(instruction, index) in allInstructions" :key="index">
               <span v-if="editingInstructionIndex !== index">
                 {{ instruction }}
-                <button @click="editInstruction(index)">Edit</button>
-                <button @click="removeInstruction(index)">Remove</button>
+                <button @click.stop="editInstruction(index)">Edit</button>
+                <button @click.stop="removeInstruction(index)">Remove</button>
               </span>
               <span v-else>
                 <input
@@ -263,8 +264,8 @@ const cancelEditInstruction = () => {
                   v-model="currInstruction"
                   @keydown.enter.prevent="confirmEditInstruction(index)"
                 />
-                <button @click="confirmEditInstruction(index)">Confirm</button>
-                <button @click="cancelEditInstruction">Cancel</button>
+                <button @click.stop="confirmEditInstruction(index)">Confirm</button>
+                <button @click.stop="cancelEditInstruction">Cancel</button>
               </span>
             </li>
           </ol>
@@ -285,7 +286,7 @@ const cancelEditInstruction = () => {
             <span v-else>g</span> <br>
           </span>
         </div>
-        <button class="btn" @click="submitRecipe">Submit</button>
+        <button class="btn" @click.stop="submitRecipe">Submit</button>
       </div>
     </div>
   </div>
