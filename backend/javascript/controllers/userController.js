@@ -12,7 +12,20 @@ async function checkUser(req, res) {
       return res.status(200).json({ message: "User found", userData });
     } else {
       // insert user
-      await userRef.set({ id: userId, name: firstName });
+      const freshWeeklyPlan = {
+        Monday: { breakfast: [], lunch: [], dinner: [] },
+        Tuesday: { breakfast: [], lunch: [], dinner: [] },
+        Wednesday: { breakfast: [], lunch: [], dinner: [] },
+        Thursday: { breakfast: [], lunch: [], dinner: [] },
+        Friday: { breakfast: [], lunch: [], dinner: [] },
+        Saturday: { breakfast: [], lunch: [], dinner: [] },
+        Sunday: { breakfast: [], lunch: [], dinner: [] },
+      };
+      await userRef.set({
+        id: userId,
+        name: firstName,
+        WeeklyPlan: freshWeeklyPlan,
+      });
       return res.status(201).json({ message: "User created", userId });
     }
   } catch (error) {
@@ -132,10 +145,73 @@ async function getCommunitySaved(req, res) {
   }
 }
 
+async function getMealsPlanned(req, res) {
+  const userId = req.body.userId;
+  const userRef = firebase.db.ref(`users/${userId}`);
+  const snapshot = await userRef.once("value");
+  const userData = snapshot.val();
+
+  if (!userData) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json({
+    message: "Succesfully fetched Meals planned",
+    mealsPlanned: userData.MealsPlanned ?? [],
+  });
+}
+
+async function getWeeklyPlan(req, res) {
+  const { userId } = req.body;
+  const userRef = firebase.db.ref(`users/${userId}`);
+  const snapshot = await userRef.once("value");
+  const userData = snapshot.val();
+  if (userData) {
+    if (userData.WeeklyPlan) {
+      return res.status(200).json({
+        message: "Weekly plan found",
+        weeklyPlan: userData.WeeklyPlan,
+      });
+    } else {
+      const freshWeeklyPlan = {
+        Monday: { breakfast: [], lunch: [], dinner: [] },
+        Tuesday: { breakfast: [], lunch: [], dinner: [] },
+        Wednesday: { breakfast: [], lunch: [], dinner: [] },
+        Thursday: { breakfast: [], lunch: [], dinner: [] },
+        Friday: { breakfast: [], lunch: [], dinner: [] },
+        Saturday: { breakfast: [], lunch: [], dinner: [] },
+        Sunday: { breakfast: [], lunch: [], dinner: [] },
+      };
+      await userRef.update({ WeeklyPlan: freshWeeklyPlan });
+      return res.status(200).json({
+        message: "Weekly plan created",
+        weeklyPlan: freshWeeklyPlan,
+      });
+    }
+  } else {
+    return res.status(404).json({ message: "User not found" });
+  }
+}
+
+async function updateWeeklyPlan(req, res) {
+  try {
+    const { userId, weeklyPlan } = req.body;
+    const userRef = firebase.db.ref(`users/${userId}`);
+    await userRef.update({ WeeklyPlan: weeklyPlan });
+
+    return res.status(200).json({ message: "Weekly plan updated" });
+  } catch (error) {
+    console.error("Error updating weekly plan:", error);
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+}
 module.exports = {
   checkUser,
   updateCommunitySaved,
   updateApiSaved,
   getCommunitySaved,
   addMealsPlanned,
+  getMealsPlanned,
+  getWeeklyPlan,
+  updateWeeklyPlan,
 };

@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import CreateRecipe from './CreateRecipe.vue'
-import { ref } from 'vue'
+import { UserButton } from 'vue-clerk'
 
 defineProps({
   isMenuOpen: {
@@ -58,6 +57,15 @@ defineEmits(['openCreateRecipe'])
             <li>
               <RouterLink
                 class="nav-link nav-item"
+                :class="{ active: $route.path === '/meal-planner' }"
+                to="/meal-planner"
+              >
+                Meal Planner
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink
+                class="nav-link nav-item"
                 :class="{ active: $route.path === '/profile' }"
                 to="/profile"
               >
@@ -67,11 +75,26 @@ defineEmits(['openCreateRecipe'])
           </ul>
         </section>
       </div>
+      <div class="profile">
+        <UserButton />
+        <router-link to="/profile" class="profile-link">My Profile</router-link>
+      </div>
     </nav>
   </Transition>
 </template>
 
 <style scoped>
+.profile {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+.profile-link {
+  margin-left: 10px;
+  margin-right: 10px;
+  text-decoration: none;
+  color: #523e2c;
+}
 .sidebar {
   background-color: white;
   border-radius: 10px;

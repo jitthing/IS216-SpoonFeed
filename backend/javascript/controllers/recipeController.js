@@ -81,6 +81,18 @@ async function getRecipesByUser(req, res) {
   return res.status(404).json({ message: "No user recipes found" });
 }
 
+async function getRecipeById(req, res) {
+  const recipeId = req.body.recipeId;
+  const db = firebase.db;
+  const recipeRef = db.ref(`recipes/${recipeId}`);
+  const snapshot = await recipeRef.once("value");
+  const recipe = snapshot.val();
+  if (recipe) {
+    return res.status(200).json({ message: "Recipe found", recipe });
+  }
+  return res.status(404).json({ message: "No recipe found" });
+}
+
 async function uploadRecipe(req, res) {
   const recipeData = JSON.parse(req.body.recipeData);
   const file = req.file;
@@ -199,6 +211,7 @@ module.exports = {
   getRecipes,
   getRecipesByName,
   getRecipesByUser,
+  getRecipeById,
   updateRecipe,
   getHottestRecipes,
   deleteRecipe,
