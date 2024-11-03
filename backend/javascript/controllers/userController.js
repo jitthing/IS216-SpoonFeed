@@ -106,6 +106,26 @@ async function addMealsPlanned(req, res) {
   }
 }
 
+async function deleteMealsPlanned(req, res) {
+  const { userId, recipeId, type } = req.body;
+  const userRef = firebase.db.ref(`users/${userId}`);
+  const snapshot = await userRef.once("value");
+  const userData = snapshot.val();
+  if (userData) {
+    const mealsPlanned = userData.MealsPlanned || [];
+    mealsPlanned.splice(
+      mealsPlanned.findIndex(
+        (meal) => meal.recipeId === recipeId && meal.type === type
+      ),
+      1
+    );
+    await userRef.update({ MealsPlanned: mealsPlanned });
+    return res.status(200).json({ message: "Meals planned updated" });
+  } else {
+    return res.status(404).json({ message: "User not found" });
+  }
+}
+
 async function getCommunitySaved(req, res) {
   const { recipeIds } = req.body;
   const db = firebase.db;
@@ -211,6 +231,7 @@ module.exports = {
   updateApiSaved,
   getCommunitySaved,
   addMealsPlanned,
+  deleteMealsPlanned,
   getMealsPlanned,
   getWeeklyPlan,
   updateWeeklyPlan,

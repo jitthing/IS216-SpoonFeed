@@ -34,11 +34,10 @@ const fetchMeals = async () => {
               //   console.log(response.data)
               availableMeals.value.push({
                 name: response.data.recipe.name,
-                //calories: response.data.recipe.macros.calories ?? 0,
-                calories: 0,
+                calories: response.data.recipe.macros.Calories,
                 ingredients: response.data.recipe.ingredients,
                 id: meal.recipeId,
-                prepTime: '0 min'
+                prepTime: response.data.recipe.prepTime + ' min'
               })
             })
             .catch((error) => {

@@ -239,6 +239,13 @@ const emit = defineEmits(['closeModal'])
                 <li v-for="(macro, key) in recipeDetails.macros">{{ key }}: {{ macro }}</li>
               </ul>
             </div>
+
+            <div class="section" v-if="recipeDetails.prepTime">
+              <span
+                ><h3>Prep Time:</h3>
+                <p>{{ recipeDetails.prepTime }} mins</p></span
+              >
+            </div>
           </div>
 
           <!-- Comments Section -->

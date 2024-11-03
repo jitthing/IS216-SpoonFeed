@@ -23,6 +23,7 @@ const recipeImage = ref(null)
 const currInstruction = ref('')
 const allInstructions = ref([])
 const macros = ref('')
+const prepTime = ref('')
 const editingIngredientIndex = ref(null) // Track which ingredient is being edited
 const editingInstructionIndex = ref(null) // Track which instruction is being edited
 
@@ -32,8 +33,8 @@ onMounted(() => {
   // console.log("open")
   listMacros()
   setTimeout(() => {
-    document.addEventListener('click', handleClickOutside);
-  }, 0);
+    document.addEventListener('click', handleClickOutside)
+  }, 0)
 })
 
 onUnmounted(() => {
@@ -59,6 +60,7 @@ const submitRecipe = async () => {
     recipeIngredients: allIngredients.value,
     recipeInstructions: allInstructions.value,
     numSaves: 0,
+    prepTime: prepTime.value,
     timestamp: timestamp,
     macros: macros.value,
     type: 'community'
@@ -278,12 +280,17 @@ const cancelEditInstruction = () => {
             @keydown.enter="addInstruction"
           />
         </div>
+        <div class="mb-3">
+          <label for="recipePrepTime" class="form-label">Recipe Prep Time (mins)</label>
+          <input type="number" class="form-control" id="recipePrepTime" v-model="prepTime" />
+        </div>
         <div class="mb-3">Macronutrient information</div>
         <div class="macros">
-          <span v-for="(key, macro) in macros">{{ macro }}: {{ key }} 
-            <span v-if="macro == 'Calories'">kcal</span> 
+          <span v-for="(key, macro) in macros"
+            >{{ macro }}: {{ key }}
+            <span v-if="macro == 'Calories'">kcal</span>
             <span v-else-if="macro == 'Sodium'">mg</span>
-            <span v-else>g</span> <br>
+            <span v-else>g</span> <br />
           </span>
         </div>
         <button class="btn" @click.stop="submitRecipe">Submit</button>

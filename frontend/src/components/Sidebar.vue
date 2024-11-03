@@ -57,6 +57,7 @@ const fetchData = async () => {
     recipeInfo.value.instructions = response.data.analyzedInstructions[0]?.steps || [
       { step: response.data.instructions }
     ]
+    recipeInfo.value.prepTime = response.data.readyInMinutes
     recipeInfo.value.macros = {}
     for (const macro of response.data.nutrition.nutrients) {
       if (['Calories', 'Protein', 'Fat', 'Carbohydrates'].includes(macro.name)) {
@@ -165,6 +166,12 @@ const addMealPlanned = async () => {
 
         <!-- Recipe Details -->
         <div class="recipe-details">
+          <div class="section">
+            <span
+              ><h3>Prep Time:</h3>
+              <p>{{ recipeInfo.prepTime }} mins</p></span
+            >
+          </div>
           <div class="section">
             <h3>Ingredients</h3>
             <ul class="ingredients-list">
