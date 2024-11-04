@@ -403,7 +403,7 @@ const findRecipes = async () => {
     </div>
 
     <!-- Calendar Filter -->
-    <div v-if="activeTab !== 'fridge'" class="calendar-section">
+    <div v-if="activeTab === 'created'" class="calendar-section">
       <button @click="showCalendar = !showCalendar" class="calendar-toggle">
         {{ showCalendar ? 'Hide Calendar' : 'Show Calendar' }}
       </button>
