@@ -15,6 +15,7 @@ const isSaved = ref(false)
 const comments = ref([])
 const newComment = ref('')
 const numSaves = ref(props.recipeDetails.numSaves || 0)
+const isEditing = ref(false)
 
 onMounted(() => {
   checkSaved()
@@ -140,6 +141,26 @@ const addMealPlanned = async () => {
   }
 }
 
+const saveChanges = async () => {
+  try {
+    const updatedRecipe = {
+      name: props.recipeDetails.name,
+      ingredients: props.recipeDetails.ingredients,
+      instructions: props.recipeDetails.instructions,
+    };
+    console.log('Updating recipe with data:', updatedRecipe);
+
+    await axios.put(`${BACKEND_URL}/update-recipe/${props.recipeDetails.id}`, updatedRecipe);
+    toast.success('Recipe updated successfully!', {
+      autoClose: 1000
+    });
+    isEditing.value = false;
+  } catch (error) {
+    console.error('Error updating recipe:', error);
+    toast.error('Failed to update recipe.');
+  }
+};
+
 const emit = defineEmits(['closeModal'])
 </script>
 
@@ -164,6 +185,9 @@ const emit = defineEmits(['closeModal'])
               >
                 Delete
               </button>
+              <button class="edit-btn" @click="isEditing ? saveChanges() : isEditing = true">
+                {{ isEditing ? 'Save' : 'Edit' }}
+              </button>
               <button class="close-button" @click="emit('closeModal')">×</button>
             </div>
           </div>
@@ -183,21 +207,30 @@ const emit = defineEmits(['closeModal'])
           </div>
 
           <!-- Recipe Title -->
-          <h1 class="recipe-title">{{ recipeDetails.name }}</h1>
+          <h1 class="recipe-title">
+            <input v-if="isEditing" v-model="recipeDetails.name" placeholder="Recipe Name" />
+            <span v-else>{{ recipeDetails.name }}</span>
+          </h1>
 
           <!-- Recipe Details -->
           <div class="recipe-details">
             <div class="section">
               <h3>Ingredients</h3>
               <ul class="ingredients-list">
-                <li v-for="ingredient in recipeDetails.ingredients">{{ ingredient }}</li>
+                <li v-for="(ingredient, index) in recipeDetails.ingredients" :key="index">
+                  <input v-if="isEditing" v-model="recipeDetails.ingredients[index]" />
+                  <span v-else>{{ ingredient }}</span>
+                </li>
               </ul>
             </div>
 
             <div class="section">
               <h3>Instructions</h3>
               <ol class="instructions-list">
-                <li v-for="instruction in recipeDetails.instructions">{{ instruction }}</li>
+                <li v-for="(instruction, index) in recipeDetails.instructions" :key="index">
+                  <input v-if="isEditing" v-model="recipeDetails.instructions[index]" />
+                  <span v-else>{{ instruction }}</span>
+                </li>
               </ol>
             </div>
             <div class="section" v-if="recipeDetails.macros">
@@ -463,5 +496,20 @@ const emit = defineEmits(['closeModal'])
 .modal-content-leave-to {
   transform: scale(0.95);
   opacity: 0;
+}
+
+.edit-btn {
+  background-color: #acbaa1;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.edit-btn:hover {
+  background-color: #517470; 
 }
 </style>
