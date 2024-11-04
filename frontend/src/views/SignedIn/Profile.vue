@@ -561,7 +561,7 @@ const findRecipes = async () => {
     <Sidebar
       v-if="openRecipe && selectedRecipe.api"
       :recipe-details="selectedRecipe.api"
-      :user-id="user.value?.id"
+      :user-id="userId"
       @close-side="closeModal"
       class="recipe-sidebar"
     />

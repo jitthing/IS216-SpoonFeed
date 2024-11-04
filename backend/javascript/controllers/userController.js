@@ -107,16 +107,14 @@ async function addMealsPlanned(req, res) {
 }
 
 async function deleteMealsPlanned(req, res) {
-  const { userId, recipeId, type } = req.body;
+  const { userId, recipeId } = req.body;
   const userRef = firebase.db.ref(`users/${userId}`);
   const snapshot = await userRef.once("value");
   const userData = snapshot.val();
   if (userData) {
     const mealsPlanned = userData.MealsPlanned || [];
     mealsPlanned.splice(
-      mealsPlanned.findIndex(
-        (meal) => meal.recipeId === recipeId && meal.type === type
-      ),
+      mealsPlanned.findIndex((meal) => meal.recipeId === recipeId),
       1
     );
     await userRef.update({ MealsPlanned: mealsPlanned });
@@ -225,6 +223,75 @@ async function updateWeeklyPlan(req, res) {
     return res.status(500).json({ message: "Internal server error", error });
   }
 }
+
+async function updateMealLog(req, res) {
+  const { userId } = req.body;
+  const userRef = firebase.db.ref(`users/${userId}`);
+  const snapshot = await userRef.once("value");
+  const userData = snapshot.val();
+  const mealLog = userData.MealLog || [];
+  if (userData) {
+    const pastWeekMeals = userData.WeeklyPlan;
+    if (pastWeekMeals) {
+      for (const day in pastWeekMeals) {
+        const meals = pastWeekMeals[day];
+        for (const mealType in meals) {
+          for (const meal of meals[mealType]) {
+            // console.log("im here");
+            const targetDate = getDateOfWeekdayFromTimestamp(
+              meal.dateLogged,
+              day
+            );
+            mealLog.push({
+              ...meal,
+              dateLogged: targetDate.toISOString().split("T")[0],
+            });
+          }
+        }
+      }
+    }
+    await userRef.update({ MealLog: mealLog });
+    await userRef.update({ WeeklyPlan: {} });
+    return res.status(200).json({ message: "Meal log updated" });
+  } else {
+    return res.status(404).json({ message: "User not found" });
+  }
+}
+
+function getDateOfWeekdayFromTimestamp(plannedTimestamp, targetDay) {
+  // Days of the week mapping (0 = Sunday, 6 = Saturday)
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  // Validate the target day
+  if (!daysOfWeek.includes(targetDay)) {
+    throw new Error(
+      "Invalid day provided. Please use a day of the week, e.g., 'Monday'."
+    );
+  }
+
+  // Get the day indexes
+  const targetDayIndex = daysOfWeek.indexOf(targetDay);
+  const planningDate = new Date(plannedTimestamp); // Date of the planning timestamp
+  const planningDayIndex = planningDate.getDay(); // Day of the week for the planning date
+
+  // Calculate the difference in days to the target day (can be positive or negative)
+  const daysUntilTarget = (targetDayIndex - planningDayIndex + 7) % 7;
+  const targetDate = new Date(planningDate); // Clone the planning date
+
+  // Set the date to the target day by adding the difference
+  targetDate.setDate(planningDate.getDate() + daysUntilTarget);
+
+  return targetDate;
+}
+
 module.exports = {
   checkUser,
   updateCommunitySaved,
@@ -235,4 +302,5 @@ module.exports = {
   getMealsPlanned,
   getWeeklyPlan,
   updateWeeklyPlan,
+  updateMealLog,
 };

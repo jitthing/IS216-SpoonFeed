@@ -315,14 +315,17 @@ const cancelEditInstruction = () => {
 .modal-body {
   z-index: 20;
   background-color: #fff;
+  margin: 0 2vh;
   border-radius: 25px;
   padding: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 button {
   background-color: #acbaa1;
   color: white;
   border-radius: 10px;
-  padding:3px;
+  padding: 3px;
   margin: 2px;
 }
 .macros {

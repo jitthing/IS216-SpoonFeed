@@ -4,6 +4,7 @@ import draggable from 'vuedraggable'
 import axios from 'axios'
 import { watchEffect } from 'vue'
 import { useUser } from 'vue-clerk'
+import { toast } from 'vue3-toastify'
 
 const { user } = useUser()
 const userId = user.value.id
@@ -14,6 +15,7 @@ const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 const availableMeals = ref([])
 
 const fetchMeals = async () => {
+  availableMeals.value = []
   axios
     .post(`${BACKEND_URL}/get-meals-planned`, {
       userId: userId
@@ -37,6 +39,7 @@ const fetchMeals = async () => {
                 calories: response.data.recipe.macros.Calories,
                 ingredients: response.data.recipe.ingredients,
                 id: meal.recipeId,
+                type: 'community',
                 prepTime: response.data.recipe.prepTime + ' min'
               })
             })
@@ -60,10 +63,12 @@ const fetchMeals = async () => {
             const apiMeals = response.data
             for (const meal of apiMeals) {
               availableMeals.value.push({
+                id: meal.id,
                 name: meal.title,
                 prepTime: meal.readyInMinutes + ' min',
                 calories: meal.nutrition.nutrients[0].amount,
-                ingredients: meal.extendedIngredients.map((ingredient) => ingredient.name)
+                ingredients: meal.extendedIngredients.map((ingredient) => ingredient.name),
+                type: 'api'
               })
             }
           })
@@ -143,6 +148,16 @@ watchEffect(() => {
   }
 })
 
+const logMealsAndResetPlan = async () => {
+  axios
+    .post(`${BACKEND_URL}/update-meal-log`, {
+      userId: userId
+    })
+    .then((response) => {
+      console.log(response.data)
+    })
+}
+
 const shoppingList = computed(() => {
   const ingredients = new Set()
   Object.values(weeklyPlan.value).forEach((day) => {
@@ -156,25 +171,10 @@ const shoppingList = computed(() => {
 })
 
 // Update clone function to include new properties
-const cloneMeal = (meal, day) => {
-  const dayMap = {
-    Monday: 1,
-    Tuesday: 2,
-    Wednesday: 3,
-    Thursday: 4,
-    Friday: 5,
-    Saturday: 6,
-    Sunday: 7
-  }
-
-  const today = new Date()
-  const dayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc
-  const diff = dayMap[day] - (dayOfWeek === 0 ? 7 : dayOfWeek)
-  const targetDate = new Date(today.setDate(today.getDate() + diff))
-
+const cloneMeal = (meal) => {
   return {
     ...meal,
-    dateEaten: targetDate.getTime()
+    dateLogged: Date.now()
   }
 }
 
@@ -183,6 +183,20 @@ const removeMeal = (day, mealType, mealId) => {
   weeklyPlan.value[day][mealType] = weeklyPlan.value[day][mealType].filter(
     (meal) => meal.id !== mealId
   )
+}
+
+const removeMealPlanned = async (mealId) => {
+  axios
+    .post(`${BACKEND_URL}/delete-meals-planned`, {
+      userId: userId,
+      recipeId: mealId
+    })
+    .then((response) => {
+      toast.success('Meal removed from planner', {
+        autoClose: 1000
+      })
+      fetchMeals()
+    })
 }
 </script>
 
@@ -242,7 +256,7 @@ const removeMeal = (day, mealType, mealId) => {
 
     <!-- Available Meals Section -->
     <div class="available-meals">
-      <h2>Available Meals</h2>
+      <h2>Meals Planned</h2>
       <draggable
         :list="availableMeals"
         :clone="cloneMeal"
@@ -253,6 +267,7 @@ const removeMeal = (day, mealType, mealId) => {
         <template #item="{ element }">
           <div class="meal-card">
             <h3>{{ element.name }}</h3>
+            <button class="remove-meal-button" @click="removeMealPlanned(element.id)">×</button>
             <p>Calories: {{ element.calories }}</p>
             <p>Prep Time: {{ element.prepTime }}</p>
           </div>
@@ -453,5 +468,17 @@ const removeMeal = (day, mealType, mealId) => {
 
 .planned-meal-card:hover .remove-button {
   opacity: 1;
+}
+
+.remove-meal-button {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
 }
 </style>

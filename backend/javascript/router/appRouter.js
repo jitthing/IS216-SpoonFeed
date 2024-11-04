@@ -13,6 +13,7 @@ const {
   getWeeklyPlan,
   updateWeeklyPlan,
   deleteMealsPlanned,
+  updateMealLog,
 } = require("../controllers/userController");
 const {
   uploadRecipe,
@@ -37,7 +38,7 @@ router.post("/get-meals-planned", getMealsPlanned);
 router.post("/get-community-saved", getCommunitySaved);
 router.post("/get-weekly-plan", getWeeklyPlan);
 router.post("/update-weekly-plan", updateWeeklyPlan);
-
+router.post("/update-meal-log", updateMealLog);
 // Recipe routes
 router.get("/get-recipes", getRecipes);
 router.get("/get-hottest-recipes", getHottestRecipes);
