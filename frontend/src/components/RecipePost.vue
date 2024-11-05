@@ -10,11 +10,14 @@ const props = defineProps({
 })
 
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
+const NINJA_API_KEY = import.meta.env.VITE_APP_API_NINJA_KEY
 
 const isSaved = ref(false)
 const comments = ref([])
 const newComment = ref('')
 const numSaves = ref(props.recipeDetails.numSaves || 0)
+
+// need to change to only if you are the author of the post
 const isEditing = ref(false)
 
 onMounted(() => {
@@ -143,23 +146,66 @@ const addMealPlanned = async () => {
 
 const saveChanges = async () => {
   try {
-    const updatedRecipe = {
-      name: props.recipeDetails.name,
-      ingredients: props.recipeDetails.ingredients,
-      instructions: props.recipeDetails.instructions,
-    };
-    console.log('Updating recipe with data:', updatedRecipe);
-
-    await axios.put(`${BACKEND_URL}/update-recipe/${props.recipeDetails.id}`, updatedRecipe);
-    toast.success('Recipe updated successfully!', {
-      autoClose: 1000
-    });
-    isEditing.value = false;
+    const toastId = toast.loading('Updating recipe...')
+    const macros = {
+      Calories: 0,
+      Fats: 0,
+      Protein: 0,
+      Sodium: 0,
+      Carbohydrates: 0
+    }
+    const ingredientList = props.recipeDetails.ingredients.join(', ')
+    axios
+      .get('https://api.calorieninjas.com/v1/nutrition?query=' + ingredientList, {
+        headers: {
+          'X-Api-Key': NINJA_API_KEY
+        }
+      })
+      .then((response) => {
+        const data = response.data.items
+        console.log(data)
+        for (const item of data) {
+          macros.Calories += item.calories
+          macros.Fats += item.fat_total_g
+          macros.Protein += item.protein_g
+          macros.Sodium += item.sodium_mg
+          macros.Carbohydrates += item.carbohydrates_total_g
+        }
+        const updatedRecipe = {
+          name: props.recipeDetails.name,
+          ingredients: props.recipeDetails.ingredients,
+          instructions: props.recipeDetails.instructions,
+          prepTime: props.recipeDetails.prepTime,
+          macros: macros
+        }
+        console.log('Updating recipe with data:', updatedRecipe)
+        axios
+          .post(`${BACKEND_URL}/edit-recipe`, {
+            recipeId: props.recipeDetails.id,
+            recipeData: updatedRecipe
+          })
+          .then((response) => {
+            console.log(response.data)
+            toast.update(toastId, {
+              render: 'Recipe updated successfully!',
+              type: 'success',
+              isLoading: false,
+              autoClose: 1000
+            })
+            isEditing.value = false
+            emit('closeModal')
+          })
+      })
   } catch (error) {
-    console.error('Error updating recipe:', error);
-    toast.error('Failed to update recipe.');
+    console.error('Error updating recipe:', error)
+    toast.update(toastId, {
+      render: 'Failed to update recipe.',
+      type: 'error',
+      isLoading: false,
+      autoClose: 1000
+    })
   }
-};
+}
 
 const emit = defineEmits(['closeModal'])
 </script>
@@ -185,7 +231,11 @@ const emit = defineEmits(['closeModal'])
               >
                 Delete
               </button>
-              <button class="edit-btn" @click="isEditing ? saveChanges() : isEditing = true">
+              <button
+                class="edit-btn"
+                @click="isEditing ? saveChanges() : (isEditing = true)"
+                v-if="recipeDetails.authorId === userId"
+              >
                 {{ isEditing ? 'Save' : 'Edit' }}
               </button>
               <button class="close-button" @click="emit('closeModal')">×</button>
@@ -243,7 +293,8 @@ const emit = defineEmits(['closeModal'])
             <div class="section" v-if="recipeDetails.prepTime">
               <span
                 ><h3>Prep Time:</h3>
-                <p>{{ recipeDetails.prepTime }} mins</p></span
+                <input v-if="isEditing" v-model="recipeDetails.prepTime" />
+                <p v-else>{{ recipeDetails.prepTime }} mins</p></span
               >
             </div>
           </div>
@@ -517,6 +568,6 @@ const emit = defineEmits(['closeModal'])
 }
 
 .edit-btn:hover {
-  background-color: #517470; 
+  background-color: #517470;
 }
 </style>

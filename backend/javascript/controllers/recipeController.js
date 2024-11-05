@@ -196,6 +196,20 @@ async function updateRecipe(req, res) {
   }
 }
 
+async function editRecipe(req, res) {
+  const { recipeId, recipeData } = req.body;
+  const db = firebase.db;
+  const recipeRef = db.ref(`recipes/${recipeId}`);
+  const recipe = await recipeRef.once("value");
+  const oldRecipe = recipe.val();
+  const updatedData = {
+    ...oldRecipe,
+    ...recipeData,
+  };
+  await recipeRef.update(updatedData);
+  return res.status(200).json({ message: "Recipe updated successfully" });
+}
+
 async function deleteRecipe(req, res) {
   try {
     const recipeId = req.body.recipeId;
@@ -215,6 +229,7 @@ module.exports = {
   getRecipesByUser,
   getRecipeById,
   updateRecipe,
+  editRecipe,
   getHottestRecipes,
   deleteRecipe,
 };

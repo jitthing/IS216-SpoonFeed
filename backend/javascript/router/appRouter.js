@@ -23,6 +23,7 @@ const {
   getRecipesByUser,
   getRecipeById,
   updateRecipe,
+  editRecipe,
   getHottestRecipes,
   deleteRecipe,
 } = require("../controllers/recipeController");
@@ -50,6 +51,7 @@ router.post("/upload-recipe", upload.single("recipeImage"), uploadRecipe);
 router.post("/update-recipe", updateRecipe);
 router.post("/delete-recipe", deleteRecipe);
 router.post("/get-recipe-by-id", getRecipeById);
+router.post("/edit-recipe", editRecipe);
 // configure api endpoints for each function (controller)
 
 module.exports = router;
