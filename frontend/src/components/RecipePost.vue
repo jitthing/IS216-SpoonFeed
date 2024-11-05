@@ -16,12 +16,17 @@ const isSaved = ref(false)
 const comments = ref([])
 const newComment = ref('')
 const numSaves = ref(props.recipeDetails.numSaves || 0)
+const editCommentIndex = ref(null)
+const editCommentText = ref('')
+
 
 // need to change to only if you are the author of the post
 const isEditing = ref(false)
 
 onMounted(() => {
-  checkSaved()
+  if (props.recipeDetails) {
+    comments.value = props.recipeDetails.comments || []
+  }
 })
 
 watchEffect(() => {
@@ -36,12 +41,40 @@ const toggleSave = () => {
   updateSaved()
 }
 
+
 const addComment = () => {
-  comments.value.push({
-    name: props.userName,
-    text: newComment.value
-  })
-  newComment.value = ''
+  if (newComment.value.trim()) {
+    comments.value.push({
+      userId: props.userId,
+      name: props.userName,
+      text: newComment.value.trim()
+    })
+    newComment.value = ''
+    updateRecipe()
+  }
+}
+
+const editComment = (index, text) => {
+  editCommentIndex.value = index
+  editCommentText.value = text
+}
+
+const saveCommentEdit = (index) => {
+  if (editCommentText.value.trim()) {
+    comments.value[index].text = editCommentText.value.trim()
+    editCommentIndex.value = null
+    editCommentText.value = ''
+    updateRecipe()
+  }
+}
+
+const cancelCommentEdit = () => {
+  editCommentIndex.value = null
+  editCommentText.value = ''
+}
+
+const deleteComment = (index) => {
+  comments.value.splice(index, 1)
   updateRecipe()
 }
 
@@ -64,16 +97,27 @@ const checkSaved = async () => {
   }
 }
 
+// const updateRecipe = async () => {
+//   try {
+//     axios
+//       .post(BACKEND_URL + '/update-recipe', {
+//         recipeId: props.recipeDetails.id,
+//         comments: comments.value
+//       })
+//       .then((response) => {
+//         console.log(response.data)
+//       })
+//   } catch (error) {
+//     console.error(error)
+//   }
+// }
+
 const updateRecipe = async () => {
   try {
-    axios
-      .post(BACKEND_URL + '/update-recipe', {
-        recipeId: props.recipeDetails.id,
-        comments: comments.value
-      })
-      .then((response) => {
-        console.log(response.data)
-      })
+    await axios.post(BACKEND_URL + '/update-recipe', {
+      recipeId: props.recipeDetails.id,
+      comments: comments.value
+    })
   } catch (error) {
     console.error(error)
   }
@@ -300,7 +344,7 @@ const emit = defineEmits(['closeModal'])
           </div>
 
           <!-- Comments Section -->
-          <div class="comments-section">
+          <!-- <div class="comments-section">
             <h3>Comments</h3>
             <ul class="comments-list">
               <li v-for="comment in comments" :key="comment.id" class="comment">
@@ -316,7 +360,44 @@ const emit = defineEmits(['closeModal'])
               />
               <button @click="addComment" class="post-comment-btn">Post</button>
             </div>
+          </div> -->
+
+          <div class="comments-section">
+            <h3>Comments</h3>
+            <ul class="comments-list">
+              <li v-for="(comment, index) in comments" :key="index" class="comment">
+                <span class="comment-author">{{ comment.name }}</span>
+
+                <!-- Edit Mode: Show input for editing comment text -->
+                <span v-if="editCommentIndex === index">
+                  <input v-model="editCommentText" @keyup.enter="saveCommentEdit(index)" />
+                  <button @click="saveCommentEdit(index)" class="saveCommentEdit-btn">Save</button>
+                  <button @click="cancelCommentEdit" class="cancelCommentEdit-btn">Cancel</button>
+                </span>
+                
+                <!-- View Mode: Show comment text and edit/delete buttons -->
+                <span v-else class="comment-text">{{ comment.text }}</span>
+                
+                <!-- Show edit and delete buttons if the comment belongs to the logged-in user -->
+                <div v-if="comment.userId === props.userId" class="comment-actions">
+                  <button @click="editComment(index, comment.text)" class="editComment-btn">Edit</button>
+                  <button @click="deleteComment(index)" class="deleteComment-btn">Delete</button>
+                </div>
+              </li>
+            </ul>
+
+            <div class="comment-input">
+              <input
+                v-model="newComment"
+                placeholder="Add a comment..."
+                @keyup.enter="addComment"
+              />
+              <button @click="addComment" class="post-comment-btn">Post</button>
+            </div>
           </div>
+
+
+
         </div>
       </Transition>
     </div>
@@ -529,7 +610,7 @@ const emit = defineEmits(['closeModal'])
 }
 
 .post-comment-btn:hover {
-  background-color: #acbaa1;
+  background-color: #517470;
 }
 
 /* Add transition animations */
@@ -570,4 +651,41 @@ const emit = defineEmits(['closeModal'])
 .edit-btn:hover {
   background-color: #517470;
 }
+
+.comment-actions {
+  display: inline;
+  margin-left: 8px;
+}
+
+.editComment-btn, .deleteComment-btn {
+  background-color: #acbaa1;
+  border-radius: 4px;
+  border: none;
+  padding: 4px 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.editComment-btn:hover, .deleteComment-btn:hover {
+  background-color: #517470;
+}
+
+.saveCommentEdit-btn, .cancelCommentEdit-btn {
+  background-color: white;
+  border-radius: 4px;
+  border: 2px solid #acbaa1;
+  padding: 4px 8px;
+  color: #acbaa1;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.saveCommentEdit-btn:hover, .cancelCommentEdit-btn:hover {
+  border: 2px solid #517470;
+  color: #517470;
+}
+
 </style>
