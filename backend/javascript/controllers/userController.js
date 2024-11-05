@@ -292,6 +292,28 @@ function getDateOfWeekdayFromTimestamp(plannedTimestamp, targetDay) {
   return targetDate;
 }
 
+async function getMealHistory(req, res) {
+  const { userId, date } = req.body;
+  const userRef = firebase.db.ref(`users/${userId}`);
+  const snapshot = await userRef.once("value");
+  const userData = snapshot.val();
+  if (!date) {
+    return res.status(200).json({
+      message: "Meal history fetched",
+      mealHistory: userData.MealLog ?? [],
+    });
+  } else {
+    const filteredDate = date.split("T")[0];
+    const filteredMealHistory = userData.MealLog.filter(
+      (meal) => meal.dateLogged === filteredDate
+    );
+    return res.status(200).json({
+      message: "Meal history fetched",
+      mealHistory: filteredMealHistory,
+    });
+  }
+}
+
 module.exports = {
   checkUser,
   updateCommunitySaved,
@@ -303,4 +325,5 @@ module.exports = {
   getWeeklyPlan,
   updateWeeklyPlan,
   updateMealLog,
+  getMealHistory,
 };

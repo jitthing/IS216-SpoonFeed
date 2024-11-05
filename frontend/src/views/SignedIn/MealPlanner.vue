@@ -5,14 +5,47 @@ import axios from 'axios'
 import { watchEffect } from 'vue'
 import { useUser } from 'vue-clerk'
 import { toast } from 'vue3-toastify'
+import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 const { user } = useUser()
 const userId = user.value.id
 const API_KEY = import.meta.env.VITE_APP_SPOONACULAR_KEY
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
-// Replace this with the actual meals planned from database
+const showMealHistory = ref(false)
+const mealHistory = ref([])
+
 const availableMeals = ref([])
+const selectedMeal = ref(null)
+
+const setMeal = (meal) => {
+  selectedMeal.value = meal
+}
+
+const fetchMealDetails = async (mealId, type) => {
+  if (type === 'community') {
+    axios
+      .get(`${BACKEND_URL}/get-recipe-by-id`, {
+        params: {
+          recipeId: mealId
+        }
+      })
+      .then((response) => {
+        selectedMeal.value = response.data.recipe
+      })
+  } else {
+    axios
+      .get(`https://api.spoonacular.com/recipes/${mealId}/information`, {
+        params: {
+          apiKey: API_KEY
+        }
+      })
+      .then((response) => {
+        selectedMeal.value = response.data
+      })
+  }
+}
 
 const fetchMeals = async () => {
   availableMeals.value = []
@@ -140,37 +173,19 @@ watch(
   { deep: true }
 )
 
-watchEffect(() => {
-  if (user.value) {
-    console.log(userId)
-    fetchMeals()
-    fetchScheduledMeals()
-  }
-})
-
 const logMealsAndResetPlan = async () => {
   axios
     .post(`${BACKEND_URL}/update-meal-log`, {
       userId: userId
     })
     .then((response) => {
-      console.log(response.data)
+      fetchScheduledMeals()
+      toast.success(`${response.data.message}`, {
+        autoClose: 1000
+      })
     })
 }
 
-const shoppingList = computed(() => {
-  const ingredients = new Set()
-  Object.values(weeklyPlan.value).forEach((day) => {
-    Object.values(day).forEach((mealType) => {
-      mealType.forEach((meal) => {
-        meal.ingredients.forEach((ingredient) => ingredients.add(ingredient))
-      })
-    })
-  })
-  return Array.from(ingredients)
-})
-
-// Update clone function to include new properties
 const cloneMeal = (meal) => {
   return {
     ...meal,
@@ -178,7 +193,6 @@ const cloneMeal = (meal) => {
   }
 }
 
-// Add remove meal function
 const removeMeal = (day, mealType, mealId) => {
   weeklyPlan.value[day][mealType] = weeklyPlan.value[day][mealType].filter(
     (meal) => meal.id !== mealId
@@ -198,11 +212,55 @@ const removeMealPlanned = async (mealId) => {
       fetchMeals()
     })
 }
+
+const selectedDate = ref(null)
+
+const fetchMealHistory = async () => {
+  axios
+    .post(`${BACKEND_URL}/get-meal-history`, {
+      userId: userId,
+      date: selectedDate.value
+    })
+    .then((response) => {
+      // Sort meals by date, newest first
+      mealHistory.value = response.data.mealHistory.sort(
+        (a, b) => new Date(b.dateLogged) - new Date(a.dateLogged)
+      )
+    })
+}
+
+watch(selectedDate, () => {
+  if (showMealHistory.value) {
+    fetchMealHistory()
+  }
+})
+
+const toggleMode = () => {
+  showMealHistory.value = !showMealHistory.value
+  if (showMealHistory.value) {
+    fetchMealHistory()
+  }
+}
+
+watchEffect(() => {
+  if (user.value) {
+    console.log(userId)
+    fetchMeals()
+    fetchScheduledMeals()
+    fetchMealHistory()
+  }
+})
 </script>
 
 <template>
-  <div class="meal-planner">
-    <h1>Meal Planner</h1>
+  <div class="meal-planner" v-if="!showMealHistory">
+    <div class="header">
+      <h1>Meal Planner</h1>
+      <div class="header-buttons">
+        <button class="action-button" @click="logMealsAndResetPlan">Log Your Meals</button>
+        <button class="action-button" @click="toggleMode">Meal History</button>
+      </div>
+    </div>
 
     <div class="planner-container">
       <!-- Weekly Calendar Section -->
@@ -218,7 +276,6 @@ const removeMealPlanned = async (mealId) => {
                 item-key="id"
                 class="meal-drop-zone"
               >
-                <!-- To change to component -->
                 <template #item="{ element }">
                   <div class="planned-meal-card">
                     <div class="meal-header">
@@ -242,16 +299,6 @@ const removeMealPlanned = async (mealId) => {
           </div>
         </div>
       </div>
-
-      <!-- Shopping List Section -->
-      <div class="shopping-list">
-        <h2>Shopping List</h2>
-        <ul>
-          <li v-for="ingredient in shoppingList" :key="ingredient">
-            {{ ingredient }}
-          </li>
-        </ul>
-      </div>
     </div>
 
     <!-- Available Meals Section -->
@@ -266,13 +313,61 @@ const removeMealPlanned = async (mealId) => {
       >
         <template #item="{ element }">
           <div class="meal-card">
-            <h3>{{ element.name }}</h3>
-            <button class="remove-meal-button" @click="removeMealPlanned(element.id)">×</button>
+            <div class="meal-header">
+              <h3>{{ element.name }}</h3>
+              <button class="remove-meal-button mx-2 mb-1" @click="removeMealPlanned(element.id)">
+                ×
+              </button>
+            </div>
+
             <p>Calories: {{ element.calories }}</p>
             <p>Prep Time: {{ element.prepTime }}</p>
           </div>
         </template>
       </draggable>
+    </div>
+  </div>
+  <div class="meal-history" v-else>
+    <div class="header">
+      <h1>Meal History</h1>
+      <button class="action-button" @click="toggleMode">Back to Planner</button>
+    </div>
+
+    <div class="date-picker-container">
+      <VueDatePicker
+        v-model="selectedDate"
+        :enable-time-picker="false"
+        placeholder="Select date to filter meals"
+        :clearable="true"
+      />
+    </div>
+
+    <div class="meal-history-container">
+      <div v-if="mealHistory.length > 0" class="meal-history-grid">
+        <div v-for="meal in mealHistory" :key="meal.id" class="meal-history-card">
+          <div class="meal-history-content">
+            <h3>{{ meal.name }}</h3>
+            <div class="meal-history-details">
+              <span class="meal-calories">{{ meal.calories }} calories</span>
+            </div>
+            <div class="meal-date">
+              {{
+                new Date(meal.dateLogged).toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else class="no-meals-message">
+        <p>No meals logged{{ selectedDate ? ' for selected date' : '' }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -282,6 +377,40 @@ const removeMealPlanned = async (mealId) => {
   padding: 20px;
   height: 100vh;
   overflow: auto;
+}
+.meal-history {
+  padding: 20px;
+  height: 100vh;
+  overflow: auto;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-buttons {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-button {
+  background-color: #acbaa1;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: #517470;
 }
 
 .planner-container {
@@ -480,5 +609,73 @@ const removeMealPlanned = async (mealId) => {
   padding: 0 4px;
   line-height: 1;
   border-radius: 4px;
+}
+
+.date-picker-container {
+  max-width: 300px;
+  margin: 20px 0;
+}
+
+.meal-history-container {
+  padding: 20px 0;
+}
+
+.meal-history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.meal-history-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.meal-history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.meal-history-content {
+  padding: 16px;
+}
+
+.meal-history-content h3 {
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.meal-history-details {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.meal-type {
+  background: #acbaa1;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.meal-calories {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.meal-date {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.no-meals-message {
+  text-align: center;
+  color: #666;
+  padding: 40px;
+  background: #f5f5f5;
+  border-radius: 8px;
 }
 </style>
