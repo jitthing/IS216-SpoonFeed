@@ -19,7 +19,6 @@ const numSaves = ref(props.recipeDetails.numSaves || 0)
 const editCommentIndex = ref(null)
 const editCommentText = ref('')
 
-
 // need to change to only if you are the author of the post
 const isEditing = ref(false)
 
@@ -27,6 +26,7 @@ onMounted(() => {
   if (props.recipeDetails) {
     comments.value = props.recipeDetails.comments || []
   }
+  checkSaved()
 })
 
 watchEffect(() => {
@@ -40,7 +40,6 @@ const toggleSave = () => {
   numSaves.value = isSaved.value ? numSaves.value + 1 : numSaves.value - 1
   updateSaved()
 }
-
 
 const addComment = () => {
   if (newComment.value.trim()) {
@@ -330,7 +329,9 @@ const emit = defineEmits(['closeModal'])
             <div class="section" v-if="recipeDetails.macros">
               <h3>Nutrition</h3>
               <ul>
-                <li v-for="(macro, key) in recipeDetails.macros">{{ key }}: {{ macro }}</li>
+                <li v-for="(macro, key) in recipeDetails.macros">
+                  {{ key }}: {{ Number(macro).toFixed(2) }}
+                </li>
               </ul>
             </div>
 
@@ -374,13 +375,15 @@ const emit = defineEmits(['closeModal'])
                   <button @click="saveCommentEdit(index)" class="saveCommentEdit-btn">Save</button>
                   <button @click="cancelCommentEdit" class="cancelCommentEdit-btn">Cancel</button>
                 </span>
-                
+
                 <!-- View Mode: Show comment text and edit/delete buttons -->
                 <span v-else class="comment-text">{{ comment.text }}</span>
-                
+
                 <!-- Show edit and delete buttons if the comment belongs to the logged-in user -->
                 <div v-if="comment.userId === props.userId" class="comment-actions">
-                  <button @click="editComment(index, comment.text)" class="editComment-btn">Edit</button>
+                  <button @click="editComment(index, comment.text)" class="editComment-btn">
+                    Edit
+                  </button>
                   <button @click="deleteComment(index)" class="deleteComment-btn">Delete</button>
                 </div>
               </li>
@@ -395,9 +398,6 @@ const emit = defineEmits(['closeModal'])
               <button @click="addComment" class="post-comment-btn">Post</button>
             </div>
           </div>
-
-
-
         </div>
       </Transition>
     </div>
@@ -657,7 +657,8 @@ const emit = defineEmits(['closeModal'])
   margin-left: 8px;
 }
 
-.editComment-btn, .deleteComment-btn {
+.editComment-btn,
+.deleteComment-btn {
   background-color: #acbaa1;
   border-radius: 4px;
   border: none;
@@ -668,11 +669,13 @@ const emit = defineEmits(['closeModal'])
   margin-right: 4px;
 }
 
-.editComment-btn:hover, .deleteComment-btn:hover {
+.editComment-btn:hover,
+.deleteComment-btn:hover {
   background-color: #517470;
 }
 
-.saveCommentEdit-btn, .cancelCommentEdit-btn {
+.saveCommentEdit-btn,
+.cancelCommentEdit-btn {
   background-color: white;
   border-radius: 4px;
   border: 2px solid #acbaa1;
@@ -683,9 +686,9 @@ const emit = defineEmits(['closeModal'])
   margin-right: 4px;
 }
 
-.saveCommentEdit-btn:hover, .cancelCommentEdit-btn:hover {
+.saveCommentEdit-btn:hover,
+.cancelCommentEdit-btn:hover {
   border: 2px solid #517470;
   color: #517470;
 }
-
 </style>

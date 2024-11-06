@@ -54,15 +54,17 @@ const closeModal = () => {
 <template>
   <div class="content-wrapper">
     <div class="top">
-      <input
-        type="text"
-        class="searchbar"
-        v-model="search"
-        placeholder="Search for recipes here"
-        size="50"
-        height="20"
-        @keydown.enter="fetchData"
-      />
+      <div class="search-container">
+        <input
+          type="text"
+          class="searchbar"
+          v-model="search"
+          placeholder="Search for recipes here"
+          size="50"
+          height="20"
+          @keydown.enter="fetchData"
+        />
+      </div>
     </div>
     <div class="container-fluid row bottom">
       <div class="try">
@@ -100,6 +102,29 @@ const closeModal = () => {
 </template>
 
 <style scoped>
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px;
+}
+.searchbar {
+  width: 100%;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.searchbar:focus {
+  outline: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
 .try {
   height: 100%;
 }
@@ -109,17 +134,11 @@ const closeModal = () => {
   /* padding-inline: 10px; */
   /* border: 1px solid black; */
 }
-.searchbar {
-  border-radius: 10px;
-  margin-top: 1.5vh;
-  padding-left: 20px;
-  height: 3.5vh;
-}
 .top {
   background-color: #acbaa1;
   width: 100%;
   align-items: center;
-  height: 7vh;
+  height: 8vh;
   padding-left: 10px;
 }
 .bottom {

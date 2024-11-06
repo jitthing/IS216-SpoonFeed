@@ -55,12 +55,6 @@ npm i
 npm run devStart
 ```
 
-For Python:
-
-```
-python app.py
-```
-
 6. Open [http://localhost:5173](http://localhost:5173) or the url provided by your terminal to view it in your browser.
    The page will reload when you make changes.
    You may also see any lint errors in the console.

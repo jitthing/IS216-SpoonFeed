@@ -176,45 +176,47 @@ const fetchMore = () => {
 <template>
   <div class="content-wrapper" @click="searchResultsLoaded = false">
     <div class="top">
-      <input
-        type="text"
-        class="searchbar"
-        v-model="search"
-        placeholder="Search for recipes here"
-        size="50"
-        height="20"
-        @keydown.enter="fetchData"
-        @keydown="fetchSearch"
-        v-if="!searchByFilter"
-      />
-      <input
-        type="text"
-        class="searchbar"
-        v-model="search"
-        placeholder="Search by ingredients here"
-        size="50"
-        height="20"
-        @keydown.enter="addIngredient"
-        v-else
-      />
-      <div class="icon-wrapper" @click="toggleMode">
-        <oh-vue-icon
-          name="bi-arrow-repeat"
-          class="toggle-icon"
-          :title="searchByFilter ? 'Switch to recipe search' : 'Switch to ingredient search'"
+      <div class="search-container">
+        <input
+          type="text"
+          class="searchbar"
+          v-model="search"
+          placeholder="Search for recipes here"
+          size="50"
+          height="20"
+          @keydown.enter="fetchData"
+          @keydown="fetchSearch"
+          v-if="!searchByFilter"
         />
-      </div>
-      <ul v-if="ingredientSearch.length > 0" class="ingredient-list">
-        <li v-for="ingredient in ingredientSearch" :key="ingredient">
-          {{ ingredient }}
-        </li>
-      </ul>
-      <div v-if="searchResultsLoaded">
-        <ul class="search-results">
-          <li v-for="result in searchResults" :key="result.id" @click="setSearch(result.title)">
-            {{ result.title }}
+        <input
+          type="text"
+          class="searchbar"
+          v-model="search"
+          placeholder="Search by ingredients here"
+          size="50"
+          height="20"
+          @keydown.enter="addIngredient"
+          v-else
+        />
+        <div class="icon-wrapper" @click="toggleMode">
+          <oh-vue-icon
+            name="bi-arrow-repeat"
+            class="toggle-icon"
+            :title="searchByFilter ? 'Switch to recipe search' : 'Switch to ingredient search'"
+          />
+        </div>
+        <ul v-if="ingredientSearch.length > 0" class="ingredient-list">
+          <li v-for="ingredient in ingredientSearch" :key="ingredient">
+            {{ ingredient }}
           </li>
         </ul>
+        <div v-if="searchResultsLoaded" class="search-results-container">
+          <ul class="search-results">
+            <li v-for="result in searchResults" :key="result.id" @click="setSearch(result.title)">
+              {{ result.title }}
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
     <div class="container-fluid row bottom">
@@ -269,22 +271,31 @@ const fetchMore = () => {
 .try {
   height: 100%;
 }
+.search-results-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+  z-index: 1000;
+}
 .search-results {
   list-style-type: none;
   padding: 0;
-  z-index: 40;
-  position: relative;
-  height: 15vh;
-  width: fit-content;
+  margin: 0;
+  max-height: 300px;
   overflow-y: auto;
 }
 .search-results li {
-  background-color: white;
-  padding: 5px;
-  :hover {
-    background-color: lightgrey;
-    cursor: pointer;
-  }
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.search-results li:hover {
+  background-color: #f5f5f5;
 }
 .content-wrapper {
   background-color: white;
@@ -292,17 +303,34 @@ const fetchMore = () => {
   /* padding-inline: 10px; */
   /* border: 1px solid black; */
 }
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px;
+}
 .searchbar {
-  border-radius: 10px;
-  margin-top: 1.5vh;
-  padding-left: 20px;
-  height: 3.5vh;
+  width: 100%;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.searchbar:focus {
+  outline: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 .top {
   background-color: #acbaa1;
   width: 100%;
   align-items: center;
-  height: 7vh;
+  height: 8vh;
   padding-left: 10px;
 }
 .bottom {
