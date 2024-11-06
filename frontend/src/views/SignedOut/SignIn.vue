@@ -6,11 +6,7 @@ import { SignIn } from 'vue-clerk'
   <div class="outerbox">
     <div class="content-wrapper">
       <div class="signIn">
-        <SignIn
-          :routing="hash"
-          :afterSignInUrl="{ pathname: '/dashboard' }"
-          :signUpUrl="{ pathname: '/sign-up' }"
-        />
+        <SignIn afterSignInUrl="/dashboard" signUpUrl="/sign-up" />
       </div>
     </div>
   </div>
