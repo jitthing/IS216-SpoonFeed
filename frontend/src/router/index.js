@@ -54,32 +54,50 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  console.log('Navigation triggered to:', to.path)
+
   if (window.Clerk) {
     try {
       await window.Clerk.load()
-
-      const isSignedIn = window.Clerk.isSignedIn
+      const isSignedIn = await window.Clerk.isSignedIn
+      console.log('Auth state:', isSignedIn)
 
       const protectedRoutes = [
         'dashboard',
         'profile',
-        'mealplanner',
-        'onlinerecipe',
-        'communityreceipe'
+        'meal-planner',
+        'online-recipes',
+        'community-recipe'
       ]
 
-      if (protectedRoutes.includes(to.name) && !isSignedIn) {
-        next({ name: 'signin' })
-      } else if (['signin', 'signup'].includes(to.name) && isSignedIn) {
-        next({ name: 'dashboard' })
-      } else {
+      console.log('Route name:', to.name)
+      console.log('Is protected:', protectedRoutes.includes(to.name))
+
+      if (to.name === 'sso-callback') {
         next()
+        return
       }
+
+      // if (protectedRoutes.includes(to.name) && !isSignedIn) {
+      //   console.log('Redirecting to signin')
+      //   next({ name: 'signin' })
+      //   return
+      // }
+
+      if (['signin', 'signup'].includes(to.name) && isSignedIn) {
+        console.log('Redirecting to dashboard')
+        next({ name: 'dashboard' })
+        return
+      }
+
+      console.log('Proceeding with navigation')
+      next()
     } catch (error) {
       console.error('Clerk initialization error:', error)
       next()
     }
   } else {
+    console.log('Clerk not initialized, proceeding')
     next()
   }
 })
