@@ -53,4 +53,35 @@ const router = createRouter({
   ]
 })
 
+router.beforeEach(async (to, from, next) => {
+  if (window.Clerk) {
+    try {
+      await window.Clerk.load()
+
+      const isSignedIn = window.Clerk.isSignedIn
+
+      const protectedRoutes = [
+        'dashboard',
+        'profile',
+        'mealplanner',
+        'onlinerecipe',
+        'communityreceipe'
+      ]
+
+      if (protectedRoutes.includes(to.name) && !isSignedIn) {
+        next({ name: 'signin' })
+      } else if (['signin', 'signup'].includes(to.name) && isSignedIn) {
+        next({ name: 'dashboard' })
+      } else {
+        next()
+      }
+    } catch (error) {
+      console.error('Clerk initialization error:', error)
+      next()
+    }
+  } else {
+    next()
+  }
+})
+
 export default router
