@@ -164,6 +164,7 @@ const closeModal = () => {
   height: 60%;
   margin: 10px;
 }
+
 .load {
   width: 10%;
   display: block;
