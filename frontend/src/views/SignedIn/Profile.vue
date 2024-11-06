@@ -363,7 +363,7 @@ const findRecipes = async () => {
 <template>
   <div class="profile-container" v-if="isLoaded">
     <div class="profile-header">
-      <h2>My Profile</h2>
+      <h1>My Profile</h1>
       <div class="tab-container">
         <button
           :class="{ active: activeTab === 'created' }"
@@ -418,6 +418,8 @@ const findRecipes = async () => {
         </button>
       </div>
     </div>
+
+    <div class="line"></div>
 
     <!-- Content -->
     <div class="content">
@@ -578,12 +580,22 @@ const findRecipes = async () => {
 </template>
 
 <style scoped>
+
+h1 {
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-weight: bold;
+  color: #517470;
+  margin: 30px;
+}
+
+
 .profile-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   text-align: center;
   height: 100vh;
+  background-color: rgb(255, 254, 245);
 }
 
 .profile-header {
@@ -608,6 +620,10 @@ const findRecipes = async () => {
 
 .tab-container button.active {
   background-color: #517470;
+}
+
+.line {
+  border-bottom: 3px solid #517470;
 }
 
 .recipes-grid {
@@ -655,6 +671,9 @@ const findRecipes = async () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+hr {
+  border-bottom: solid #517470 3px;
+}
 .clear-filter {
   margin-top: 10px;
   padding: 6px 12px;

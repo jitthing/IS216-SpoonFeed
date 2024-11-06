@@ -298,7 +298,7 @@ const fetchMore = () => {
   background-color: #f5f5f5;
 }
 .content-wrapper {
-  background-color: white;
+  background-color: rgb(255, 254, 245);
   height: 100vh;
   /* padding-inline: 10px; */
   /* border: 1px solid black; */
@@ -339,7 +339,7 @@ const fetchMore = () => {
 .second {
   display: flex;
   margin-top: 10px;
-  height: 5vh;
+  height: 4vh;
   justify-content: end;
 }
 .recipecard {
@@ -354,6 +354,7 @@ const fetchMore = () => {
 .results {
   overflow: auto;
   height: 90%;
+  margin-top: 10px;
 }
 .load {
   width: 10%;

@@ -129,7 +129,7 @@ const closeModal = () => {
   height: 100%;
 }
 .content-wrapper {
-  background-color: white;
+  background-color: rgb(255, 254, 245);
   height: 100vh;
   /* padding-inline: 10px; */
   /* border: 1px solid black; */
@@ -147,7 +147,7 @@ const closeModal = () => {
 .second {
   display: flex;
   margin-top: 10px;
-  height: 5vh;
+  height: 4vh;
   justify-content: end;
 }
 .recipecard {
@@ -161,7 +161,8 @@ const closeModal = () => {
 }
 .results {
   overflow: auto;
-  height: 90%;
+  height: 60%;
+  margin: 10px;
 }
 .load {
   width: 10%;

@@ -314,7 +314,7 @@ watchEffect(() => {
         <template #item="{ element }">
           <div class="meal-card">
             <div class="meal-header">
-              <h3>{{ element.name }}</h3>
+              <h5>{{ element.name }}</h5>
               <button class="remove-meal-button mx-2 mb-1" @click="removeMealPlanned(element.id)">
                 ×
               </button>
@@ -377,16 +377,25 @@ watchEffect(() => {
   padding: 20px;
   height: 100vh;
   overflow: auto;
+  background-color: rgb(255, 254, 245);
 }
 .meal-history {
   padding: 20px;
   height: 100vh;
   overflow: auto;
 }
+
+h1 {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-weight: bold;
+  color: #517470;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-left: 20px;
 }
 .header-buttons {
   padding: 8px 16px;
@@ -454,7 +463,7 @@ watchEffect(() => {
 
 .shopping-list {
   width: 250px;
-  background: #f5f5f5;
+  background: rgb(255, 254, 245);
   padding: 15px;
   border-radius: 8px;
   position: sticky;

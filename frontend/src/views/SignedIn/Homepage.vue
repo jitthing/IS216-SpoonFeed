@@ -171,7 +171,7 @@ const displayFoodTrivia = () => {
           <span class="banner-text">Did you know? </span>
           <span class="banner-text"> {{ foodTrivia }} </span>
         </div>
-        <div class="h2 custom-margins">Saved</div>
+        <div class="h2 custom-margins">Saved Recipes</div>
         <div class="scroll-container" v-if="savedRecipesData.length > 0">
           <div class="scroll-menu inline-margin">
             <RecipeCard
@@ -237,7 +237,7 @@ const displayFoodTrivia = () => {
 
 <style scoped>
 .homepage {
-  background-color: white;
+  background-color: rgb(255, 254, 245);
   height: 100vh;
   /* padding-inline: 10px; */
   /* border: 1px solid black; */
@@ -269,8 +269,9 @@ const displayFoodTrivia = () => {
 }
 
 .banner {
-  background-color: #acbaa1;
-  height: 17vh;
+  /* background-color: #acbaa1; */
+  background-image: linear-gradient(180deg, #7aa395, #acbaa1);
+  height: 18vh;
   width: 100%;
   padding-inline: 1%;
   overflow: hidden;
@@ -279,15 +280,23 @@ const displayFoodTrivia = () => {
 
 .banner-title {
   font-size: 2.7rem;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-weight: bold;
+  color: rgb(255, 254, 245);
 }
 
 .banner-text {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  color: white;
+  font-family:Georgia, 'Times New Roman', Times, serif;
 }
 
 .custom-margins {
-  margin-top: 50px;
-  margin-inline: 10px;
+  margin-top: 30px;
+  margin-inline: 20px;
+  color: #517470;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  border-bottom: 3px solid #517470;
 }
 
 .inline-margin {
