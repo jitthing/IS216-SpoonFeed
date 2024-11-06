@@ -4,6 +4,7 @@ import axios from 'axios'
 import RecipePost from '../../components/RecipePost.vue'
 import { ref, onMounted, watch } from 'vue'
 import { useUser } from 'vue-clerk'
+import LoadingSpinner from '../../components/LoadingSpinner.vue'
 
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
@@ -87,7 +88,7 @@ const closeModal = () => {
             </button>
           </div>
         </div>
-        <h2 v-else>Loading...</h2>
+        <LoadingSpinner size="large" v-else />
       </div>
     </div>
     <RecipePost

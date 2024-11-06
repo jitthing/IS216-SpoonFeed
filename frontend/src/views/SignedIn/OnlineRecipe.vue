@@ -5,6 +5,7 @@ import Sidebar from '../../components/Sidebar.vue'
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useUser } from 'vue-clerk'
 import { OhVueIcon } from 'oh-vue-icons'
+import LoadingSpinner from '../../components/LoadingSpinner.vue'
 
 const { user } = useUser()
 
@@ -96,7 +97,6 @@ const setSearch = (title) => {
 const fetchDataByIngredient = async () => {
   isLoaded.value = false
   haveResults.value = false
-  console.log(ingredientSearch.value.join(','))
   axios
     .get('https://api.spoonacular.com/recipes/findByIngredients', {
       params: {
@@ -109,10 +109,12 @@ const fetchDataByIngredient = async () => {
     .then((response) => {
       recipes.value = response.data
       isLoaded.value = true
-      haveResults.value = true
+      haveResults.value = response.data.length > 0
     })
     .catch((error) => {
       console.error(error)
+      isLoaded.value = true
+      haveResults.value = false
     })
 }
 
@@ -131,10 +133,12 @@ const fetchData = async () => {
     .then((response) => {
       recipes.value = response.data.results
       isLoaded.value = true
-      haveResults.value = true
+      haveResults.value = response.data.results.length > 0
     })
     .catch((error) => {
       console.error(error)
+      isLoaded.value = true
+      haveResults.value = false
     })
 }
 
@@ -151,10 +155,12 @@ const randomData = async () => {
     .then((response) => {
       recipes.value = response.data.recipes
       isLoaded.value = true
-      haveResults.value = true
+      haveResults.value = response.data.recipes.length > 0
     })
     .catch((error) => {
       console.error(error)
+      isLoaded.value = true
+      haveResults.value = false
     })
 }
 
@@ -240,8 +246,15 @@ const fetchMore = () => {
             </button>
           </div>
         </div>
-        <h2 v-else-if="isLoaded">No results found.</h2>
-        <h2 v-else>Loading...</h2>
+        <div v-else-if="isLoaded && !haveResults" class="no-results">
+          <div class="no-results-content">
+            <oh-vue-icon name="bi-search" class="search-icon" />
+            <h2>No recipes found</h2>
+            <p>Try adjusting your search terms or filters</p>
+            <button class="btn" @click="randomData">Show Random Recipes</button>
+          </div>
+        </div>
+        <LoadingSpinner v-else size="large" />
       </div>
       <Sidebar
         :class="['sidebar-container', { 'sidebar-open': openRecipe }]"
@@ -437,5 +450,47 @@ button {
     width: calc(33.333% - 20px);
     margin: 10px;
   }
+}
+
+.no-results {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  width: 100%;
+}
+
+.no-results-content {
+  text-align: center;
+  color: #517470;
+}
+
+.no-results-content h2 {
+  margin: 20px 0 10px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.no-results-content p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.search-icon {
+  width: 48px;
+  height: 48px;
+  color: #acbaa1;
+}
+
+.no-results-content .btn {
+  background-color: #acbaa1;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  transition: background-color 0.3s ease;
+}
+
+.no-results-content .btn:hover {
+  background-color: #517470;
 }
 </style>

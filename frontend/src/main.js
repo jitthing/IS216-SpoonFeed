@@ -11,9 +11,9 @@ import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css' // Import the toast styles
 
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
-import { BiArrowRepeat } from 'oh-vue-icons/icons'
+import { BiArrowRepeat, BiSearch } from 'oh-vue-icons/icons'
 
-addIcons(BiArrowRepeat)
+addIcons(BiArrowRepeat, BiSearch)
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
