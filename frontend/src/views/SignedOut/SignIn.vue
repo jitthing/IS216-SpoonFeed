@@ -2,7 +2,23 @@
 import { SignIn } from 'vue-clerk'
 import { useClerk } from 'vue-clerk'
 
-const { loaded } = useClerk()
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const { loaded, session } = useClerk()
+const router = useRouter()
+onMounted(() => {
+  // Handle clerk handshake and potential redirects
+  const handleClerkLoaded = async () => {
+    if (session.value) {
+      // If user is already authenticated, redirect to home or dashboard
+      await router.push('/')
+    }
+  }
+  if (loaded.value) {
+    handleClerkLoaded()
+  }
+})
 </script>
 
 <template>
@@ -10,7 +26,12 @@ const { loaded } = useClerk()
     <div class="content-wrapper">
       <div class="signIn">
         <template v-if="loaded">
-          <SignIn routing="path" path="/sign-in" afterSignInUrl="/dashboard" signUpUrl="/sign-up" />
+          <SignIn
+            routing="path"
+            path="/sign-in"
+            forceRedirectUrl="/dashboard"
+            signUpUrl="/sign-up"
+          />
         </template>
         <div v-else>
           Loading...

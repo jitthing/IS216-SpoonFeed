@@ -45,6 +45,10 @@ const router = createRouter({
       path: '/sign-up/verify-email-address',
       name: 'sign-up/verify-email-address',
       component: SignUp
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
     }
   ]
 })
