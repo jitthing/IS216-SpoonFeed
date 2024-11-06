@@ -7,6 +7,11 @@ import { useUser } from 'vue-clerk'
 import { toast } from 'vue3-toastify'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import MealDetailsModal from '@/components/MealDetailsModal.vue'
+
+const openInformation = ref(false)
+
+const selectedMeal = ref(null)
 
 const { user } = useUser()
 const userId = user.value.id
@@ -17,34 +22,12 @@ const showMealHistory = ref(false)
 const mealHistory = ref([])
 
 const availableMeals = ref([])
-const selectedMeal = ref(null)
 
+// for the onclick of meal card or planned meal
 const setMeal = (meal) => {
   selectedMeal.value = meal
-}
-
-const fetchMealDetails = async (mealId, type) => {
-  if (type === 'community') {
-    axios
-      .get(`${BACKEND_URL}/get-recipe-by-id`, {
-        params: {
-          recipeId: mealId
-        }
-      })
-      .then((response) => {
-        selectedMeal.value = response.data.recipe
-      })
-  } else {
-    axios
-      .get(`https://api.spoonacular.com/recipes/${mealId}/information`, {
-        params: {
-          apiKey: API_KEY
-        }
-      })
-      .then((response) => {
-        selectedMeal.value = response.data
-      })
-  }
+  console.log(selectedMeal.value)
+  openInformation.value = true
 }
 
 const fetchMeals = async () => {
@@ -70,6 +53,7 @@ const fetchMeals = async () => {
               availableMeals.value.push({
                 name: response.data.recipe.name,
                 calories: response.data.recipe.macros.Calories,
+                instructions: response.data.recipe.instructions,
                 ingredients: response.data.recipe.ingredients,
                 id: meal.recipeId,
                 type: 'community',
@@ -101,6 +85,7 @@ const fetchMeals = async () => {
                 prepTime: meal.readyInMinutes + ' min',
                 calories: meal.nutrition.nutrients[0].amount,
                 ingredients: meal.extendedIngredients.map((ingredient) => ingredient.name),
+                instructions: meal.analyzedInstructions[0]?.steps.map((step) => step.step),
                 type: 'api'
               })
             }
@@ -279,7 +264,7 @@ watchEffect(() => {
                 <template #item="{ element }">
                   <div class="planned-meal-card">
                     <div class="meal-header">
-                      <h4>{{ element.name }}</h4>
+                      <h4 @click="setMeal(element)">{{ element.name }}</h4>
                       <button
                         class="remove-button"
                         @click="removeMeal(day, type, element.id)"
@@ -289,7 +274,7 @@ watchEffect(() => {
                       </button>
                     </div>
                     <div class="meal-details">
-                      <span>{{ element.calories }} cal</span>
+                      <span>{{ Number(element.calories).toFixed(2) }} cal</span>
                       <span>{{ element.prepTime }}</span>
                     </div>
                   </div>
@@ -314,13 +299,13 @@ watchEffect(() => {
         <template #item="{ element }">
           <div class="meal-card">
             <div class="meal-header">
-              <h5>{{ element.name }}</h5>
+              <h5 @click="setMeal(element)">{{ element.name }}</h5>
               <button class="remove-meal-button mx-2 mb-1" @click="removeMealPlanned(element.id)">
                 ×
               </button>
             </div>
 
-            <p>Calories: {{ element.calories }}</p>
+            <p>Calories: {{ Number(element.calories).toFixed(2) }}</p>
             <p>Prep Time: {{ element.prepTime }}</p>
           </div>
         </template>
@@ -346,9 +331,9 @@ watchEffect(() => {
       <div v-if="mealHistory.length > 0" class="meal-history-grid">
         <div v-for="meal in mealHistory" :key="meal.id" class="meal-history-card">
           <div class="meal-history-content">
-            <h3>{{ meal.name }}</h3>
+            <h3 @click="setMeal(meal)">{{ meal.name }}</h3>
             <div class="meal-history-details">
-              <span class="meal-calories">{{ meal.calories }} calories</span>
+              <span class="meal-calories">{{ Number(meal.calories).toFixed(2) }} calories</span>
             </div>
             <div class="meal-date">
               {{
@@ -370,6 +355,11 @@ watchEffect(() => {
       </div>
     </div>
   </div>
+  <MealDetailsModal
+    v-if="openInformation && selectedMeal"
+    :meal="selectedMeal"
+    @close-modal="openInformation = false"
+  />
 </template>
 
 <style scoped>
@@ -685,6 +675,33 @@ h1 {
   color: #666;
   padding: 40px;
   background: #f5f5f5;
+  border-radius: 8px;
+}
+.recipe-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 25%;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.recipe-post {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 800px;
   border-radius: 8px;
 }
 </style>

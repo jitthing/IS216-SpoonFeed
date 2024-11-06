@@ -1,12 +1,21 @@
 <script setup>
 import { SignIn } from 'vue-clerk'
+import { useClerk } from 'vue-clerk'
+
+const { loaded } = useClerk()
 </script>
 
 <template>
   <div class="outerbox">
     <div class="content-wrapper">
       <div class="signIn">
-        <SignIn afterSignInUrl="/dashboard" signUpUrl="/sign-up" />
+        <template v-if="loaded">
+          <SignIn routing="path" path="/sign-in" afterSignInUrl="/dashboard" signUpUrl="/sign-up" />
+        </template>
+        <div v-else>
+          Loading...
+          <!-- Or add a loading spinner component -->
+        </div>
       </div>
     </div>
   </div>
