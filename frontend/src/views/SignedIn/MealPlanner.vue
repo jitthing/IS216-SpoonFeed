@@ -617,6 +617,7 @@ h1 {
 
 .meal-history-container {
   padding: 20px 0;
+  background-color: rgb(255, 254, 245);
 }
 
 .meal-history-grid {
