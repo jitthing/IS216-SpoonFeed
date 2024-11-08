@@ -43,7 +43,7 @@ const scrollingFeatures = [...features, ...features]
         </p>
         <div class="cta-buttons">
           <RouterLink to="/sign-up" class="btn-primary">Get Started</RouterLink>
-          <RouterLink to="/about" class="btn-secondary">Welcome back</RouterLink>
+          <RouterLink to="/sign-in" class="btn-secondary">Welcome back</RouterLink>
         </div>
       </div>
     </section>

@@ -162,7 +162,7 @@ const closeModal = () => {
 }
 .results {
   overflow: auto;
-  height: 60%;
+  height: 90%;
   margin: 10px;
 }
 
