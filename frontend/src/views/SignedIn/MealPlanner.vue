@@ -288,13 +288,19 @@ watchEffect(() => {
 
     <!-- Available Meals Section -->
     <div class="available-meals">
-      <h2>Meals Planned</h2>
+      <div class="meals-header">
+        <h2>Meals Planned</h2>
+        <span class="info-icon" title="Drag meals from here to plan them in your weekly calendar"
+          >ⓘ</span
+        >
+      </div>
       <draggable
         :list="availableMeals"
         :clone="cloneMeal"
         :group="{ name: 'meals', pull: 'clone', put: false }"
         item-key="id"
         class="meals-list"
+        v-if="availableMeals.length > 0"
       >
         <template #item="{ element }">
           <div class="meal-card">
@@ -310,6 +316,7 @@ watchEffect(() => {
           </div>
         </template>
       </draggable>
+      <div v-else class="no-meals-message">No meals planned yet</div>
     </div>
   </div>
   <div class="meal-history" v-else>
@@ -704,5 +711,17 @@ h1 {
   width: 90%;
   max-width: 800px;
   border-radius: 8px;
+}
+
+.meals-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-icon {
+  color: #517470;
+  cursor: help;
+  font-size: 1.2rem;
 }
 </style>

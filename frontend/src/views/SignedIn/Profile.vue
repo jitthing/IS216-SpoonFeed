@@ -580,14 +580,12 @@ const findRecipes = async () => {
 </template>
 
 <style scoped>
-
 h1 {
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
   font-weight: bold;
   color: #517470;
   margin: 30px;
 }
-
 
 .profile-container {
   max-width: 100%;
@@ -854,5 +852,42 @@ hr {
 .recipe-badge.api {
   background-color: #2c4152;
   color: white;
+}
+
+/* Media queries for responsive sidebar */
+@media screen and (max-width: 1200px) {
+  .recipe-sidebar {
+    width: 35%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .recipe-sidebar {
+    width: 75%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .recipe-sidebar {
+    width: 100%;
+  }
+}
+
+/* Optional: Add a backdrop for mobile views */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar-backdrop {
+    display: block;
+  }
 }
 </style>

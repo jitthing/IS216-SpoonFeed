@@ -9,7 +9,11 @@ defineProps({
   }
 })
 
-defineEmits(['openCreateRecipe'])
+const emit = defineEmits(['openCreateRecipe', 'toggleMenu'])
+
+const handleNavClick = () => {
+  emit('toggleMenu')
+}
 </script>
 
 <template>
@@ -32,6 +36,7 @@ defineEmits(['openCreateRecipe'])
                 class="nav-link nav-item"
                 :class="{ active: $route.path === '/dashboard' }"
                 to="/dashboard"
+                @click="handleNavClick"
               >
                 Home
               </RouterLink>
@@ -41,6 +46,7 @@ defineEmits(['openCreateRecipe'])
                 class="nav-link nav-item"
                 :class="{ active: $route.path === '/online-recipes' }"
                 to="/online-recipes"
+                @click="handleNavClick"
               >
                 Official Recipes
               </RouterLink>
@@ -50,6 +56,7 @@ defineEmits(['openCreateRecipe'])
                 class="nav-link nav-item"
                 :class="{ active: $route.path === '/community-recipe' }"
                 to="/community-recipe"
+                @click="handleNavClick"
               >
                 Community Recipes
               </RouterLink>
@@ -59,6 +66,7 @@ defineEmits(['openCreateRecipe'])
                 class="nav-link nav-item"
                 :class="{ active: $route.path === '/meal-planner' }"
                 to="/meal-planner"
+                @click="handleNavClick"
               >
                 Meal Planner
               </RouterLink>
@@ -68,6 +76,7 @@ defineEmits(['openCreateRecipe'])
                 class="nav-link nav-item"
                 :class="{ active: $route.path === '/profile' }"
                 to="/profile"
+                @click="handleNavClick"
               >
                 Profile
               </RouterLink>
@@ -77,7 +86,9 @@ defineEmits(['openCreateRecipe'])
       </div>
       <div class="profile">
         <UserButton />
-        <router-link to="/profile" class="profile-link">My Profile</router-link>
+        <router-link to="/profile" class="profile-link" @click="handleNavClick"
+          >My Profile</router-link
+        >
       </div>
     </nav>
   </Transition>
