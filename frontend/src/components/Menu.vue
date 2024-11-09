@@ -11,8 +11,14 @@ defineProps({
 
 const emit = defineEmits(['openCreateRecipe', 'toggleMenu'])
 
+// Add new function to check window width
+const isMobile = () => window.innerWidth <= 767
+
 const handleNavClick = () => {
-  emit('toggleMenu')
+  // Only emit toggleMenu if on mobile
+  if (isMobile()) {
+    emit('toggleMenu')
+  }
 }
 </script>
 
