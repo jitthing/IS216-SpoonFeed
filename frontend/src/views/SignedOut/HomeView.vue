@@ -2,6 +2,13 @@
 import { useAuth } from 'vue-clerk'
 import { RouterLink } from 'vue-router'
 import { ref } from 'vue'
+
+// Image imports
+import avatar1 from '../../assets/avatar1.jpeg'
+import avatar2 from '../../assets/avatar2.jpeg'
+import avatar3 from '../../assets/avatar3.jpeg'
+import backgroundImg from '../../assets/background.png'
+
 const { isSignedIn } = useAuth()
 
 const features = [
@@ -37,7 +44,7 @@ const reviews = [
     id: 1,
     name: 'Ee Herng Tan',
     role: 'Home Cook / Gym Goer',
-    image: '/src/assets/avatar1.jpeg', // You'll add actual images later
+    image: avatar1,
     content:
       'Using Spoonfeed has made meal planning so much easier! I am able to track my macros and plan my meals for the week with so much ease!',
     rating: 5
@@ -46,7 +53,7 @@ const reviews = [
     id: 2,
     name: 'Mohd Anafiya',
     role: 'Social Media Food Enthusiast',
-    image: '/src/assets/avatar2.jpeg',
+    image: avatar2,
     content: 'Seeing the recipes by other cooks brings me so much joy! So inspiring!',
     rating: 5
   },
@@ -54,7 +61,7 @@ const reviews = [
     id: 3,
     name: 'Jang Jisun',
     role: 'Busy Parent',
-    image: '/src/assets/avatar3.jpeg',
+    image: avatar3,
     content:
       'Being a busy parent, I find it hard to plan meals for my family. Spoonfeed has given me so many new ideas and lets my family try out new recipes!',
     rating: 5
@@ -195,8 +202,7 @@ const goToReview = (index) => {
 /* Hero Section */
 .hero {
   min-height: 80vh;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-    url('/src/assets/background.png');
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${backgroundImg});
   background-size: cover;
   background-position: center;
   display: flex;
