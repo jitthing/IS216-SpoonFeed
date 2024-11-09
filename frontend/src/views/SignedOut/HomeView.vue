@@ -1,6 +1,6 @@
 <script setup>
 import { useAuth } from 'vue-clerk'
-import { RouterLink } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router'
 import { ref } from 'vue'
 
 // Image imports
@@ -191,6 +191,7 @@ const goToReview = (index) => {
       <RouterLink to="/sign-up" class="btn-primary">Get Spoon Fed Today</RouterLink>
     </section>
   </div>
+  <RouterView />
 </template>
 
 <style scoped>
