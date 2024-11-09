@@ -4,9 +4,23 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div>
+  <div class="layout">
     <Navbar />
-    <RouterView />
+    <main class="main-content">
+      <RouterView />
+    </main>
   </div>
 </template>
 
+<style scoped>
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  background-color: rgb(255, 254, 245);
+}
+</style>

@@ -1,7 +1,7 @@
 <script setup>
 import { useAuth } from 'vue-clerk'
 import { RouterLink } from 'vue-router'
-
+import { ref } from 'vue'
 const { isSignedIn } = useAuth()
 
 const features = [
@@ -30,6 +30,50 @@ const features = [
 
 // Double the features array for seamless scrolling
 const scrollingFeatures = [...features, ...features]
+
+// Add this with your other data
+const reviews = [
+  {
+    id: 1,
+    name: 'Ee Herng Tan',
+    role: 'Home Cook / Gym Goer',
+    image: '/src/assets/avatar1.jpeg', // You'll add actual images later
+    content:
+      'Using Spoonfeed has made meal planning so much easier! I am able to track my macros and plan my meals for the week with so much ease!',
+    rating: 5
+  },
+  {
+    id: 2,
+    name: 'Mohd Anafiya',
+    role: 'Social Media Food Enthusiast',
+    image: '/src/assets/avatar2.jpeg',
+    content: 'Seeing the recipes by other cooks brings me so much joy! So inspiring!',
+    rating: 5
+  },
+  {
+    id: 3,
+    name: 'Jang Jisun',
+    role: 'Busy Parent',
+    image: '/src/assets/avatar3.jpeg',
+    content:
+      'Being a busy parent, I find it hard to plan meals for my family. Spoonfeed has given me so many new ideas and lets my family try out new recipes!',
+    rating: 5
+  }
+]
+
+const currentReview = ref(0)
+
+const nextReview = () => {
+  currentReview.value = (currentReview.value + 1) % reviews.length
+}
+
+const prevReview = () => {
+  currentReview.value = (currentReview.value - 1 + reviews.length) % reviews.length
+}
+
+const goToReview = (index) => {
+  currentReview.value = index
+}
 </script>
 
 <template>
@@ -82,6 +126,54 @@ const scrollingFeatures = [...features, ...features]
           <h3>4.9/5</h3>
           <p>User Rating</p>
         </div>
+      </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="reviews">
+      <h2>What Our Users Say</h2>
+      <div class="reviews-carousel">
+        <button class="carousel-btn prev" @click="prevReview" aria-label="Previous review">
+          ‹
+        </button>
+
+        <div class="reviews-container">
+          <TransitionGroup name="slide">
+            <div
+              v-for="(review, index) in reviews"
+              :key="review.id"
+              v-show="index === currentReview"
+              class="review-card"
+            >
+              <div class="review-image">
+                <img :src="review.image" :alt="review.name" />
+              </div>
+              <div class="review-content">
+                <div class="stars">
+                  <span v-for="n in review.rating" :key="n" class="star">★</span>
+                </div>
+                <p class="review-text">{{ review.content }}</p>
+                <div class="reviewer-info">
+                  <h4>{{ review.name }}</h4>
+                  <p>{{ review.role }}</p>
+                </div>
+              </div>
+            </div>
+          </TransitionGroup>
+        </div>
+
+        <button class="carousel-btn next" @click="nextReview" aria-label="Next review">›</button>
+      </div>
+
+      <div class="review-dots">
+        <button
+          v-for="(_, index) in reviews"
+          :key="index"
+          class="dot"
+          :class="{ active: index === currentReview }"
+          @click="goToReview(index)"
+          :aria-label="`Go to review ${index + 1}`"
+        ></button>
       </div>
     </section>
 
@@ -280,5 +372,145 @@ const scrollingFeatures = [...features, ...features]
       transform: translateX(calc(-250px * 4 - 8rem));
     }
   }
+}
+
+/* Reviews Section */
+.reviews {
+  padding: 6rem 2rem;
+  background-color: white;
+  text-align: center;
+}
+
+.reviews h2 {
+  margin-bottom: 3rem;
+}
+
+.reviews-carousel {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reviews-container {
+  flex: 1;
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+  perspective: 1000px; /* Adds depth to the transition */
+}
+
+.review-card {
+  position: absolute;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  backface-visibility: hidden; /* Prevents flickering during transition */
+  transform-style: preserve-3d;
+}
+
+.review-image img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #acbaa1;
+}
+
+.review-content {
+  max-width: 600px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+.review-card:hover .review-content {
+  transform: translateY(-5px);
+}
+
+.stars {
+  color: #ffd700;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.review-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.reviewer-info h4 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.reviewer-info p {
+  color: #718096;
+}
+
+.carousel-btn {
+  background: none;
+  border: none;
+  font-size: 3rem;
+  color: #acbaa1;
+  cursor: pointer;
+  padding: 1rem;
+  transition: color 0.3s ease;
+}
+
+.carousel-btn:hover {
+  color: #8c9882;
+}
+
+.review-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background-color: #e2e8f0;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.3s ease;
+}
+
+.dot.active {
+  background-color: #acbaa1;
+}
+
+/* Update the transition styles */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  width: 100%;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.slide-enter-to,
+.slide-leave-from {
+  opacity: 1;
+  transform: translateX(0);
 }
 </style>
