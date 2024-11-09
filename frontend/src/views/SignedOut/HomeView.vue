@@ -202,7 +202,8 @@ const goToReview = (index) => {
 /* Hero Section */
 .hero {
   min-height: 80vh;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${backgroundImg});
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url('/src/assets/background.png');
   background-size: cover;
   background-position: center;
   display: flex;
