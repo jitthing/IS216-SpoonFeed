@@ -7,7 +7,6 @@ import { ref } from 'vue'
 import avatar1 from '../../assets/avatar1.jpeg'
 import avatar2 from '../../assets/avatar2.jpeg'
 import avatar3 from '../../assets/avatar3.jpeg'
-import backgroundImg from '../../assets/background.png'
 
 const { isSignedIn } = useAuth()
 

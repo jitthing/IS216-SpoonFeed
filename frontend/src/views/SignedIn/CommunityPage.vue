@@ -192,7 +192,7 @@ const sortRecipes = (criteria) => {
 .second {
   display: flex;
   margin-top: 10px;
-  height: 4vh;
+  height: 6vh;
   justify-content: end;
 }
 .recipecard {

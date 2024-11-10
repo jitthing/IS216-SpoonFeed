@@ -6,6 +6,7 @@ import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useUser } from 'vue-clerk'
 import { OhVueIcon } from 'oh-vue-icons'
 import LoadingSpinner from '../../components/LoadingSpinner.vue'
+import { GiTreasureMap } from 'oh-vue-icons/icons'
 
 const { user } = useUser()
 
@@ -25,6 +26,7 @@ const searchResultsLoaded = ref(false)
 const searchByFilter = ref(false)
 const userId = ref('')
 const savedRecipes = ref([])
+const sortCriteria = ref('none')
 
 onMounted(() => {
   randomData()
@@ -108,6 +110,9 @@ const fetchDataByIngredient = async () => {
     })
     .then((response) => {
       recipes.value = response.data
+      if (sortCriteria.value !== 'none') {
+        sortRecipes(sortCriteria.value)
+      }
       isLoaded.value = true
       haveResults.value = response.data.length > 0
     })
@@ -127,11 +132,16 @@ const fetchData = async () => {
       params: {
         query: search.value,
         number: 30,
-        apiKey: spoonacularApiKey
+        apiKey: spoonacularApiKey,
+        addRecipeNutrition: true
       }
     })
     .then((response) => {
       recipes.value = response.data.results
+      console.log(recipes.value)
+      if (sortCriteria.value !== 'none') {
+        sortRecipes(sortCriteria.value)
+      }
       isLoaded.value = true
       haveResults.value = response.data.results.length > 0
     })
@@ -154,6 +164,9 @@ const randomData = async () => {
     })
     .then((response) => {
       recipes.value = response.data.recipes
+      if (sortCriteria.value !== 'none') {
+        sortRecipes(sortCriteria.value)
+      }
       isLoaded.value = true
       haveResults.value = response.data.recipes.length > 0
     })
@@ -176,6 +189,40 @@ const closeSide = () => {
 
 const fetchMore = () => {
   currentNumberItems.value += 6
+}
+
+const sortRecipes = (criteria) => {
+  console.log('Before sort - recipes.value:', recipes.value)
+  console.log('Sort criteria:', criteria)
+
+  switch (criteria) {
+    case 'calories-asc':
+      recipes.value.sort((a, b) => {
+        return a.healthScore - b.healthScore
+      })
+      break
+    case 'calories-desc':
+      recipes.value.sort((a, b) => {
+        return b.healthScore - a.healthScore
+      })
+      break
+    case 'ingredients-asc':
+      recipes.value.sort((a, b) => {
+        return (a.extendedIngredients?.length || 0) - (b.extendedIngredients?.length || 0)
+      })
+      break
+    case 'ingredients-desc':
+      recipes.value.sort((a, b) => {
+        return (b.extendedIngredients?.length || 0) - (a.extendedIngredients?.length || 0)
+      })
+      break
+    default:
+      console.log('Default case - resetting')
+      randomData()
+      return
+  }
+
+  sortCriteria.value = criteria
 }
 </script>
 
@@ -227,8 +274,14 @@ const fetchMore = () => {
     </div>
     <div class="container-fluid row bottom">
       <div :class="[dynamicColumnClass, { 'sidebar-open': openRecipe }]" class="try">
-        <div class="second justify-content-end" :class="dynamicLoading">
-          <button type="button" class="btn">Sort</button>
+        <div class="second justify-content-end">
+          <select class="btn" v-model="sortCriteria" @change="sortRecipes(sortCriteria)">
+            <option value="none">Sort by...</option>
+            <option value="calories-asc">Health Score (Low to High)</option>
+            <option value="calories-desc">Health Score (High to Low)</option>
+            <option value="ingredients-asc">Ingredients (Least to Most)</option>
+            <option value="ingredients-desc">Ingredients (Most to Least)</option>
+          </select>
         </div>
         <div class="container-fluid row results" v-if="isLoaded && haveResults">
           <RecipeCard
@@ -351,7 +404,7 @@ const fetchMore = () => {
 .second {
   display: flex;
   margin-top: 10px;
-  height: 4vh;
+  height: 6vh;
   justify-content: end;
 }
 .recipecard {
@@ -491,5 +544,15 @@ button {
 
 .no-results-content .btn:hover {
   background-color: #517470;
+}
+
+select.btn {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+select.btn option {
+  background-color: white;
+  color: black;
 }
 </style>
