@@ -131,40 +131,8 @@ const displayFoodTrivia = () => {
 
 <template>
   <div class="homepage">
-    <!-- ideas for the main page: show what the user has saved and maybe somehow recommend some online recipes for them based on an algo or something idk -->
-    <!-- but might be better to just focus on the frontend itself -->
-    <!-- <div class="top">
-      <input
-        type="text"
-        class="searchbar"
-        v-model="search"
-        placeholder="Search for recipes here"
-        size="50"
-        height="20"
-      />
-    </div> -->
     <div class="homepage-container">
       <div :class="dynamicColumnClass" class="main-content">
-        <!-- <div class="second justify-content-end" :class="dynamicLoading">
-          <button type="button" class="btn mx-2">Filter</button>
-          <button type="button" class="btn">Sort</button>
-        </div> -->
-        <!-- <div class="container-fluid row results" v-if="isLoaded">
-          <RecipeCard
-            class="recipecard col-xl-3 col-lg-4 col-md-10 col-sm-10"
-            v-for="recipe in displayedItems"
-            :key="recipe.id"
-            :title="recipe.title"
-            :image="recipe.image"
-            @open-recipe="setRecipe(recipe)"
-          />
-          <div>
-            <button type="button" class="btn load" @click="fetchMore" v-if="canLoadMore">
-              Load More
-            </button>
-          </div>
-        </div>
-        <h2 v-else>Loading...</h2> -->
         <div class="banner">
           <!-- Need to replace <user> with username -->
           <span class="banner-title">Welcome back {{ userName }}</span> <br />
@@ -185,7 +153,9 @@ const displayFoodTrivia = () => {
             />
           </div>
         </div>
-        <h4 class="mt-2 inline-margin" v-else><i>No saved recipes... Please start using our app.</i></h4>
+        <h4 class="mt-2 inline-margin" v-else>
+          <i>No saved recipes... Please start using our app.</i>
+        </h4>
         <div class="h2 custom-margins">Recommended for you</div>
         <div class="scroll-container" v-if="similarRecipes.length > 0">
           <div class="scroll-menu inline-margin">
@@ -200,7 +170,9 @@ const displayFoodTrivia = () => {
             />
           </div>
         </div>
-        <h4 class="mt-2 inline-margin" v-else><i>No recommended recipes... Because you never save any!</i></h4>
+        <h4 class="mt-2 inline-margin" v-else>
+          <i>No recommended recipes... Because you never save any!</i>
+        </h4>
         <div class="h2 custom-margins">Trending Community Recipes</div>
         <div class="scroll-container" v-if="trendingRecipes">
           <div class="scroll-menu inline-margin">
@@ -280,7 +252,7 @@ const displayFoodTrivia = () => {
 
 .banner-title {
   font-size: 2.7rem;
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
   font-weight: bold;
   color: rgb(255, 254, 245);
 }
@@ -288,14 +260,14 @@ const displayFoodTrivia = () => {
 .banner-text {
   font-size: 1.2rem;
   color: white;
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .custom-margins {
   margin-top: 30px;
   margin-inline: 20px;
   color: #517470;
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
   border-bottom: 3px solid #517470;
 }
 

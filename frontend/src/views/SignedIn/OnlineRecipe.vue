@@ -228,7 +228,6 @@ const fetchMore = () => {
     <div class="container-fluid row bottom">
       <div :class="[dynamicColumnClass, { 'sidebar-open': openRecipe }]" class="try">
         <div class="second justify-content-end" :class="dynamicLoading">
-          <button type="button" class="btn mx-2">Filter</button>
           <button type="button" class="btn">Sort</button>
         </div>
         <div class="container-fluid row results" v-if="isLoaded && haveResults">
@@ -370,7 +369,7 @@ const fetchMore = () => {
   margin-top: 10px;
 }
 .load {
-  width: 10%;
+  /* width: 10%; */
   display: block;
   margin: 0 auto;
 }

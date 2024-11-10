@@ -126,7 +126,7 @@ const chartOptions = {
     },
     title: {
       display: true,
-      text: 'Macro History',
+      text: 'Macro Overview',
       font: {
         size: 16 // Larger legend text
       }

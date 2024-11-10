@@ -21,20 +21,27 @@ const currentNumberItems = ref(15)
 const isLoaded = ref(false)
 const canLoadMore = ref(false)
 const filteredRecipes = ref([])
+const sortCriteria = ref('none')
 
 onMounted(() => {
   fetchData()
 })
 
 watch(openRecipe, () => {
-  fetchData()
+  if (!openRecipe.value) {
+    fetchData()
+  }
 })
 
 const fetchData = async () => {
   try {
     axios.get(BACKEND_URL + '/get-recipes').then((response) => {
       recipes.value = response.data.recipes
-      filteredRecipes.value = recipes.value
+      if (sortCriteria.value !== 'none') {
+        sortRecipes(sortCriteria.value)
+      } else {
+        filteredRecipes.value = recipes.value
+      }
       isLoaded.value = true
     })
   } catch {
@@ -50,7 +57,7 @@ const searchRecipe = () => {
 
   try {
     const searchRegex = new RegExp(search.value, 'i')
-    filteredRecipes.value = recipes.value.filter(
+    filteredRecipes.value = Object.values(recipes.value || {}).filter(
       (recipe) => searchRegex.test(recipe.name) || searchRegex.test(recipe.description || '')
     )
   } catch (error) {
@@ -65,6 +72,25 @@ const setRecipe = (recipe) => {
 const closeModal = () => {
   openRecipe.value = false
 }
+
+const sortRecipes = (criteria) => {
+  switch (criteria) {
+    case 'ingredients':
+      filteredRecipes.value = Object.values(filteredRecipes.value).sort(
+        (a, b) => (a.ingredients?.length || 0) - (b.ingredients?.length || 0)
+      )
+      break
+    case 'ingredients-desc':
+      filteredRecipes.value = Object.values(filteredRecipes.value).sort(
+        (a, b) => (b.ingredients?.length || 0) - (a.ingredients?.length || 0)
+      )
+      break
+    default:
+      // Reset to original order
+      filteredRecipes.value = [...Object.values(recipes.value)]
+  }
+  sortCriteria.value = criteria
+}
 </script>
 
 <template>
@@ -78,15 +104,18 @@ const closeModal = () => {
           placeholder="Search for recipes here"
           size="50"
           height="20"
-          @keydown.enter="searchRecipe"
+          @keydown="searchRecipe"
         />
       </div>
     </div>
     <div class="container-fluid row bottom">
       <div class="try">
         <div class="second justify-content-end">
-          <button type="button" class="btn mx-2">Filter</button>
-          <button type="button" class="btn">Sort</button>
+          <select class="btn" v-model="sortCriteria" @change="sortRecipes(sortCriteria)">
+            <option value="none">Sort by (Default)</option>
+            <option value="ingredients">Ingredients (Least to Most)</option>
+            <option value="ingredients-desc">Ingredients (Most to Least)</option>
+          </select>
         </div>
         <div class="container-fluid row results" v-if="isLoaded">
           <RecipeCard
@@ -189,5 +218,15 @@ const closeModal = () => {
 button {
   background-color: #acbaa1;
   color: white;
+}
+
+select.btn {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+select.btn option {
+  background-color: white;
+  color: black;
 }
 </style>
