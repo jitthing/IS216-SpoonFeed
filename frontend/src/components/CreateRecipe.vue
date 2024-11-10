@@ -220,7 +220,13 @@ const cancelEditInstruction = () => {
         </div>
         <div class="mb-3">
           <label for="recipeImage" class="form-label">Recipe Image</label>
-          <input type="file" class="form-control" id="recipeImage" @change="onFileChange" />
+          <input
+            type="file"
+            class="form-control"
+            id="recipeImage"
+            @change="onFileChange"
+            accept="image/*"
+          />
         </div>
         <div class="mb-3">
           <label for="recipeIngredients" class="form-label">Recipe Ingredients</label>
