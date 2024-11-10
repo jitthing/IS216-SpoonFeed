@@ -293,25 +293,33 @@ function getDateOfWeekdayFromTimestamp(plannedTimestamp, targetDay) {
 }
 
 async function getMealHistory(req, res) {
-  const { userId, date } = req.body;
+  const { userId, dateRange } = req.body;
   const userRef = firebase.db.ref(`users/${userId}`);
   const snapshot = await userRef.once("value");
   const userData = snapshot.val();
-  if (!date) {
+
+  if (!dateRange) {
     return res.status(200).json({
-      message: "Meal history fetched",
+      message: "All meal history fetched",
       mealHistory: userData.MealLog ?? [],
     });
-  } else {
-    const filteredDate = date.split("T")[0];
-    const filteredMealHistory = userData.MealLog.filter(
-      (meal) => meal.dateLogged === filteredDate
-    );
-    return res.status(200).json({
-      message: "Meal history fetched",
-      mealHistory: filteredMealHistory,
-    });
   }
+
+  const startDate = new Date(dateRange.start);
+  startDate.setHours(0, 0, 0, 0); // Set to start of day
+
+  const endDate = new Date(dateRange.end);
+  endDate.setHours(23, 59, 59, 999); // Set to end of day
+
+  const filteredMealHistory = (userData.MealLog ?? []).filter((meal) => {
+    const mealDate = new Date(meal.dateLogged);
+    return mealDate >= startDate && mealDate <= endDate;
+  });
+
+  return res.status(200).json({
+    message: "Filtered meal history fetched",
+    mealHistory: filteredMealHistory,
+  });
 }
 
 module.exports = {

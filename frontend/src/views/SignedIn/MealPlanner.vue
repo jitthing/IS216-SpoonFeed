@@ -8,6 +8,7 @@ import { toast } from 'vue3-toastify'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import MealDetailsModal from '@/components/MealDetailsModal.vue'
+import MacroChart from '@/components/MacroChart.vue'
 
 const openInformation = ref(false)
 
@@ -53,6 +54,7 @@ const fetchMeals = async () => {
               availableMeals.value.push({
                 name: response.data.recipe.name,
                 calories: response.data.recipe.macros.Calories,
+                protein: response.data.recipe.macros.Protein,
                 instructions: response.data.recipe.instructions,
                 ingredients: response.data.recipe.ingredients,
                 id: meal.recipeId,
@@ -84,6 +86,7 @@ const fetchMeals = async () => {
                 name: meal.title,
                 prepTime: meal.readyInMinutes + ' min',
                 calories: meal.nutrition.nutrients[0].amount,
+                protein: meal.nutrition.nutrients[1].amount,
                 ingredients: meal.extendedIngredients.map((ingredient) => ingredient.name),
                 instructions: meal.analyzedInstructions[0]?.steps.map((step) => step.step),
                 type: 'api'
@@ -198,27 +201,25 @@ const removeMealPlanned = async (mealId) => {
     })
 }
 
-const selectedDate = ref(null)
+const dateRange = ref(null)
 
 const fetchMealHistory = async () => {
   axios
     .post(`${BACKEND_URL}/get-meal-history`, {
       userId: userId,
-      date: selectedDate.value
+      dateRange: dateRange.value
+        ? {
+            start: dateRange.value[0],
+            end: dateRange.value[1]
+          }
+        : null
     })
     .then((response) => {
-      // Sort meals by date, newest first
       mealHistory.value = response.data.mealHistory.sort(
         (a, b) => new Date(b.dateLogged) - new Date(a.dateLogged)
       )
     })
 }
-
-watch(selectedDate, () => {
-  if (showMealHistory.value) {
-    fetchMealHistory()
-  }
-})
 
 const toggleMode = () => {
   showMealHistory.value = !showMealHistory.value
@@ -312,6 +313,7 @@ watchEffect(() => {
             </div>
 
             <p>Calories: {{ Number(element.calories).toFixed(2) }}</p>
+            <p>Protein: {{ Number(element.protein).toFixed(2) }}</p>
             <p>Prep Time: {{ element.prepTime }}</p>
           </div>
         </template>
@@ -327,10 +329,12 @@ watchEffect(() => {
 
     <div class="date-picker-container">
       <VueDatePicker
-        v-model="selectedDate"
+        v-model="dateRange"
+        range
         :enable-time-picker="false"
-        placeholder="Select date to filter meals"
+        placeholder="Select date range to filter meals"
         :clearable="true"
+        @update:model-value="fetchMealHistory"
       />
     </div>
 
@@ -348,9 +352,7 @@ watchEffect(() => {
                   weekday: 'short',
                   year: 'numeric',
                   month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
+                  day: 'numeric'
                 })
               }}
             </div>
@@ -358,8 +360,9 @@ watchEffect(() => {
         </div>
       </div>
       <div v-else class="no-meals-message">
-        <p>No meals logged{{ selectedDate ? ' for selected date' : '' }}</p>
+        <p>No meals logged{{ dateRange ? ' for selected date range' : '' }}</p>
       </div>
+      <MacroChart v-if="mealHistory.length > 0" :meal-history="mealHistory" />
     </div>
   </div>
   <MealDetailsModal

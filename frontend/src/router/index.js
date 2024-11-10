@@ -8,6 +8,7 @@ import CommunityPage from '../views/SignedIn/CommunityPage.vue'
 import Profile from '@/views/SignedIn/Profile.vue'
 import MealPlanner from '../views/SignedIn/MealPlanner.vue'
 import SSOCallback from '../views/SignedOut/SSOCallback.vue'
+import AuthModal from '../components/AuthModal.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,17 +16,21 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
-    },
-    {
-      path: '/sign-in',
-      name: 'signin',
-      component: SignIn
-    },
-    {
-      path: '/sign-up',
-      name: 'signup',
-      component: SignUp
+      component: HomeView,
+      children: [
+        {
+          path: 'sign-in',
+          name: 'signin',
+          component: AuthModal,
+          props: { mode: 'signin' }
+        },
+        {
+          path: 'sign-up',
+          name: 'signup',
+          component: AuthModal,
+          props: { mode: 'signup' }
+        }
+      ]
     },
     {
       path: '/dashboard',

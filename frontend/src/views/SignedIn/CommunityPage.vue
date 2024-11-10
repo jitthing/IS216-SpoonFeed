@@ -20,6 +20,7 @@ const openRecipe = ref(false)
 const currentNumberItems = ref(15)
 const isLoaded = ref(false)
 const canLoadMore = ref(false)
+const filteredRecipes = ref([])
 
 onMounted(() => {
   fetchData()
@@ -33,6 +34,7 @@ const fetchData = async () => {
   try {
     axios.get(BACKEND_URL + '/get-recipes').then((response) => {
       recipes.value = response.data.recipes
+      filteredRecipes.value = recipes.value
       isLoaded.value = true
     })
   } catch {
@@ -40,8 +42,21 @@ const fetchData = async () => {
   }
 }
 
-const searchRecipe = async () => {
-  this.isLoaded = false
+const searchRecipe = () => {
+  if (!search.value.trim()) {
+    filteredRecipes.value = recipes.value
+    return
+  }
+
+  try {
+    const searchRegex = new RegExp(search.value, 'i')
+    filteredRecipes.value = recipes.value.filter(
+      (recipe) => searchRegex.test(recipe.name) || searchRegex.test(recipe.description || '')
+    )
+  } catch (error) {
+    console.log('Invalid search pattern:', error)
+    filteredRecipes.value = recipes.value
+  }
 }
 const setRecipe = (recipe) => {
   selectedRecipe.value = recipe
@@ -63,7 +78,7 @@ const closeModal = () => {
           placeholder="Search for recipes here"
           size="50"
           height="20"
-          @keydown.enter="fetchData"
+          @keydown.enter="searchRecipe"
         />
       </div>
     </div>
@@ -75,7 +90,7 @@ const closeModal = () => {
         </div>
         <div class="container-fluid row results" v-if="isLoaded">
           <RecipeCard
-            v-for="recipe in recipes"
+            v-for="recipe in filteredRecipes"
             class="recipecard col-3"
             :key="recipe"
             :title="recipe.name"
