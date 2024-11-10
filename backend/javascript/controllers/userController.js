@@ -1,5 +1,13 @@
 const firebase = require("../firebase.js");
 
+async function getUserCount(req, res) {
+  const db = firebase.db;
+  const usersRef = db.ref("users");
+  const snapshot = await usersRef.once("value");
+  const userCount = snapshot.numChildren();
+  return res.status(200).json({ userCount });
+}
+
 async function checkUser(req, res) {
   const { userId, firstName } = req.body;
   // console.log(userId);
@@ -323,6 +331,7 @@ async function getMealHistory(req, res) {
 }
 
 module.exports = {
+  getUserCount,
   checkUser,
   updateCommunitySaved,
   updateApiSaved,

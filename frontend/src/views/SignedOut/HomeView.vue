@@ -1,7 +1,9 @@
 <script setup>
 import { useAuth } from 'vue-clerk'
 import { RouterLink, RouterView } from 'vue-router'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 // Image imports
 import avatar1 from '../../assets/avatar1.jpeg'
@@ -34,6 +36,14 @@ const features = [
   }
 ]
 
+const userCount = ref(0)
+
+onMounted(async () => {
+  const response = await fetch(`${BACKEND_URL}/get-user-count`)
+  const data = await response.json()
+  userCount.value = data.userCount
+})
+
 // Double the features array for seamless scrolling
 const scrollingFeatures = [...features, ...features]
 
@@ -41,7 +51,7 @@ const scrollingFeatures = [...features, ...features]
 const reviews = [
   {
     id: 1,
-    name: 'Ee Herng Tan',
+    name: 'Nicholas Tan',
     role: 'Home Cook / Gym Goer',
     image: avatar1,
     content:
@@ -121,7 +131,7 @@ const goToReview = (index) => {
       <h2>Trusted by home cooks everywhere</h2>
       <div class="stats">
         <div class="stat-item">
-          <h3>10k+</h3>
+          <h3>{{ userCount }}</h3>
           <p>Active Users</p>
         </div>
         <div class="stat-item">

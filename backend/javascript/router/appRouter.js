@@ -15,6 +15,7 @@ const {
   deleteMealsPlanned,
   updateMealLog,
   getMealHistory,
+  getUserCount,
 } = require("../controllers/userController");
 const {
   uploadRecipe,
@@ -31,6 +32,7 @@ const {
 router = express.Router();
 
 // User routes
+router.get("/get-user-count", getUserCount);
 router.post("/check-user", checkUser);
 router.post("/update-saved-community", updateCommunitySaved);
 router.post("/update-saved-api", updateApiSaved);
