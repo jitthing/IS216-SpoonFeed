@@ -313,7 +313,6 @@ watchEffect(() => {
             </div>
 
             <p>Calories: {{ Number(element.calories).toFixed(2) }}</p>
-            <p>Protein: {{ Number(element.protein).toFixed(2) }}</p>
             <p>Prep Time: {{ element.prepTime }}</p>
           </div>
         </template>
