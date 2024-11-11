@@ -40,25 +40,22 @@ watch(session, (newSession) => {
   <div class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
       <button class="close-button" @click="closeModal">&times;</button>
-      <template v-if="loaded">
-        <SignIn
-          v-if="props.mode === 'signin'"
-          routing="path"
-          path="/sign-in"
-          forceRedirectUrl="/dashboard"
-          signUpUrl="/sign-up"
-        />
-        <SignUp
-          v-else
-          routing="path"
-          path="/sign-up"
-          afterSignUpUrl="/"
-          signInUrl="/sign-in"
-          redirectUrl="/sso-callback"
-          oauthCallback="/sso-callback"
-        />
-      </template>
-      <div v-else>Loading...</div>
+      <SignIn
+        v-if="props.mode === 'signin'"
+        routing="path"
+        path="/sign-in"
+        forceRedirectUrl="/dashboard"
+        signUpUrl="/sign-up"
+      />
+      <SignUp
+        v-else
+        routing="path"
+        path="/sign-up"
+        afterSignUpUrl="/"
+        signInUrl="/sign-in"
+        redirectUrl="/sso-callback"
+        oauthCallback="/sso-callback"
+      />
     </div>
   </div>
 </template>

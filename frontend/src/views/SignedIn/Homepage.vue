@@ -25,6 +25,9 @@ const foodTrivia = ref('')
 onMounted(() => {
   fetchHottestRecipes()
   displayFoodTrivia()
+  if (user.value) {
+    fetchUser()
+  }
 })
 
 const fetchHottestRecipes = async () => {

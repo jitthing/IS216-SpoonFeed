@@ -19,7 +19,7 @@ const router = createRouter({
       component: HomeView,
       children: [
         {
-          path: 'sign-in',
+          path: 'sign-in/:step?',
           name: 'signin',
           component: AuthModal,
           props: { mode: 'signin' }
